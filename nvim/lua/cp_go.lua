@@ -1,57 +1,3 @@
--- these are the algorithms and the data structures
--- that usually will be needed when you are solving a problem
-
---Data Structures:
---[] Disjoint Set Union (Union-Find)
---[] Binary Trees and Binary Search Trees (BST)
---[] Segment Trees
---[] Fenwick Trees (Binary Indexed Trees)
-
---String Algorithms:
---[] String Matching (e.g., KMP algorithm)
---[] Trie Data Structure >>>>> nary tree
---[] Suffix Arrays and Suffix Trees >>>>> I know nothing about this
-
---Number Theory:
--- [] Sieve of Eratosthenes (Prime Numbers)
--- [] Greatest Common Divisor (GCD)
---Least Common Multiple (LCM)
---Modular Arithmetic and Exponentiation
---Prime Factorization
---Fermat's Little Theorem
---Chinese Remainder Theorem
-
---Geometry:
---Basic Geometric Operations (e.g., Point, Line, Circle)
---Convex Hull (e.g., Graham's Scan or Jarvis March)
---Line Intersection
-
---Combinatorics:
---Permutations and Combinations
---Binomial Coefficients
---Inclusion-Exclusion Principle
-
---Advanced Data Structures:
---AVL Trees
---B-Trees
---Treap
---Trie (Prefix Tree)
---Bit Manipulation:
---Bitwise Operations
---Counting Set Bits
---Finding the Next/Previous Power of 2
---XOR Properties
-
---Game Theory:
---Nim Game
---Grundy Numbers
-
---Network Flow:
---Max Flow (Ford-Fulkerson Algorithm)
---Min Cut
---Bipartite Matching
-
-
 -- sort algos
 vim.api.nvim_set_keymap('n', '<leader>qs', [[:lua InsertQuickSortSnippet()<CR>]], { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>ms', [[:lua InsertMergeSortSnippet()<CR>]], { noremap = true, silent = true })
@@ -167,10 +113,10 @@ func mergeSort(arr []int) []int {
 
 	m := len(arr) / 2
 
-	l := merge(arr[:m])
-	r := merge(arr[m:])
+	l := mergeSort(arr[:m])
+	r := mergeSort(arr[m:])
 
-	return merge2(l, r)
+	return merge(l, r)
 }
 
 func merge(l, r []int) []int {

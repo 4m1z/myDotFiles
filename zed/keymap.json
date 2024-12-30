@@ -1,0 +1,46 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {}
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      // "j k": ["workspace::SendKeystrokes", "escape"]
+    }
+  },
+  {
+    "context": "Editor && VimControl && !VimWaiting && !menu",
+    "bindings": {
+      "shift-k": "editor::Hover",
+      "; f": "file_finder::Toggle",
+      "space b": "editor::ToggleGitBlame",
+      "space u": "workspace::ToggleLeftDock",
+      "space r": "editor::FindAllReferences",
+      "space a": "editor::ToggleCodeActions",
+      "space v": "editor::Rename",
+      "space x": "editor::Format",
+      "space d": "diagnostics::Deploy",
+      "space e": "editor::GoToDiagnostic",
+      "space o": "tab_switcher::Toggle",
+      "space /": "workspace::NewSearch",
+      "space t": "workspace::NewCenterTerminal",
+      "g b": "editor::ToggleComments",
+      "+ +": "workspace::Save",
+      "space c": "pane::CloseActiveItem",
+      "space q": "pane::CloseActiveItem",
+      "space Q": "pane::CloseInactiveItems",
+      "space h": ["workspace::ActivatePaneInDirection", "Left"],
+      "space l": ["workspace::ActivatePaneInDirection", "Right"],
+      "space k": ["workspace::ActivatePaneInDirection", "Up"],
+      "space j": ["workspace::ActivatePaneInDirection", "Down"]
+    }
+  }
+]

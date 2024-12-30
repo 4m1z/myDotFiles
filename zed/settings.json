@@ -1,0 +1,39 @@
+{
+  "theme": "Tokyo Night",
+  "assistant": {
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "gpt-4o"
+    },
+    "version": "2"
+  },
+  "telemetry": {
+    "metrics": false
+  },
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 16,
+  // "buffer_font_family": "Fira Mono",
+  "buffer_font_family": "Source Code Pro",
+  "relative_line_numbers": true,
+  "scrollbar": {
+    "show": "never"
+  },
+  "cursor_blink": false,
+  "buffer_line_height": {
+    "custom": 1.6
+  },
+  "tab_bar": {
+    "show": false
+  },
+  "cursor_shape": "underline",
+  "git": {
+    "inline_blame": {
+      "enabled": false
+    }
+  },
+  "show_wrap_guides": false,
+  "indent_guides": {
+    "enabled": false
+  }
+}

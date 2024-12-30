@@ -141,6 +141,10 @@ packer.startup(function(use)
     use({ 'rose-pine/neovim', as = 'rose-pine' })
     use 'craftzdog/solarized-osaka.nvim'
     use { "folke/tokyonight.nvim" }
+    use 'fxn/vim-monochrome'
+
+
+
 
 
 
@@ -152,4 +156,11 @@ packer.startup(function(use)
 
     -- md file preview
     use "henriklovhaug/Preview.nvim"
+
+    use 'sbdchd/neoformat'
+
+    use "hedyhli/outline.nvim"
+
+    -- trouble  
+    use { "folke/trouble.nvim", requires = "nvim-tree/nvim-web-devicons" }
 end)
