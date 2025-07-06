@@ -21,6 +21,8 @@ packer.startup(function(use)
         requires = { { 'nvim-lua/plenary.nvim' } }
     }
 
+    use "xiantang/darcula-dark.nvim"
+
 
     -- lsp configs
     use {
@@ -163,4 +165,18 @@ packer.startup(function(use)
 
     -- trouble  
     use { "folke/trouble.nvim", requires = "nvim-tree/nvim-web-devicons" }
+
+
+    -- Deps
+    use 'stevearc/dressing.nvim'
+    use 'MunifTanjim/nui.nvim'
+
+    use 'yetone/avante.nvim' 
+
+
+    use 'idr4n/github-monochrome.nvim'
+
+    -- autocmd! User avante.nvim lua << EOF
+    --require('avante_lib').load()
+    --require('avante').setup()
 end)
