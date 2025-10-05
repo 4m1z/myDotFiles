@@ -6,6 +6,8 @@ export ZSH=$HOME/.oh-my-zsh
 
 export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$PATH"
+export PATH=$PATH:/usr/local/go/bin
+
 
  #Set name of the theme to load --- if set to "random", it will
  export NVM_DIR=~/nvim-linux64/bin/nvim
@@ -126,3 +128,25 @@ export NVM_DIR="$HOME/.nvm"
 
 alias vi="nvim"
 alias vim="nvim"
+export PATH=$HOME/.local/bin:$PATH
+
+
+nvm alias default v20.18.0
+
+
+export CC=clang
+export CC=clang-14
+
+
+export TerraformPath=$HOME/work/terraform;
+
+
+
+
+
+
+
+
+export CPLUS_INCLUDE_PATH=/usr/include/c++/11:/usr/include/x86_64-linux-gnu/c++/11
+
+
