@@ -14,6 +14,9 @@ packer.startup(function(use)
     use 'nvim-lua/plenary.nvim'
 
     -- telescope
+    use 'vim-scripts/zenesque.vim'
+    use 'jaredgorski/Mies.vim'
+    use 'jaredgorski/fogbell.vim'
 
     use {
         'nvim-telescope/telescope.nvim', tag = '0.1.4',
@@ -21,7 +24,6 @@ packer.startup(function(use)
         requires = { { 'nvim-lua/plenary.nvim' } }
     }
 
-    use "xiantang/darcula-dark.nvim"
 
 
     -- lsp configs
@@ -47,7 +49,6 @@ packer.startup(function(use)
             { 'rafamadriz/friendly-snippets' },
         }
     }
-
     --
     use 'eandrju/cellular-automaton.nvim'
 
@@ -83,7 +84,7 @@ packer.startup(function(use)
     use 'mbbill/undotree'
 
     -- format code
-    use('jose-elias-alvarez/null-ls.nvim')
+    use "nvimtools/none-ls.nvim"
     use('MunifTanjim/prettier.nvim')
 
     -- devicons
@@ -102,6 +103,7 @@ packer.startup(function(use)
 
     --copilot.vim
     use 'github/copilot.vim'
+    use 'projekt0n/github-nvim-theme'
 
     -- rustlang
     use 'simrat39/rust-tools.nvim'
@@ -135,15 +137,13 @@ packer.startup(function(use)
     }
 
     -- themes
-    use {
-        'svrana/neosolarized.nvim',
-        requires = { 'tjdevries/colorbuddy.nvim' }
-    }
     use { 'luisiacc/gruvbox-baby' }
     use({ 'rose-pine/neovim', as = 'rose-pine' })
-    use 'craftzdog/solarized-osaka.nvim'
     use { "folke/tokyonight.nvim" }
     use 'fxn/vim-monochrome'
+    use {
+        'craftzdog/solarized-osaka.nvim'
+    }
 
 
 
@@ -151,10 +151,8 @@ packer.startup(function(use)
 
 
     use('justinmk/vim-sneak')
-    use("folke/zen-mode.nvim")
     -- use("eandrju/cellular-automaton.nvim")
     -- use("laytan/cloak.nvim")
-    -- use 'jose-elias-alvarez/null-ls.nvim'
 
     -- md file preview
     use "henriklovhaug/Preview.nvim"
@@ -169,14 +167,31 @@ packer.startup(function(use)
 
     -- Deps
     use 'stevearc/dressing.nvim'
+
+
+
+
+    -- Required plugins
     use 'MunifTanjim/nui.nvim'
+    use 'MeanderingProgrammer/render-markdown.nvim'
 
-    use 'yetone/avante.nvim' 
+    -- Optional dependencies
+    use 'nvim-tree/nvim-web-devicons' 
+    use 'HakonHarnes/img-clip.nvim'
+    use 'zbirenbaum/copilot.lua'
+    use 'stevearc/dressing.nvim' 
+    -- open code
+    use 'folke/snacks.nvim' 
 
 
-    use 'idr4n/github-monochrome.nvim'
 
-    -- autocmd! User avante.nvim lua << EOF
-    --require('avante_lib').load()
-    --require('avante').setup()
+
+    -- nvim v0.7.2
+    use({
+        "kdheepak/lazygit.nvim",
+        -- optional for floating window border decoration
+        requires = {
+            "nvim-lua/plenary.nvim",
+        },
+    })
 end)

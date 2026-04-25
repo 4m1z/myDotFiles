@@ -1,22 +1,14 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
-# Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
+# Path to your Oh My Zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
 
-export GOPATH="$HOME/go"
-export PATH="$GOPATH/bin:$PATH"
-export PATH=$PATH:/usr/local/go/bin
-
-
- #Set name of the theme to load --- if set to "random", it will
- export NVM_DIR=~/nvim-linux64/bin/nvim
- 
-# load a random theme each time oh-my-zsh is loaded, in which case,
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
-
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -31,14 +23,13 @@ ZSH_THEME="robbyrussell"
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to automatically update without prompting.
-# DISABLE_UPDATE_PROMPT="true"
+# Uncomment one of the following lines to change the auto-update behavior
+# zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode auto      # update automatically without asking
+# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+# zstyle ':omz:update' frequency 13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
@@ -53,8 +44,9 @@ ZSH_THEME="robbyrussell"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
-# Caution: this setting can cause issues with multiline prompts (zsh 5.7.1 and newer seem to work)
-# See https://github.com/ohmyzsh/ohmyzsh/issues/5765
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
 # COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -78,39 +70,15 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions)
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-#
-#
-alias python="python3"
-export PATH=/home/amir/.nvm/versions/node/v16.8.0/bin:/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -121,17 +89,16 @@ source $HOME/.zsh_profile
 
 
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
 alias vi="nvim"
 alias vim="nvim"
+alias lzg="lazygit"
+alias lzd="lazydocker"
+alias oc="opencode"
 export PATH=$HOME/.local/bin:$PATH
 
 
-nvm alias default v20.18.0
 
 
 export CC=clang
@@ -141,12 +108,68 @@ export CC=clang-14
 export TerraformPath=$HOME/work/terraform;
 
 
+export CC=clang
+export CXX=clang++
 
+# Load machine-local secrets if present.
+[ -f "$HOME/.config/opencode/secrets.zsh" ] && source "$HOME/.config/opencode/secrets.zsh"
 
+# opencode
+export PATH=/home/amir/.opencode/bin:$PATH
 
+# bun completions
+[ -s "/home/amir/.bun/_bun" ] && source "/home/amir/.bun/_bun"
 
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
 
+# Ctrl+G to open lazygit
+function _lazygit() {
+  local saved_buffer="$BUFFER"
+  local saved_cursor="$CURSOR"
+  BUFFER=""
+  zle redisplay
+  echoti rmkx 2>/dev/null
+  lazygit </dev/tty
+  echoti smkx 2>/dev/null
+  BUFFER="$saved_buffer"
+  CURSOR="$saved_cursor"
+  zle reset-prompt
+}
+zle -N _lazygit
+bindkey '^G' _lazygit
 
-export CPLUS_INCLUDE_PATH=/usr/include/c++/11:/usr/include/x86_64-linux-gnu/c++/11
+# Ctrl+N to open nvim in current directory
+function _nvim_dot() {
+  local saved_buffer="$BUFFER"
+  local saved_cursor="$CURSOR"
+  BUFFER=""
+  zle redisplay
+  echoti rmkx 2>/dev/null
+  nvim . </dev/tty
+  echoti smkx 2>/dev/null
+  BUFFER="$saved_buffer"
+  CURSOR="$saved_cursor"
+  zle reset-prompt
+}
+zle -N _nvim_dot
+bindkey '^N' _nvim_dot
 
+# Ctrl+K to open k9s
+function _k9s() {
+  local saved_buffer="$BUFFER"
+  local saved_cursor="$CURSOR"
+  BUFFER=""
+  zle redisplay
+  echoti rmkx 2>/dev/null
+  k9s </dev/tty
+  echoti smkx 2>/dev/null
+  BUFFER="$saved_buffer"
+  CURSOR="$saved_cursor"
+  zle reset-prompt
+}
+zle -N _k9s
+bindkey '^K' _k9s
 
+. "$HOME/.local/share/../bin/env"

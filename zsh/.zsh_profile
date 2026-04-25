@@ -5,10 +5,6 @@ VIM="nvim"
 #for i in `find -L $PERSONAL`; do
     #source $i
 #done
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-export PATH=~/clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH
 #source /usr/share/doc/fzf/examples/key-bindings.zsh
 #source /usr/share/doc/fzf/examples/completion.zsh
 
@@ -27,7 +23,8 @@ source $HOME/.cargo/env
 
 
 # Where should I put you?
-bindkey -s ^f "tmux-sessionizer\n"
+bindkey -s ^f "t.sh\n"
+bindkey -s ^o "opencode\n"
 
 catr() {
     tail -n "+$1" $3 | head -n "$(($2 - $1 + 1))"
@@ -77,4 +74,5 @@ eslintify() {
     cat $1 > /tmp/file_to_eslint
     npx eslint
 }
+
 

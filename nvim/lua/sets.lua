@@ -34,3 +34,10 @@ vim.opt.colorcolumn = "80"
 
 vim.opt.spell = true
 
+vim.opt.mouse = "a"
+
+vim.opt.autoread = true
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({"FocusGained", "BufEnter", "CursorHold"}, {
+  command = "checktime"
+})

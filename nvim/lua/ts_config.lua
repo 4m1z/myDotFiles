@@ -1,1 +1,1 @@
-vim.api.nvim_command([[autocmd BufWritePre *.ts,*.tsx :Prettier]])
+-- vim.api.nvim_command([[autocmd BufWritePre *.ts,*.tsx :Prettier]])

@@ -1,10 +1,7 @@
-local avante_lib = require('avante_lib')
-local avante = require('avante')  
+
+require('avante').setup()
 
 
-
-avante.load()
-avante_lib.load()
 
 
     -- autocmd! User avante.nvim lua << EOF
