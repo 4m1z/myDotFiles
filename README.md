@@ -1,6 +1,5 @@
 # Dotfiles
 
-This repo is the source of truth for the customizations on this machine.
 
 Tracked configuration:
 - `zsh/.zshrc`
