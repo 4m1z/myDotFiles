@@ -102,7 +102,7 @@ packer.startup(function(use)
 
 
     --copilot.vim
-    use 'github/copilot.vim'
+    -- use 'github/copilot.vim'
     use 'projekt0n/github-nvim-theme'
 
     -- rustlang
