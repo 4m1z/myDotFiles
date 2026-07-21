@@ -104,6 +104,10 @@ packer.startup(function(use)
     --copilot.vim
     -- use 'github/copilot.vim'
     use 'projekt0n/github-nvim-theme'
+    use {
+        "git@gitlab.com:gitlab-org/editor-extensions/gitlab.vim.git",
+    }
+
 
     -- rustlang
     use 'simrat39/rust-tools.nvim'
@@ -161,6 +165,9 @@ packer.startup(function(use)
 
     use "hedyhli/outline.nvim"
 
+    -- center buffer / no neck pain
+    use "shortcuts/no-neck-pain.nvim"
+
     -- trouble  
     use { "folke/trouble.nvim", requires = "nvim-tree/nvim-web-devicons" }
 
@@ -182,8 +189,10 @@ packer.startup(function(use)
     use 'stevearc/dressing.nvim' 
     -- open code
     use 'folke/snacks.nvim' 
+    use 'nickjvandyke/opencode.nvim'
 
 
+    use 'esmuellert/codediff.nvim'
 
 
     -- nvim v0.7.2
@@ -194,4 +203,7 @@ packer.startup(function(use)
             "nvim-lua/plenary.nvim",
         },
     })
+
+
+    use 'idr4n/github-monochrome.nvim'
 end)

@@ -31,7 +31,7 @@ vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
+vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww t.sh<CR>")
 
 vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
 
@@ -118,3 +118,22 @@ function generateErrorCheck()
 end
 
 vim.api.nvim_set_keymap('n', '<Leader>ee', ':lua generateErrorCheck()<CR>', { noremap = true, silent = true })
+
+-- Copy current file path to system clipboard
+vim.keymap.set("n", "<leader>cp", function()
+    local path = vim.fn.expand("%:p")
+    vim.fn.setreg("+", path)
+    vim.notify("Copied: " .. path)
+end, { desc = "Copy absolute file path" })
+
+vim.keymap.set("n", "<leader>cr", function()
+    local path = vim.fn.expand("%:.")
+    vim.fn.setreg("+", path)
+    vim.notify("Copied: " .. path)
+end, { desc = "Copy relative file path" })
+
+vim.keymap.set("n", "<leader>cn", function()
+    local name = vim.fn.expand("%:t")
+    vim.fn.setreg("+", name)
+    vim.notify("Copied: " .. name)
+end, { desc = "Copy file name" })

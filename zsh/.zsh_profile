@@ -76,3 +76,9 @@ eslintify() {
 }
 
 
+
+### openai
+# API key loaded from ~/.config/opencode/secrets.zsh (never committed).
+# export OPENAI_API_KEY="..."
+
+

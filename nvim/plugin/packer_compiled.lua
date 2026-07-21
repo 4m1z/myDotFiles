@@ -129,11 +129,6 @@ _G.packer_plugins = {
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/copilot.lua",
     url = "https://github.com/zbirenbaum/copilot.lua"
   },
-  ["copilot.vim"] = {
-    loaded = true,
-    path = "/home/amir/.local/share/nvim/site/pack/packer/start/copilot.vim",
-    url = "https://github.com/github/copilot.vim"
-  },
   ["dressing.nvim"] = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/dressing.nvim",
@@ -158,6 +153,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/github-nvim-theme",
     url = "https://github.com/projekt0n/github-nvim-theme"
+  },
+  ["gitlab.vim.git"] = {
+    loaded = true,
+    path = "/home/amir/.local/share/nvim/site/pack/packer/start/gitlab.vim.git",
+    url = "git@gitlab.com:gitlab-org/editor-extensions/gitlab.vim"
   },
   ["gitsigns.nvim"] = {
     loaded = true,
@@ -245,6 +245,11 @@ _G.packer_plugins = {
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/nerdcommenter",
     url = "https://github.com/scrooloose/nerdcommenter"
   },
+  ["no-neck-pain.nvim"] = {
+    loaded = true,
+    path = "/home/amir/.local/share/nvim/site/pack/packer/start/no-neck-pain.nvim",
+    url = "https://github.com/shortcuts/no-neck-pain.nvim"
+  },
   ["none-ls.nvim"] = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/none-ls.nvim",
@@ -299,6 +304,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/nvim-web-devicons",
     url = "https://github.com/nvim-tree/nvim-web-devicons"
+  },
+  ["opencode.nvim"] = {
+    loaded = true,
+    path = "/home/amir/.local/share/nvim/site/pack/packer/start/opencode.nvim",
+    url = "https://github.com/nickjvandyke/opencode.nvim"
   },
   ["outline.nvim"] = {
     loaded = true,
