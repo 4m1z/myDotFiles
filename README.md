@@ -1,14 +1,8 @@
 # Dotfiles
 
-
-Tracked configuration:
-- `zsh/.zshrc`
-- `zsh/.zsh_profile`
-- `tmux/.tmux.conf`
-- `tmux/tmux-sessionizer`
+- `zsh`
+- `tmux`
 - `nvim/`
 - `alacritty/`
-- `i3/`
-- `i3status/`
 
 
