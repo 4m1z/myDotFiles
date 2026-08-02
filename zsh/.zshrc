@@ -174,7 +174,7 @@ function _k9s() {
 zle -N _k9s
 bindkey '^K' _k9s
 
-. "$HOME/.local/share/../bin/env"
+[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
 
 # ---------------------------------------------------------------------------
 # Git worktree helpers
@@ -273,4 +273,3 @@ wrm() {
 # ---------------------------------------------------------------------------
 #
 #
-

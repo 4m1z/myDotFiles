@@ -19,7 +19,7 @@ export GIT_EDITOR=$VIM
 export EOSIO_INSTALL_DIR=$HOME/personal/eos
 export NF_IDFILE=$HOME/.idfile
 export DENO_INSTALL="$HOME/.deno"
-source $HOME/.cargo/env
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
 
 # Where should I put you?
@@ -80,5 +80,4 @@ eslintify() {
 ### openai
 # API key loaded from ~/.config/opencode/secrets.zsh (never committed).
 # export OPENAI_API_KEY="..."
-
 

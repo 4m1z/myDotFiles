@@ -67,9 +67,24 @@ packer.startup(function(use)
     -- treesitter
     use {
         'nvim-treesitter/nvim-treesitter',
+        branch = 'main',
         run = function()
-            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
-            ts_update()
+            require('nvim-treesitter').install({
+                'c',
+                'lua',
+                'rust',
+                'go',
+                'tsx',
+                'toml',
+                'yaml',
+                'css',
+                'html',
+                'typescript',
+                'json',
+                'javascript',
+                'markdown',
+                'markdown_inline',
+            }):wait(300000)
         end,
     }
     use("theprimeagen/harpoon")
@@ -134,6 +149,7 @@ packer.startup(function(use)
         requires = {
             "nvim-lua/plenary.nvim",
             "nvim-treesitter/nvim-treesitter",
+            "nvim-neotest/nvim-nio",
             "antoinemadec/FixCursorHold.nvim",
             "rouge8/neotest-rust",
             "nvim-neotest/neotest-go",
@@ -180,7 +196,14 @@ packer.startup(function(use)
 
     -- Required plugins
     use 'MunifTanjim/nui.nvim'
-    use 'MeanderingProgrammer/render-markdown.nvim'
+    use({
+        'MeanderingProgrammer/render-markdown.nvim',
+        after = { 'nvim-treesitter' },
+        requires = { 'nvim-tree/nvim-web-devicons', opt = true },
+        config = function()
+            require('render-markdown').setup({})
+        end,
+    })
 
     -- Optional dependencies
     use 'nvim-tree/nvim-web-devicons' 

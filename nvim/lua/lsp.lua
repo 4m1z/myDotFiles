@@ -3,9 +3,10 @@ local lsp = require("lsp-zero")
 lsp.preset("recommended")
 
 lsp.ensure_installed({
-    'tsserver',
+    'ts_ls',
     'rust_analyzer',
 })
+lsp.skip_server_setup({ 'stylua' })
 
 -- Fix Undefined global 'vim'
 lsp.nvim_workspace()

@@ -43,10 +43,12 @@ elif [[ $# -eq 2 && "$1" = "restore" ]]; then
     fi
     selected=`cat $TMUX_HISTORY_FILE | sed -n "$2,${2}p"`
 else
-    items=`find ~/work -maxdepth 1 -mindepth 1 -type d`
-    items+=`find ~/personal -maxdepth 1 -mindepth 1 -type d`
-    items+=`find ~ -maxdepth 1 -mindepth 1 -type d`
-    selected=`echo "$items" | fzf`
+    items=$(
+        for root in "$HOME/work" "$HOME/Personal" "$HOME"; do
+            [[ -d "$root" ]] && find "$root" -maxdepth 1 -mindepth 1 -type d
+        done | sort -u
+    )
+    selected=$(printf '%s\n' "$items" | fzf)
 fi
 
 if [[ -z $selected ]]; then
@@ -62,6 +64,5 @@ if [[ $? -eq 0 ]]; then
 fi
 
 tmux new-session -c $selected -d -s $tmux_session_name && tmux switch-client -t $tmux_session_name || tmux new -c $selected -A -s $tmux_session_name
-
 
 
