@@ -4,9 +4,10 @@ lsp.preset("recommended")
 
 lsp.ensure_installed({
     'ts_ls',
+    'angularls',
     'rust_analyzer',
 })
-lsp.skip_server_setup({ 'stylua' })
+lsp.skip_server_setup({ 'angularls', 'stylua' })
 
 -- Fix Undefined global 'vim'
 lsp.nvim_workspace()

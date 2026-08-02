@@ -1,4 +1,3 @@
-export PATH="/home/amir/.local/share/mise/installs/node/24.14.0/bin:$PATH"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
@@ -125,6 +124,8 @@ export PATH=/home/amir/.opencode/bin:$PATH
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+eval "$(mise activate zsh)"
 
 # Ctrl+G to open lazygit
 function _lazygit() {
@@ -273,3 +274,10 @@ wrm() {
 # ---------------------------------------------------------------------------
 #
 #
+export FIGMA_API_KEY="your_figma_token_here"
+
+
+# Load Angular CLI autocompletion when Angular CLI is installed.
+if command -v ng >/dev/null 2>&1; then
+  source <(ng completion script)
+fi
