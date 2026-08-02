@@ -8,7 +8,7 @@ Tracked configuration:
 - `tmux/tmux-sessionizer`
 - `nvim/`
 - `alacritty/`
+- `foot/foot.ini`
 - `i3/`
 - `i3status/`
-
 
