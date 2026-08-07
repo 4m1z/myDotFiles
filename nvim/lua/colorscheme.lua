@@ -1,6 +1,5 @@
 function ColorMYVim(color)
     vim.cmd('set background=dark')
-    --color = color or "solarized-osaka"
     color = color or "monochrome"
     vim.cmd.colorscheme(color)
 
