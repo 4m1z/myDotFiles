@@ -13,6 +13,9 @@ packer.startup(function(use)
     -- Common utilities
     use 'nvim-lua/plenary.nvim'
 
+    -- ZEN ( focus mode ) 
+    use 'folke/zen-mode.nvim'
+
     -- telescope
     use 'vim-scripts/zenesque.vim'
     use 'jaredgorski/Mies.vim'
@@ -118,10 +121,6 @@ packer.startup(function(use)
 
     --copilot.vim
     -- use 'github/copilot.vim'
-    use 'projekt0n/github-nvim-theme'
-    use {
-        "git@gitlab.com:gitlab-org/editor-extensions/gitlab.vim.git",
-    }
 
 
     -- rustlang
@@ -157,7 +156,7 @@ packer.startup(function(use)
     }
 
     -- themes
-    use { 'luisiacc/gruvbox-baby' }
+    use { "catppuccin/nvim", as = "catppuccin" }
     use({ 'rose-pine/neovim', as = 'rose-pine' })
     use { "folke/tokyonight.nvim" }
     use 'fxn/vim-monochrome'
@@ -165,6 +164,7 @@ packer.startup(function(use)
         'craftzdog/solarized-osaka.nvim'
     }
 
+    use 'nlknguyen/papercolor-theme'
 
 
 

@@ -85,6 +85,11 @@ if ! octmux has-session -t "=${session}" 2>/dev/null; then
   octmux bind-key "$list_key" run-shell "$DIR_SELF/list.sh"
 fi
 
+# Mode 2 makes the outer tmux encode pasted line feeds as CSI-u sequences,
+# which the nested tmux correctly treats as literal bracketed-paste content.
+# Mode 1 preserves standard keys while retaining enhanced modified keys.
+octmux set-option -g 'terminal-overrides[99]' 'tmux-256color:Eneks=\E[>4;1m'
+
 # Record the directory and origin window so the picker can show the path and
 # jump back to the launching window on the MAIN server.
 octmux set-option -t "$session" @opencode_dir "$path"
