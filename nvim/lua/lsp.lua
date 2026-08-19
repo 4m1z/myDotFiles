@@ -62,3 +62,9 @@ lsp.setup()
 vim.diagnostic.config({
     virtual_text = true
 })
+
+vim.keymap.set("n", "<leader>dt", function()
+    local enabled = vim.diagnostic.is_enabled()
+    vim.diagnostic.enable(not enabled)
+    vim.notify("Diagnostics " .. (enabled and "hidden" or "shown"))
+end, { desc = "Toggle diagnostics" })

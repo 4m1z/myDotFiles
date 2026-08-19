@@ -1,0 +1,14 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "figma": {
+            "type": "remote",
+            "url": "https://mcp.figma.com/mcp",
+            "enabled": false
+        },
+        "chrome-devtools": {
+            "type": "local",
+            "command": ["/usr/bin/mise", "exec", "--", "npx", "-y", "chrome-devtools-mcp@latest"]
+        }
+    }
+}

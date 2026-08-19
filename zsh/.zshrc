@@ -281,3 +281,5 @@ export FIGMA_API_KEY="your_figma_token_here"
 if command -v ng >/dev/null 2>&1; then
   source <(ng completion script)
 fi
+
+. "$HOME/.local/share/../bin/env"

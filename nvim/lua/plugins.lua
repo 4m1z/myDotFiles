@@ -96,6 +96,14 @@ packer.startup(function(use)
         requires = {
             'nvim-tree/nvim-web-devicons',
         },
+        config = function()
+            require("nvim-tree").setup({
+                view = {
+                    side = "right",
+                },
+            })
+        end,
+
     }
 
     --undotree
@@ -196,14 +204,6 @@ packer.startup(function(use)
 
     -- Required plugins
     use 'MunifTanjim/nui.nvim'
-    use({
-        'MeanderingProgrammer/render-markdown.nvim',
-        after = { 'nvim-treesitter' },
-        requires = { 'nvim-tree/nvim-web-devicons', opt = true },
-        config = function()
-            require('render-markdown').setup({})
-        end,
-    })
 
     -- Optional dependencies
     use 'nvim-tree/nvim-web-devicons' 
