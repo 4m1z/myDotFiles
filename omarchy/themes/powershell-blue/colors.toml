@@ -1,0 +1,35 @@
+mode = "dark"
+
+# Classic Windows PowerShell blue, extended into an Omarchy-wide palette.
+accent = "#FFFFFF"
+selection = "#2A5A8F"
+muted = "#7BA2C7"
+
+background = "#012456"
+dark_background = "#011B40"
+darker_background = "#00132D"
+lighter_background = "#0A326B"
+
+foreground = "#FFFFFF"
+dark_foreground = "#A8BDD2"
+light_foreground = "#DCE9F5"
+bright_foreground = "#FFFFFF"
+
+hyprland_active_border = "rgba(ffffffff) rgba(73b7ffee) 45deg"
+hyprland_inactive_border = "rgba(7ba2c788)"
+
+red = "#FF7B72"
+yellow = "#FFD166"
+orange = "#FFAB70"
+green = "#7EE787"
+cyan = "#72E6E6"
+blue = "#73B7FF"
+magenta = "#D6A8FF"
+brown = "#A56A43"
+
+bright_red = "#FFA198"
+bright_yellow = "#FFE59A"
+bright_green = "#A7F3AD"
+bright_cyan = "#A5F3F3"
+bright_blue = "#A8D4FF"
+bright_magenta = "#E7C8FF"
