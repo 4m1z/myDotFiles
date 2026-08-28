@@ -96,6 +96,7 @@ alias vim="nvim"
 alias lzg="lazygit"
 alias lzd="lazydocker"
 alias oc="opencode"
+alias kc="kubectl"
 export PATH=$HOME/.local/bin:$PATH
 
 

@@ -16,14 +16,19 @@ local parsers = {
   "javascript",
   "markdown",
   "markdown_inline",
+  "angular",
+  "html_tags",
 }
 
 treesitter.setup()
 treesitter.install(parsers)
 
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = parsers,
+  pattern = "*",
   callback = function()
+    local parser = vim.treesitter.language.get_lang(vim.bo.filetype)
+    if not vim.tbl_contains(parsers, parser) then return end
+
     pcall(vim.treesitter.start)
     vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
   end,

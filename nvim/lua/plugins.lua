@@ -13,9 +13,6 @@ packer.startup(function(use)
     -- Common utilities
     use 'nvim-lua/plenary.nvim'
 
-    -- ZEN ( focus mode ) 
-    use 'folke/zen-mode.nvim'
-
     -- telescope
     use 'vim-scripts/zenesque.vim'
     use 'jaredgorski/Mies.vim'
@@ -23,7 +20,7 @@ packer.startup(function(use)
 
     use {
         'nvim-telescope/telescope.nvim', tag = 'v0.2.2',
-        -- or                            , branch = '0.1.x',
+        -- or                          , branch = '0.1.x',
         requires = { { 'nvim-lua/plenary.nvim' } }
     }
 
@@ -82,29 +79,17 @@ packer.startup(function(use)
                 'yaml',
                 'css',
                 'html',
+                'angular',
                 'typescript',
                 'json',
                 'javascript',
                 'markdown',
                 'markdown_inline',
-            }):wait(300000)
+            }, { force = true }):wait(300000)
         end,
     }
     use("theprimeagen/harpoon")
-    use {
-        'nvim-tree/nvim-tree.lua',
-        requires = {
-            'nvim-tree/nvim-web-devicons',
-        },
-        config = function()
-            require("nvim-tree").setup({
-                view = {
-                    side = "right",
-                },
-            })
-        end,
-
-    }
+    use { 'nvim-tree/nvim-tree.lua', requires = { 'nvim-tree/nvim-web-devicons' } }
 
     --undotree
     use 'mbbill/undotree'
@@ -164,14 +149,9 @@ packer.startup(function(use)
     }
 
     -- themes
-    use { "catppuccin/nvim", as = "catppuccin" }
-    use({ 'rose-pine/neovim', as = 'rose-pine' })
-    use { "folke/tokyonight.nvim" }
+    use 'folke/tokyonight.nvim'
     use 'fxn/vim-monochrome'
-    use {
-        'craftzdog/solarized-osaka.nvim'
-    }
-
+    use 'craftzdog/solarized-osaka.nvim'
     use 'nlknguyen/papercolor-theme'
 
 

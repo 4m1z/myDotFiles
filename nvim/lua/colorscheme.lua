@@ -1,7 +1,8 @@
 function ColorMYVim(color)
-    --color = color or "monochrome"
-    color = color or "tokyonight-night"
-    vim.cmd('set background=dark')
+    color = color or "monochrome"
+     --color = color or "tokyonight-night"
+    --vim.cmd('set background=light')
+     --color = color or "PaperColor"
     vim.cmd.colorscheme(color)
 
     vim.api.nvim_set_hl(0, "Normal", { bg = "none" })

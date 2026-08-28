@@ -94,11 +94,6 @@ _G.packer_plugins = {
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/Preview.nvim",
     url = "https://github.com/henriklovhaug/Preview.nvim"
   },
-  catppuccin = {
-    loaded = true,
-    path = "/home/amir/.local/share/nvim/site/pack/packer/start/catppuccin",
-    url = "https://github.com/catppuccin/nvim"
-  },
   ["cellular-automaton.nvim"] = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/cellular-automaton.nvim",
@@ -296,7 +291,6 @@ _G.packer_plugins = {
     url = "https://github.com/nvim-neotest/nvim-nio"
   },
   ["nvim-tree.lua"] = {
-    config = { "\27LJ\2\n_\0\0\4\0\6\0\t6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\4\0005\3\3\0=\3\5\2B\0\2\1K\0\1\0\tview\1\0\1\tview\0\1\0\1\tside\nright\nsetup\14nvim-tree\frequire\0" },
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/nvim-tree.lua",
     url = "https://github.com/nvim-tree/nvim-tree.lua"
@@ -345,11 +339,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/prettier.nvim",
     url = "https://github.com/MunifTanjim/prettier.nvim"
-  },
-  ["rose-pine"] = {
-    loaded = true,
-    path = "/home/amir/.local/share/nvim/site/pack/packer/start/rose-pine",
-    url = "https://github.com/rose-pine/neovim"
   },
   ["rust-tools.nvim"] = {
     loaded = true,
@@ -401,11 +390,6 @@ _G.packer_plugins = {
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/vim-sneak",
     url = "https://github.com/justinmk/vim-sneak"
   },
-  ["zen-mode.nvim"] = {
-    loaded = true,
-    path = "/home/amir/.local/share/nvim/site/pack/packer/start/zen-mode.nvim",
-    url = "https://github.com/folke/zen-mode.nvim"
-  },
   ["zenesque.vim"] = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/zenesque.vim",
@@ -418,10 +402,6 @@ time([[Defining packer_plugins]], false)
 time([[Config for goimpl.nvim]], true)
 try_loadstring("\27LJ\2\nK\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0'\2\3\0B\0\2\1K\0\1\0\vgoimpl\19load_extension\14telescope\frequire\0", "config", "goimpl.nvim")
 time([[Config for goimpl.nvim]], false)
--- Config for: nvim-tree.lua
-time([[Config for nvim-tree.lua]], true)
-try_loadstring("\27LJ\2\n_\0\0\4\0\6\0\t6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\4\0005\3\3\0=\3\5\2B\0\2\1K\0\1\0\tview\1\0\1\tview\0\1\0\1\tside\nright\nsetup\14nvim-tree\frequire\0", "config", "nvim-tree.lua")
-time([[Config for nvim-tree.lua]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then
