@@ -16,7 +16,7 @@ Tracked configuration:
 
 `omarchy/install.sh` installs and links these customizations:
 
-- PowerShell Blue theme and solid `#012456` background
+- OmaBlue theme and blue-and-white wallpaper set
 - English/Persian keyboard layouts with `Alt + Shift` switching
 - Speedy on `Super + Shift + I`
 - Nordzy white-and-blue cursor theme

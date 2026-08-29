@@ -51,7 +51,7 @@ fi
 link_config "$dotfiles_dir/hypr/bindings.lua" "$config_home/hypr/bindings.lua"
 link_config "$dotfiles_dir/hypr/input.lua" "$config_home/hypr/input.lua"
 link_config "$dotfiles_dir/hypr/looknfeel.lua" "$config_home/hypr/looknfeel.lua"
-link_config "$dotfiles_dir/themes/powershell-blue" "$config_home/omarchy/themes/powershell-blue"
+link_config "$dotfiles_dir/themes/omablue" "$config_home/omarchy/themes/omablue"
 
 if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.interface cursor-theme 'Nordzy-cursors-white'
@@ -73,7 +73,7 @@ if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; then
   fi
 fi
 
-omarchy theme set "PowerShell Blue"
+omarchy theme set omablue
 
 if [[ $input_group_added == true ]]; then
   printf 'Log out and back in before using Speedy so the input group takes effect.\n'
