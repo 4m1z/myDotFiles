@@ -1,4 +1,4 @@
-mode = "dark"
+mode = "light"
 
 # Classic Windows PowerShell blue, extended into an Omarchy-wide palette.
 accent = "#FFFFFF"
