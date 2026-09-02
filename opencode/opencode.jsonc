@@ -9,6 +9,10 @@
         "chrome-devtools": {
             "type": "local",
             "command": ["/usr/bin/mise", "exec", "--", "npx", "-y", "chrome-devtools-mcp@latest"]
+        },
+        "effect-docs": {
+            "type": "local",
+            "command": ["npx", "-y", "effect-mcp@latest"]
         }
     }
 }
