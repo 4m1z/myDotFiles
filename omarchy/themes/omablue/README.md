@@ -10,6 +10,6 @@ Apply it with:
 omarchy theme set omablue
 ```
 
-The accompanying Hyprland dotfiles use 82% terminal opacity. Press
-`Super + Backspace` to toggle the focused terminal between transparent and
-fully opaque.
+The accompanying Hyprland dotfiles use stock Omarchy window opacity.
+Press `Super + Backspace` to toggle the focused window between transparent
+and fully opaque.

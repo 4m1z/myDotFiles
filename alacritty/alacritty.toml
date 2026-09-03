@@ -10,7 +10,7 @@ italic = { family = "Ubuntu Sans Mono", style = "SemiBold Italic" }
 size = 9
 
 [window]
-opacity = 0.45
+opacity = 0.95
 padding.x = 80
 padding.y = 20
 decorations = "None"
