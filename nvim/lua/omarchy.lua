@@ -137,7 +137,7 @@ function M.reload()
   return M.load()
 end
 
-local FALLBACKS = { "aether", "solarized-osaka", "tokyonight-night", "monochrome" }
+local FALLBACKS = { "aether","monochrome","solarized-osaka", "tokyonight-night" }
 
 --- Pick the colorscheme to use. Sets `vim.o.background` from the theme mode
 --- as a side effect. Returns nil when there is no Omarchy state.

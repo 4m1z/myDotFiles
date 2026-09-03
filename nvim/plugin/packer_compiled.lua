@@ -180,6 +180,11 @@ _G.packer_plugins = {
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/goimpl.nvim",
     url = "https://github.com/edolphin-ydf/goimpl.nvim"
   },
+  ["gruvbox.nvim"] = {
+    loaded = true,
+    path = "/home/amir/.local/share/nvim/site/pack/packer/start/gruvbox.nvim",
+    url = "https://github.com/ellisonleao/gruvbox.nvim"
+  },
   ["guihua.lua"] = {
     loaded = true,
     path = "/home/amir/.local/share/nvim/site/pack/packer/start/guihua.lua",

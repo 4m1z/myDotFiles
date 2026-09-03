@@ -158,6 +158,7 @@ packer.startup(function(use)
     -- colorscheme, so this must be installed for the theme sync to be exact.
     use { 'bjarneo/aether.nvim', branch = 'v3' }
 
+    use { "ellisonleao/gruvbox.nvim" }
 
 
 
