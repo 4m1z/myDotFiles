@@ -153,6 +153,10 @@ packer.startup(function(use)
     use 'fxn/vim-monochrome'
     use 'craftzdog/solarized-osaka.nvim'
     use 'nlknguyen/papercolor-theme'
+    -- Omarchy's canonical theme engine: template-generated Omarchy themes
+    -- (like omablue, which ships only a colors.toml) resolve to the `aether`
+    -- colorscheme, so this must be installed for the theme sync to be exact.
+    use { 'bjarneo/aether.nvim', branch = 'v3' }
 
 
 
