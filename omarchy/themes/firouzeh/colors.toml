@@ -1,0 +1,42 @@
+# Firouzeh — فیروزه
+# An Iranian courtyard at blue hour: glazed tile, lapis, ivory and lamplight.
+mode = "dark"
+
+accent = "#54B7AE"
+selection = "#29464D"
+selection_background = "#29464D"
+selection_foreground = "#F1E8D7"
+muted = "#83999B"
+
+background = "#111B26"
+dark_background = "#0D1520"
+darker_background = "#090F18"
+lighter_background = "#1B2B36"
+
+foreground = "#E6DAC4"
+dark_foreground = "#9CACA8"
+light_foreground = "#EDE2CE"
+bright_foreground = "#F1E8D7"
+
+# A fine turquoise edge, like glaze catching the evening light.
+hyprland_active_border = "rgba(54b7aeee)"
+hyprland_inactive_border = "rgba(344752aa)"
+active_border_color = "#54B7AE"
+active_tab_background = "#29464D"
+active_tab_foreground = "#F1E8D7"
+
+red = "#C96472"
+yellow = "#D1AA63"
+orange = "#D3956B"
+green = "#8AAB8B"
+cyan = "#54B7AE"
+blue = "#7E98C1"
+magenta = "#B58EBA"
+brown = "#B48C72"
+
+bright_red = "#E48791"
+bright_yellow = "#E6C78B"
+bright_green = "#ACCAA5"
+bright_cyan = "#83D2C7"
+bright_blue = "#A0B9DD"
+bright_magenta = "#D2AFD4"

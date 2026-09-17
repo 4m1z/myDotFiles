@@ -17,6 +17,7 @@ Tracked configuration:
 `omarchy/install.sh` installs and links these customizations:
 
 - OmaBlue theme and blue-and-white wallpaper set
+- [Firouzeh — فیروزه](omarchy/themes/firouzeh/) theme with original Iranian courtyard and geometric wallpapers
 - English/Persian keyboard layouts with `Alt + Shift` switching
 - Speedy on `Super + Shift + I`
 - Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
@@ -26,6 +27,17 @@ Run this from an Omarchy desktop session after cloning the repository:
 ```sh
 ./omarchy/install.sh
 ```
+
+To select Firouzeh during installation:
+
+```sh
+./omarchy/install.sh firouzeh
+```
+
+Both themes are linked by the installer; its default selection is OmaBlue.
+After installation, switch to the turquoise-and-indigo Firouzeh theme with
+`omarchy theme set firouzeh`. See its [README](omarchy/themes/firouzeh/README.md)
+for a theme-only installation, palette and artwork build instructions.
 
 The installer is safe to run again. Existing target files are moved to
 timestamped `.bak` files before new symlinks are created. It may ask for your

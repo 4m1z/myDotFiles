@@ -6,7 +6,7 @@ if (not status) then
 end
 
 nnp.setup({
-    width = 100,
+    width = 200,
     autocmds = {
         enableOnVimEnter = "safe",
         enableOnTabEnter = true,

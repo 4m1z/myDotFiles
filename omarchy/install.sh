@@ -6,6 +6,14 @@ dotfiles_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 config_home=${XDG_CONFIG_HOME:-"$HOME/.config"}
 backup_stamp=$(date +%Y%m%d%H%M%S)
 input_group_added=false
+idle_screensaver_seconds=3600
+idle_lock_seconds=3600
+theme=${1:-omablue}
+
+if (( $# > 1 )) || [[ $theme != omablue && $theme != firouzeh ]]; then
+  printf 'Usage: %s [omablue|firouzeh]\n' "$0" >&2
+  exit 1
+fi
 
 link_config() {
   local source=$1
@@ -25,6 +33,49 @@ link_config() {
 
   ln -s -- "$source" "$target"
   printf 'Linked: %s -> %s\n' "$target" "$source"
+}
+
+ensure_shell_idle() {
+  local shell_json="$config_home/omarchy/shell.json"
+  mkdir -p -- "$(dirname -- "$shell_json")"
+
+  if [[ ! -f $shell_json ]]; then
+    local default_json="${OMARCHY_PATH:-/usr/share/omarchy}/config/omarchy/shell.json"
+    if [[ -f $default_json ]]; then
+      cp -- "$default_json" "$shell_json"
+      printf 'Copied default shell config: %s\n' "$shell_json"
+    fi
+  fi
+
+  # Patch idle timeouts in place, preserving bar layout and other keys
+  # (stdlib only, idempotent; backs up only when a change is needed).
+  IDLE_SCREENSAVER="$idle_screensaver_seconds" IDLE_LOCK="$idle_lock_seconds" SHELL_JSON="$shell_json" python3 - <<'PY'
+import json
+import os
+import shutil
+import time
+
+path = os.environ["SHELL_JSON"]
+screensaver = int(os.environ["IDLE_SCREENSAVER"])
+lock = int(os.environ["IDLE_LOCK"])
+
+with open(path, encoding="utf-8") as f:
+    data = json.load(f)
+
+idle = data.setdefault("idle", {})
+if idle.get("screensaver") == screensaver and idle.get("lock") == lock:
+    print(f"Idle already set: screensaver={screensaver}s lock={lock}s")
+else:
+    backup = f"{path}.bak.{time.strftime('%Y%m%d%H%M%S')}"
+    shutil.copy2(path, backup)
+    print(f"Backed up: {backup}")
+    idle["screensaver"] = screensaver
+    idle["lock"] = lock
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    print(f"Set idle: screensaver={screensaver}s lock={lock}s in {path}")
+PY
 }
 
 if ! command -v omarchy >/dev/null 2>&1; then
@@ -60,6 +111,8 @@ link_config "$dotfiles_dir/hypr/bindings.lua" "$config_home/hypr/bindings.lua"
 link_config "$dotfiles_dir/hypr/input.lua" "$config_home/hypr/input.lua"
 link_config "$dotfiles_dir/hypr/looknfeel.lua" "$config_home/hypr/looknfeel.lua"
 link_config "$dotfiles_dir/themes/omablue" "$config_home/omarchy/themes/omablue"
+link_config "$dotfiles_dir/themes/firouzeh" "$config_home/omarchy/themes/firouzeh"
+ensure_shell_idle
 
 if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.interface cursor-theme 'macOS'
@@ -81,7 +134,7 @@ if [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; then
   fi
 fi
 
-omarchy theme set omablue
+omarchy theme set "$theme"
 
 if [[ $input_group_added == true ]]; then
   printf 'Log out and back in before using Speedy so the input group takes effect.\n'
