@@ -1,7 +1,5 @@
-local _,o = pcall(require, "outline")
+local _, o = pcall(require, "outline")
 
-
-o.setup{}
-
+o.setup({})
 
 vim.keymap.set("n", "<leader>o", "<cmd>aboveleft OutlineOpen<CR>")

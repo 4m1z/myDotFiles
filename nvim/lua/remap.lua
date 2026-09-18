@@ -1,9 +1,8 @@
 vim.g.mapleader = " "
 vim.g.localmapleader = " "
 
-
 vim.keymap.set("n", "sf", function()
-    require("nvim_tree_popup").open_find_file()
+	require("nvim_tree_popup").open_find_file()
 end, { desc = "Find file in centered tree popup" })
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -32,13 +31,13 @@ vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww t.sh<CR>")
 
 vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
 
-
 vim.api.nvim_command("autocmd BufWritePre *.go lua vim.lsp.buf.format()")
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.cpp,*.h",
-  callback = function() vim.lsp.buf.format() end,
+	pattern = "*.cpp,*.h",
+	callback = function()
+		vim.lsp.buf.format()
+	end,
 })
-
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
@@ -48,12 +47,11 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
-vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>");
+vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>")
 
 vim.keymap.set("n", "<leader><leader>", function()
-    vim.cmd("so")
+	vim.cmd("so")
 end)
-
 
 vim.keymap.set("n", "<leader>h", "<cmd>wincmd h<CR>")
 vim.keymap.set("n", "<leader>j", "<cmd>wincmd j<CR>")
@@ -66,71 +64,69 @@ vim.keymap.set("n", "<leader>rp", "<cmd>vertical resize 100<CR>")
 
 vim.keymap.set("n", "<leader>u", "<cmd>UndotreeShow<CR>")
 
-
-
-
-
-vim.cmd('cnoreabbrev W! w!')
-vim.cmd('cnoreabbrev Q! q!')
-vim.cmd('cnoreabbrev Qall! qall!')
-vim.cmd('cnoreabbrev Wq wq')
-vim.cmd('cnoreabbrev Wa wa')
-vim.cmd('cnoreabbrev wQ wq')
-vim.cmd('cnoreabbrev WQ wq')
-vim.cmd('cnoreabbrev W w')
-vim.cmd('cnoreabbrev W1 w')
-vim.cmd('cnoreabbrev w1 w')
-vim.cmd('cnoreabbrev Q q')
-vim.cmd('cnoreabbrev Qall qall')
-
+vim.cmd("cnoreabbrev W! w!")
+vim.cmd("cnoreabbrev Q! q!")
+vim.cmd("cnoreabbrev Qall! qall!")
+vim.cmd("cnoreabbrev Wq wq")
+vim.cmd("cnoreabbrev Wa wa")
+vim.cmd("cnoreabbrev wQ wq")
+vim.cmd("cnoreabbrev WQ wq")
+vim.cmd("cnoreabbrev W w")
+vim.cmd("cnoreabbrev W1 w")
+vim.cmd("cnoreabbrev w1 w")
+vim.cmd("cnoreabbrev Q q")
+vim.cmd("cnoreabbrev Qall qall")
 
 vim.keymap.set("n", "<leader>a", "<cmd>lua require('harpoon.ui').toggle_quick_menu()<CR>")
 vim.keymap.set("n", "<leader>m", "<cmd>lua require('harpoon.mark').add_file()<CR>")
 
+local function generateErrorCheck()
+	local current_line = vim.api.nvim_win_get_cursor(0)[1]
 
+	local line_content = vim.api.nvim_buf_get_lines(0, current_line - 1, current_line, false)[1]
 
-function generateErrorCheck()
-    local current_line = vim.api.nvim_win_get_cursor(0)[1]
+	if line_content:match("^%s*$") then
+		vim.api.nvim_buf_set_lines(0, current_line - 1, current_line, false, {
+			"if err != nil {",
+			"    ",
+			"}",
+		})
 
-    local line_content = vim.api.nvim_buf_get_lines(0, current_line - 1, current_line, false)[1]
+		vim.api.nvim_win_set_cursor(0, { current_line + 1, 5 })
+	else
+		vim.api.nvim_command("normal! o")
+		vim.api.nvim_buf_set_lines(0, current_line, current_line, false, {
+			"if err != nil {",
+			"    ",
+			"}",
+		})
 
-    if line_content:match("^%s*$") then
-        vim.api.nvim_buf_set_lines(0, current_line - 1, current_line, false, {
-            "if err != nil {",
-            "    ",
-            "}"
-        })
-
-        vim.api.nvim_win_set_cursor(0, {current_line + 1, 5})
-    else
-        vim.api.nvim_command("normal! o")
-        vim.api.nvim_buf_set_lines(0, current_line, current_line, false, {
-            "if err != nil {",
-            "    ",
-            "}"
-        })
-
-        vim.api.nvim_win_set_cursor(0, {current_line + 1, 5})
-    end
+		vim.api.nvim_win_set_cursor(0, { current_line + 1, 5 })
+	end
 end
 
-vim.api.nvim_set_keymap('n', '<Leader>ee', ':lua generateErrorCheck()<CR>', { noremap = true, silent = true })
+vim.keymap.set(
+	"n",
+	"<leader>ee",
+	generateErrorCheck,
+	{ noremap = true, silent = true, desc = "Insert Go err != nil check" }
+)
 
 -- Copy current file path to system clipboard
 vim.keymap.set("n", "<leader>cp", function()
-    local path = vim.fn.expand("%:p")
-    vim.fn.setreg("+", path)
-    vim.notify("Copied: " .. path)
+	local path = vim.fn.expand("%:p")
+	vim.fn.setreg("+", path)
+	vim.notify("Copied: " .. path)
 end, { desc = "Copy absolute file path" })
 
 vim.keymap.set("n", "<leader>cr", function()
-    local path = vim.fn.expand("%:.")
-    vim.fn.setreg("+", path)
-    vim.notify("Copied: " .. path)
+	local path = vim.fn.expand("%:.")
+	vim.fn.setreg("+", path)
+	vim.notify("Copied: " .. path)
 end, { desc = "Copy relative file path" })
 
 vim.keymap.set("n", "<leader>cn", function()
-    local name = vim.fn.expand("%:t")
-    vim.fn.setreg("+", name)
-    vim.notify("Copied: " .. name)
+	local name = vim.fn.expand("%:t")
+	vim.fn.setreg("+", name)
+	vim.notify("Copied: " .. name)
 end, { desc = "Copy file name" })

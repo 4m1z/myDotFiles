@@ -1,3 +1,5 @@
+-- DAP stack. Currently unwired (see init.lua): enabling this rebinds
+-- <leader><leader>, which remap.lua already uses for `:so`.
 local dap = require("dap")
 local dapui = require("dapui")
 local daptext = require("nvim-dap-virtual-text")
@@ -5,91 +7,91 @@ local daptext = require("nvim-dap-virtual-text")
 local remap = require("keymap")
 local nnoremap = remap.nnoremap
 
-dap.set_log_level('INFO') -- Helps when configuring DAP, see logs with :DapShowLog
- 
+dap.set_log_level("INFO") -- Helps when configuring DAP, see logs with :DapShowLog
+
 dap.configurations = {
-    go = {
-      {
-        type = "go", -- Which adapter to use
-        name = "Debug", -- Human readable name
-        request = "launch", -- Whether to "launch" or "attach" to program
-        program = "${file}", -- The buffer you are focused on when running nvim-dap
-      },
-    }
+	go = {
+		{
+			type = "go", -- Which adapter to use
+			name = "Debug", -- Human readable name
+			request = "launch", -- Whether to "launch" or "attach" to program
+			program = "${file}", -- The buffer you are focused on when running nvim-dap
+		},
+	},
 }
 
 dap.adapters.go = {
-  type = "server",
-  port = "${port}",
-  executable = {
-    command = vim.fn.stdpath("data") .. '/mason/bin/dlv',
-    args = { "dap", "-l", "127.0.0.1:${port}" },
-  },
+	type = "server",
+	port = "${port}",
+	executable = {
+		command = vim.fn.stdpath("data") .. "/mason/bin/dlv",
+		args = { "dap", "-l", "127.0.0.1:${port}" },
+	},
 }
 
 daptext.setup()
 dapui.setup({
-    layouts = {
-        {
-            elements = {
-                "console",
-            },
-            size = 7,
-            position = "bottom",
-        },
-        {
-            elements = {
-                -- Elements can be strings or table with id and size keys.
-                { id = "scopes", size = 0.25 },
-                "watches",
-            },
-            size = 40,
-            position = "left",
-        }
-    },
+	layouts = {
+		{
+			elements = {
+				"console",
+			},
+			size = 7,
+			position = "bottom",
+		},
+		{
+			elements = {
+				-- Elements can be strings or table with id and size keys.
+				{ id = "scopes", size = 0.25 },
+				"watches",
+			},
+			size = 40,
+			position = "left",
+		},
+	},
 })
 
 dap.listeners.after.event_initialized["dapui_config"] = function()
-    dapui.open(1)
+	dapui.open(1)
 end
 dap.listeners.before.event_terminated["dapui_config"] = function()
-    dapui.close()
+	dapui.close()
 end
 dap.listeners.before.event_exited["dapui_config"] = function()
-    dapui.close()
+	dapui.close()
 end
 
-require("node_debugger");
+require("node_debugger")
 
 nnoremap("<Home>", function()
-    dapui.toggle(1)
+	dapui.toggle(1)
 end)
 nnoremap("<End>", function()
-    dapui.toggle(2)
+	dapui.toggle(2)
 end)
 
 nnoremap("<leader><leader>", function()
-    dap.close()
+	dap.close()
 end)
 
 nnoremap("<Up>", function()
-    dap.continue()
+	dap.continue()
 end)
 nnoremap("<Down>", function()
-    dap.step_over()
+	dap.step_over()
 end)
 nnoremap("<Right>", function()
-    dap.step_into()
+	dap.step_into()
 end)
 nnoremap("<Left>", function()
-    dap.step_out()
+	dap.step_out()
 end)
 nnoremap("<Leader>b", function()
-    dap.toggle_breakpoint()
+	dap.toggle_breakpoint()
 end)
 nnoremap("<Leader>B", function()
-    dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))
+	dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
 end)
 nnoremap("<leader>rc", function()
-    dap.run_to_cursor()
+	dap.run_to_cursor()
 end)

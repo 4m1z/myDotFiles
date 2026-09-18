@@ -285,3 +285,5 @@ if command -v ng >/dev/null 2>&1; then
 fi
 
 . "$HOME/.local/share/../bin/env"
+
+. "$HOME/.cargo/env"

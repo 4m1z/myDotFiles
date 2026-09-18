@@ -1,4 +1,3 @@
---vim.cmd[[set guicursor=n:hor10]]
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
@@ -28,16 +27,11 @@ vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "80"
 
-
---vim.o.hlsearch = false
-
-
 vim.opt.spell = true
 
 vim.opt.mouse = "a"
 
 vim.opt.autoread = true
-vim.o.autoread = true
-vim.api.nvim_create_autocmd({"FocusGained", "BufEnter", "CursorHold"}, {
-  command = "checktime"
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+	command = "checktime",
 })
