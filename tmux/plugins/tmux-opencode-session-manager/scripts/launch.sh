@@ -95,6 +95,13 @@ octmux set-option -g 'terminal-overrides[99]' 'tmux-256color:Eneks=\E[>4;1m'
 octmux set-option -t "$session" @opencode_dir "$path"
 [ -n "$ORIGIN_WINDOW" ] && octmux set-option -t "$session" @opencode_origin "$ORIGIN_WINDOW"
 
+# Stamp an initial state so the picker never shows a fresh session as unknown.
+# The tmux-status plugin (or the API fallback in the picker) refines this on
+# the first opencode event.
+octmux set-option -t "$session" @opencode_state 'idle' 2>/dev/null
+octmux set-option -t "$session" @opencode_state_at "$(date +%s)" 2>/dev/null
+octmux set-option -t "$session" @opencode_detail 'opened' 2>/dev/null
+
 # Attach inside the popup. Detaching leaves the session alive on the dedicated
 # server, preserving opencode state per directory.
 tmux display-popup -w "$w" -h "$h" -E "tmux -L $(oc_socket) attach-session -t '=${session}'"

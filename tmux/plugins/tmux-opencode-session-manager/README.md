@@ -16,8 +16,8 @@ for opencode. Differences:
 Features:
 
 - A central picker (`prefix` + `u`) listing every running opencode session.
-- Live status per session — `working` / `waiting` / `idle` — driven by the
-  opencode status plugin.
+- Live status per session — `working` / `waiting` / `idle` — plus *what* each
+  session is doing (its newest opencode session title / current tool).
 - A live preview of each session's screen in the picker.
 - Smart jump — selecting a session switches your client to its origin window,
   then resumes it in a popup over it.
@@ -25,16 +25,30 @@ Features:
   current directory (resolves the real cwd, including an active nvim's cwd).
 - Quick kill (`ctrl-x`) of finished sessions from the picker.
 
-Status is optional: without the plugin the picker still lists, previews, jumps,
-and kills — sessions just show `?` instead of a color.
+Status never shows `?` without a fight. Resolution order per session:
+
+1. **Question mode** — a child with a pending permission
+   (`/api/permission/request`) or open question form (`/api/form`) → `waiting`,
+   with what it's waiting on (e.g. `risky change -- edit`). This outranks
+   running: a blocked session stays "active" server-side, so liveness alone
+   would hide question mode behind `working`.
+2. **opencode API** (`/api/session/active`) — authoritative "running" state.
+3. **Status plugin** (`@opencode_state`, when fresh) — instant push updates.
+   Stale `working` with nothing running is ignored, never stuck.
+4. **opencode API** — newest session in that directory → `idle` (+ its title).
+5. **Live pane heuristic** — an `esc interrupt` footer means `working`.
+6. `?` only when the server is unreachable *and* the screen is unreadable.
 
 ## Prerequisites
 
 - tmux >= 3.2 (for `display-popup`)
 - [fzf](https://github.com/junegunn/fzf) — the picker UI
-- opencode CLI (`opencode` command, v1; v2 beta `opencode2` removed).
+- opencode CLI (`opencode` command, **v2**). Status is read from the v2
+  background service API, so the service must be running (it starts on demand).
   Note: the binary must be installed and available in `$PATH`.
 - bash; macOS or Linux
+- `python3` (JSON parsing for the API fallback; the picker degrades
+  gracefully without it)
 
 ## Install
 
@@ -63,25 +77,41 @@ Inside the picker:
 | Key                  | Action                                          |
 | -------------------- | ----------------------------------------------- |
 | `enter`              | Jump to the session (origin window + resume)    |
+| `tab`                | Expand/collapse the row's opencode sessions     |
 | `ctrl-x`             | Kill the highlighted session                    |
 | `up`/`down`, type    | fzf navigation / filter                         |
+
+Each row is one tmux session (`▸` collapsed, `▾` expanded). `tab` expands it
+inline to show every opencode session in that directory as an indented child
+(`├`/`└`), each with its own status, age, and title — `enter` on a child jumps
+to its containing tmux session, same as the parent. Expansion state is kept per
+session and survives list refreshes.
 
 Sessions needing attention (`waiting`, `idle`) sort to the top.
 
 ## Status setup (the opencode plugin)
 
-Status comes from `~/.config/opencode/plugins/tmux-status.js`, installed
-alongside this. It maps opencode events to tmux session state via
-`scripts/state.sh`:
+Status is pushed by `opencode/plugins/tmux-status.ts` (symlinked live from
+this repo at `~/.config/opencode/plugins/` — no copy step). It is a native
+**V2** plugin: V1 hook implementations do not run in V2, and V2 plugins
+execute in the background service (outside tmux), so instead of `$TMUX_PANE`
+it maps each event's project directory to the tmux session with the same
+`oc_<cksum-of-dir>` hash the launcher uses, then stamps the session via
+`tmux -L <socket> set-option`:
 
-| opencode event                              | State          | Meaning                  |
-| ------------------------------------------- | -------------- | ------------------------ |
-| startup / `message.updated` / `tool.*`      | 🔴 `working`   | Busy — leave it          |
-| `permission.asked`                          | 🟡 `waiting`   | Needs permission         |
-| `session.idle`                              | 🟢 `idle`      | Turn finished — your move|
+| opencode event(s)                                              | State        | Meaning                   |
+| -------------------------------------------------------------- | ------------ | ------------------------- |
+| tool run / prompt sent / `busy` / step / tool / text / shell start | 🔴 `working` | Busy — leave it        |
+| `permission.asked` / `form.created`                            | 🟡 `waiting` | Needs your input          |
+| `session.idle` / `session.status idle` / run finished          | 🟢 `idle`    | Turn finished — your move |
 
-opencode loads plugins at startup, so already-running sessions report status on
-their next launch once the plugin is present.
+Tool/permission detail (`tool edit`, `permission ...`) is stored in
+`@opencode_detail` and shown as the last picker column. The plugin takes
+optional `socket` / `prefix` options (defaults `opencode-popup` / `oc_`).
+
+New plugin files load on `opencode service restart` (`opencode reload` only
+re-reads config). The picker does **not** depend on the plugin: without it,
+status still resolves through the opencode API and the live-screen fallback.
 
 ## Options
 
