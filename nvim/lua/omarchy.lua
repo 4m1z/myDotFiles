@@ -156,6 +156,7 @@ local THEME_NAME_TO_SCHEME = {
   ["deadspace"] = "monochrome",
   ["manga"] = "monochrome",
   ["vantablack"] = "monochrome",
+  ["omablue"] = "monochrome",
 }
 
 --- Pick the colorscheme to use. Sets `vim.o.background` from the theme mode
