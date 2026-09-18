@@ -17,7 +17,7 @@ WIDTH, HEIGHT = 1920, 1080
 
 def element(name, content=None, **attrs):
     attributes = " ".join(
-        f"{key.replace('_', '-')}={quoteattr(str(value))}"
+        f"{'xml:space' if key == 'xml_space' else key.replace('_', '-')}={quoteattr(str(value))}"
         for key, value in attrs.items()
     )
     opening = f"<{name} {attributes}"
@@ -494,7 +494,7 @@ def preview(courtyard_body):
     ]
     for line_number, spans in enumerate(rows):
         content = "".join(element("tspan", escape(value), fill=c[key]) for value, key in spans)
-        terminal.append(element("text", content, x=27, y=147 + line_number * 27, font_size=15))
+        terminal.append(element("text", content, x=27, y=147 + line_number * 27, font_size=15, xml_space="preserve"))
     terminal += [
         text(27, 346, "❯", 16, c["accent"]),
         rect(48, 332, 9, 19, c["bright_foreground"]),
@@ -508,7 +508,7 @@ def preview(courtyard_body):
         text(800, 178, "THU  18:42", 11, c["foreground"], font_family="monospace", text_anchor="middle"),
         text(1518, 178, "EN   ▰  84%", 11, c["foreground"], font_family="monospace", text_anchor="end"),
         rect(1164, 216, 350, 94, c["lighter_background"], rx=5, stroke=c["accent"], stroke_width=1),
-        text(1185, 245, "FIRouzeh", 11, c["accent"], font_family="monospace"),
+        text(1185, 245, "Firouzeh", 11, c["accent"], font_family="monospace"),
         text(1185, 270, "A little stillness, on your desktop.", 13, c["foreground"], font_family="sans-serif"),
         text(64, 1023, "PALETTE / UI STUDY", 10, c["muted"], font_family="monospace", letter_spacing=1.5),
     ]

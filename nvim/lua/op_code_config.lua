@@ -19,7 +19,7 @@ local function open_opencode_float()
         opencode_buf = vim.api.nvim_create_buf(false, true)
 
         vim.api.nvim_buf_call(opencode_buf, function()
-            vim.fn.termopen("opencode2")
+            vim.fn.termopen("opencode")
         end)
     end
 

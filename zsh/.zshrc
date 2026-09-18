@@ -95,10 +95,8 @@ alias vi="nvim"
 alias vim="nvim"
 alias lzg="lazygit"
 alias lzd="lazydocker"
-# opencode v2 beta (`opencode2`, npm global under mise node 22.20.0 — reinstall
-# with `npm install -g @opencode-ai/cli@beta` after switching node versions).
-# v1 `opencode` kept as fallback.
-alias oc="opencode2"
+# v2 beta `opencode2` removed — using v1 `opencode`
+alias oc="opencode"
 alias kc="kubectl"
 export PATH=$HOME/.local/bin:$PATH
 

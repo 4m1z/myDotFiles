@@ -32,10 +32,8 @@ and kills — sessions just show `?` instead of a color.
 
 - tmux >= 3.2 (for `display-popup`)
 - [fzf](https://github.com/junegunn/fzf) — the picker UI
-- opencode v2 CLI (the `opencode2` command, `npm install -g @opencode-ai/cli@beta`).
-  v1 `opencode` still works as fallback via `@opencode_command`.
-  Note: an npm global install is tied to its node version (e.g. mise node
-  22.20.0) — reinstall after switching node versions.
+- opencode CLI (`opencode` command, v1; v2 beta `opencode2` removed).
+  Note: the binary must be installed and available in `$PATH`.
 - bash; macOS or Linux
 
 ## Install
@@ -92,7 +90,7 @@ shown):
 
     set -g @opencode_launch_key     'y'              # prefix key: launch/open for current dir
     set -g @opencode_list_key       'u'              # prefix key: open the picker
-    set -g @opencode_command        'opencode2'      # command run in new sessions (v1 fallback: 'opencode')
+    set -g @opencode_command        'opencode'      # command run in new sessions
     set -g @opencode_session_prefix 'oc_'            # tmux session name prefix
     set -g @opencode_socket         'opencode-popup' # dedicated tmux server socket
     set -g @opencode_popup_width    '90%'            # popup width
