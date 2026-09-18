@@ -192,6 +192,9 @@ packer.startup(function(use)
     -- trouble  
     use { "folke/trouble.nvim", requires = "nvim-tree/nvim-web-devicons" }
 
+    -- smooth cursor animation (Zed-like cursor glide)
+    use 'sphamba/smear-cursor.nvim'
+
 
     -- Deps
     use 'stevearc/dressing.nvim'
