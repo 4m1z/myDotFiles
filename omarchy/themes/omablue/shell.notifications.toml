@@ -1,0 +1,9 @@
+# OmaBlue liquid glass: frosted notifications.
+[notifications]
+background = "#012456"
+background-alpha = 0.9
+text = "#FFFFFF"
+border = "#FFFFFF"
+border-alpha = 0.6
+border-width = 1
+countdown = "#73B7FF"

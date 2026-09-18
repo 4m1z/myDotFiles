@@ -1,0 +1,14 @@
+# OmaBlue liquid glass: frosted launcher over Hyprland blur.
+[launcher]
+background = "#012456"
+background-alpha = 0.88
+text = "#FFFFFF"
+border = "#FFFFFF"
+border-alpha = 0.6
+scrim = "#00132D"
+scrim-alpha = 0.45
+selected-background = "#2A5A8F"
+selected-background-alpha = 1.0
+selected-text = "#FFFFFF"
+selected-border = "#73B7FF"
+selected-border-alpha = 0.6
