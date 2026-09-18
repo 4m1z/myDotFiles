@@ -16,8 +16,13 @@ for opencode. Differences:
 Features:
 
 - A central picker (`prefix` + `u`) listing every running opencode session.
-- Live status per session — `working` / `waiting` / `idle` — plus *what* each
-  session is doing (its newest opencode session title / current tool).
+- Live status per session — `working` / `waiting` / `done` / `error` / `idle`
+  — plus *what* each session is doing (its newest opencode session title /
+  current tool).
+- Persistent per-agent indicators in **every** tmux status line (bottom-right,
+  just left of the hostname): one compact glyph + directory label per agent,
+  visible even with all popups closed. A working agent animates its spinner;
+  completion and input requests stay visible until you return.
 - A live preview of each session's screen in the picker.
 - Smart jump — selecting a session switches your client to its origin window,
   then resumes it in a popup over it.
@@ -35,9 +40,68 @@ Status never shows `?` without a fight. Resolution order per session:
 2. **opencode API** (`/api/session/active`) — authoritative "running" state.
 3. **Status plugin** (`@opencode_state`, when fresh) — instant push updates.
    Stale `working` with nothing running is ignored, never stuck.
-4. **opencode API** — newest session in that directory → `idle` (+ its title).
+4. **opencode API** — newest session in that directory → `done`/`error` (from
+   its `outcome`) or `idle` (+ its title). Only completions *newer than the
+   current stamp* promote — history never re-fires, and acknowledged
+   completions stay acknowledged.
 5. **Live pane heuristic** — an `esc interrupt` footer means `working`.
 6. `?` only when the server is unreachable *and* the screen is unreadable.
+   Silence, a dead server, or a closed popup is never reported as completion.
+
+## Persistent indicators
+
+One indicator per tracked agent (`oc_<hash>` session), rendered by
+`scripts/statusline.sh` as a `#(...)` segment prepended to your existing
+`status-right` — your content and styling are preserved, and narrow
+terminals get at most `@opencode_indicators_max` (default 4) indicators plus
+a `+N` overflow count. Labels are the project basename (truncated to 12
+chars); two projects sharing a basename show as `parent/base`. While the
+`prefix + u` picker popup is open the indicators hide themselves — the
+picker already shows every agent's state, so they would only duplicate it.
+
+| State | Glyph | Meaning |
+| ----- | ----- | ------- |
+| `working` | animated spinner `⠋…⠏` (red) | Actively running |
+| `waiting` | `◉ label!` (yellow) | Needs input / permission — outranks running |
+| `done` | `✓` (green) | Turn finished, **unacknowledged** — stays until you return |
+| `error` | `✖` (red) | Run failed / interrupted — stays until a new task starts |
+| `idle` | `○` (dim) | Acknowledged, nothing pending — distinct from `done` |
+| unknown | `?` (dim) | No signal yet; never shown as completion |
+
+Tradeoff: tmux has no floating persistent overlay — popups and menus cover
+content and vanish on dismissal — so a right-aligned status-line group is the
+native always-visible UI. It sits bottom-right, just left of the hostname.
+
+Completion/attention handling:
+
+- Finishing replaces the spinner with `✓` (or `✖` on failure); input
+  requests replace it with `◉!`. Neither disappears on its own.
+- Opening the agent (`prefix` + `y`) or jumping to it from the picker
+  acknowledges *completion only* (`done` → `idle`). `waiting` and `error`
+  survive the visit and clear when the next task starts (`working`).
+- Starting another prompt flips the indicator back to `working` via the
+  status plugin's tool/prompt hooks. Nothing ever switches your session or
+  steals focus except an explicit picker selection.
+- Removing a tmux session with unacknowledged `done`/`waiting`/`error`
+  keeps a `~`-suffixed tombstone indicator for 30 minutes.
+
+How the pieces fit (all state lives in per-session tmux options, keyed by
+stable `oc_<hash>` names, so renames, popup reopening, and multiple clients
+can't duplicate or misroute agents):
+
+- `opencode/plugins/tmux-status.ts` pushes lifecycle events instantly
+  (`working` on tool/prompt/step start, `waiting` on
+  `permission.asked`/`question.asked`, `done` on `session.idle`, `error` on
+  `session.error`/step failure). It handles both V2 (`payload.properties`)
+  and legacy event envelopes.
+- `scripts/statusline.sh` renders one cheap `#()` tick: a single
+  `list-sessions` read, no API calls, no pane scrapes.
+- `scripts/reconcile.sh daemon` polls the opencode API every
+  `@opencode_reconcile_every` seconds (default 15) and corrects stamps
+  (waiting outranks running; terminal `outcome`s promote only newer
+  completions; silence never completes). Single-instance via PID lockfile,
+  so config reloads never stack watchers.
+- `scripts/ack.sh` records visits. Called by the launcher and the picker.
 
 ## Prerequisites
 
@@ -87,7 +151,7 @@ inline to show every opencode session in that directory as an indented child
 to its containing tmux session, same as the parent. Expansion state is kept per
 session and survives list refreshes.
 
-Sessions needing attention (`waiting`, `idle`) sort to the top.
+Sessions needing attention (`waiting`, `error`, `done`) sort to the top.
 
 ## Status setup (the opencode plugin)
 
@@ -101,9 +165,11 @@ it maps each event's project directory to the tmux session with the same
 
 | opencode event(s)                                              | State        | Meaning                   |
 | -------------------------------------------------------------- | ------------ | ------------------------- |
-| tool run / prompt sent / `busy` / step / tool / text / shell start | 🔴 `working` | Busy — leave it        |
-| `permission.asked` / `form.created`                            | 🟡 `waiting` | Needs your input          |
-| `session.idle` / `session.status idle` / run finished          | 🟢 `idle`    | Turn finished — your move |
+| tool run / prompt sent / step / tool / text / shell start      | 🔴 `working` | Busy — leave it        |
+| `permission.asked` / `question.asked`                          | 🟡 `waiting` | Needs your input          |
+| `session.idle` / `session.status` idle                         | ✅ `done`    | Turn finished — stays until you return |
+| `session.error` / step failed                                  | 🔴 `error`   | Run failed — needs attention |
+| `session.created` / ack of `done`                              | 🟢 `idle`    | Quiet — your move |
 
 Tool/permission detail (`tool edit`, `permission ...`) is stored in
 `@opencode_detail` and shown as the last picker column. The plugin takes
@@ -125,6 +191,19 @@ shown):
     set -g @opencode_socket         'opencode-popup' # dedicated tmux server socket
     set -g @opencode_popup_width    '90%'            # popup width
     set -g @opencode_popup_height   '90%'            # popup height
+    set -g @opencode_indicators_max '4'              # status-line indicators before +N
+    set -g @opencode_indicator_idle 'on'             # also show dim idle agents
+    set -g @opencode_status_interval '2'             # status tick (spinner); never raises yours
+    set -g @opencode_reconcile_every '15'            # watcher poll seconds (min 5)
+
+## Tests
+
+`scripts/tests.sh` covers state transitions (`done`/`error`/`waiting` vs
+ack), glyph distinctness and spinner animation, label identity (basename
+collisions, truncation), `session_hash` stability, `ack.sh` semantics, and
+status-line rendering (overflow, tombstones, dead server) via a stub tmux:
+
+    bash ~/.config/tmux/plugins/tmux-opencode-session-manager/scripts/tests.sh
 
 ## How it works
 

@@ -64,7 +64,9 @@ fi
 
 # Create the detached opencode session on the dedicated server if absent, and
 # configure the nested server to behave like "just opencode in a frame".
+is_new=0
 if ! octmux has-session -t "=${session}" 2>/dev/null; then
+  is_new=1
   octmux new-session -d -s "$session" -c "$path" "$cmd"
 
   octmux set-option -g status off
@@ -95,12 +97,20 @@ octmux set-option -g 'terminal-overrides[99]' 'tmux-256color:Eneks=\E[>4;1m'
 octmux set-option -t "$session" @opencode_dir "$path"
 [ -n "$ORIGIN_WINDOW" ] && octmux set-option -t "$session" @opencode_origin "$ORIGIN_WINDOW"
 
-# Stamp an initial state so the picker never shows a fresh session as unknown.
+# Stamp an initial state for brand-new sessions only, so the picker never
+# shows a fresh session as unknown. Reopening an existing session must NOT
+# reset its stamp — that would flash a working/waiting/done agent as idle.
 # The tmux-status plugin (or the API fallback in the picker) refines this on
 # the first opencode event.
-octmux set-option -t "$session" @opencode_state 'idle' 2>/dev/null
-octmux set-option -t "$session" @opencode_state_at "$(date +%s)" 2>/dev/null
-octmux set-option -t "$session" @opencode_detail 'opened' 2>/dev/null
+if [ "$is_new" = '1' ]; then
+  octmux set-option -t "$session" @opencode_state 'idle' 2>/dev/null
+  octmux set-option -t "$session" @opencode_state_at "$(date +%s)" 2>/dev/null
+  octmux set-option -t "$session" @opencode_detail 'opened' 2>/dev/null
+fi
+
+# Returning to the agent acknowledges completion (done -> idle) but never
+# clears an unresolved input request or error — see ack.sh.
+"$DIR_SELF/ack.sh" "$session" 2>/dev/null || true
 
 # Attach inside the popup. Detaching leaves the session alive on the dedicated
 # server, preserving opencode state per directory.

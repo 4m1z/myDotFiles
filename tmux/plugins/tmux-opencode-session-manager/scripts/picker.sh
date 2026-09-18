@@ -12,165 +12,22 @@ DIR_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 prefix="$(get_tmux_option @opencode_session_prefix 'oc_')"
 socket="$(oc_socket)"
 
-# --- Status resolution -------------------------------------------------------
-# The picker used to trust only the tmux-status plugin (@opencode_state),
-# which left every session stuck at "?" when the plugin was missing (or, with
-# opencode v2, when the old V1 plugin stopped running: V1 hooks don't execute
-# in V2, and the service-side plugin can't see $TMUX anyway).
-#
-# Resolution order per tmux session directory (first hit wins):
-#   1. waiting — a child with a pending permission or open question form.
-#        Must come first: a blocked session stays "running" server-side, so
-#        liveness alone would hide question mode behind "working".
-#   2. opencode API active map  -> working (+ newest running session title)
-#   3. plugin state, when fresh -> as stamped (+ plugin detail)
-#        (stale "working" with nothing active is ignored, not stuck)
-#   4. opencode API: newest session in that directory -> idle (+ its title)
-#   5. local plugin stamp (server unreachable) -> as stamped
-#   6. live pane heuristic ("esc interrupt" footer) -> working/waiting
-#   7. "?" only when nothing at all is known.
-_oc_cache_dir="${TMPDIR:-/tmp}/opencode-picker-$USER"
-_oc_active_file="$_oc_cache_dir/active.json"
-_oc_sess_file="$_oc_cache_dir/sessions.json"
-_oc_perms_file="$_oc_cache_dir/perms.json"
-_oc_forms_file="$_oc_cache_dir/forms.json"
-# Expansion state: one tmux session name per line (stable `oc_<hash>` ids).
-_oc_expanded_file="$_oc_cache_dir/expanded"
+# Shared opencode-API snapshot cache + lookup helpers (also used by the
+# background reconcile.sh watcher, so picker and status indicators agree).
+# shellcheck source=api.sh
+. "$DIR_SELF/api.sh"
 
-_oc_fetch_cache() {
-  mkdir -p "$_oc_cache_dir" 2>/dev/null
-  # Drop row workdirs orphaned by killed runs (concurrent runs use unique
-  # names, so only reap dirs idle for over an hour).
-  find "$_oc_cache_dir" -maxdepth 1 -name 'rows.*' -mmin +60 -exec rm -rf {} + 2>/dev/null
-  # `timeout` is GNU-only; run bare where it is missing.
-  if command -v timeout >/dev/null 2>&1; then
-    _oc_to() { timeout "$@"; }
-  else
-    _oc_to() { shift; "$@"; }
-  fi
-  if command -v opencode >/dev/null 2>&1; then
-    _oc_to 5 opencode api get /api/session/active >"$_oc_active_file" 2>/dev/null || : >"$_oc_active_file"
-    _oc_to 8 opencode api get /api/session --param limit=200 >"$_oc_sess_file" 2>/dev/null || : >"$_oc_sess_file"
-    _oc_to 5 opencode api get /api/permission/request >"$_oc_perms_file" 2>/dev/null || : >"$_oc_perms_file"
-    _oc_to 5 opencode api get /api/form >"$_oc_forms_file" 2>/dev/null || : >"$_oc_forms_file"
-  else
-    : >"$_oc_active_file"
-    : >"$_oc_sess_file"
-    : >"$_oc_perms_file"
-    : >"$_oc_forms_file"
-  fi
-}
-
-# _oc_api_lookup <dir> — one \x1f-separated line:
-# has_active | active_title | active_age_m | newest_id | newest_title | newest_age_m | active_ok
-# (\x1f, not tab: bash read collapses empty tab-separated fields.
-# active_ok=0 means liveness is unknown: callers must not report idle.)
-_oc_api_lookup() {
-  python3 - "$1" "$_oc_active_file" "$_oc_sess_file" <<'EOF' 2>/dev/null
-import json, sys, time
-d, active_f, sess_f = sys.argv[1], sys.argv[2], sys.argv[3]
-now = time.time() * 1000
-active = None
-try:
-    raw = json.load(open(active_f)).get("data", {})
-    if isinstance(raw, dict):
-        active = set(raw.keys())
-except Exception:
-    pass
-cands = []
-try:
-    for s in json.load(open(sess_f)).get("data", []):
-        loc = (s.get("location") or {}).get("directory", "")
-        if loc == d:
-            cands.append(s)
-except Exception:
-    pass
-cands.sort(key=lambda s: s.get("time", {}).get("updated", 0), reverse=True)
-at, aa = "", "-"
-if active:
-    for s in cands:
-        if s.get("id") in active:
-            at = str(s.get("title") or "").replace("\t", " ").replace("\n", " ")[:60]
-            aa = "%dm" % max(0, int((now - s.get("time", {}).get("updated", now)) / 60000))
-            break
-nid, nt, na = "", "", "-"
-if cands:
-    n = cands[0]
-    nid = n.get("id", "")
-    nt = str(n.get("title") or "").replace("\t", " ").replace("\n", " ")[:60]
-    na = "%dm" % max(0, int((now - n.get("time", {}).get("updated", now)) / 60000))
-print("%d\x1f%s\x1f%s\x1f%s\x1f%s\x1f%s\x1f%d" % (1 if at else 0, at, aa, nid, nt, na, 1 if active is not None else 0))
-EOF
-}
-
-# _oc_dir_sessions <dir> — every opencode session in one tmux session's
-# directory (exact match on the tmux session's own @opencode_dir, never fuzzy
-# path/title grouping; every session ID is its own entry even when titles
-# repeat). Prints a header line `active_ok=<0|1> waiting=<n>` then one
-# \x1f-separated line per child: ses_id | status | age_m | display_title.
-# Status precedence: waiting (pending permission OR open question form)
-# outranks working — a blocked session stays "running" server-side, so
-# liveness alone would hide question mode. Prints nothing at all when the
-# session list is unavailable — unknown children are omitted, never faked.
-_oc_dir_sessions() {
-  python3 - "$1" "$_oc_active_file" "$_oc_sess_file" "$_oc_perms_file" "$_oc_forms_file" <<'EOF' 2>/dev/null
-import json, sys, time
-d, active_f, sess_f, perms_f, forms_f = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
-now = time.time() * 1000
-def load(f):
-    try:
-        return json.load(open(f))
-    except Exception:
-        return None
-active_raw, sess_raw = load(active_f), load(sess_f)
-perms_raw, forms_raw = load(perms_f), load(forms_f)
-if isinstance(sess_raw, dict) and isinstance(sess_raw.get("data"), list):
-    sess_list = sess_raw["data"]
-else:
-    sess_list = None
-active = None
-if isinstance(active_raw, dict) and isinstance(active_raw.get("data"), dict):
-    active = set(active_raw["data"].keys())
-perm_action = {}
-if isinstance(perms_raw, dict) and isinstance(perms_raw.get("data"), list):
-    for r in perms_raw["data"]:
-        if isinstance(r, dict) and r.get("sessionID") and r["sessionID"] not in perm_action:
-            perm_action[r["sessionID"]] = str(r.get("action") or r.get("type") or "approval")
-form_title = {}
-if isinstance(forms_raw, dict) and isinstance(forms_raw.get("data"), list):
-    for f in forms_raw["data"]:
-        if isinstance(f, dict) and f.get("sessionID") and f["sessionID"] not in form_title:
-            form_title[f["sessionID"]] = str(f.get("title") or "question")[:40]
-if sess_list is None:
-    sys.exit(0)
-cands = [s for s in sess_list
-         if isinstance(s, dict) and (s.get("location") or {}).get("directory") == d]
-order = {"waiting": 0, "working": 1, "idle": 2, "?": 3}
-rows = []
-for s in cands:
-    sid = s.get("id", "")
-    if active is None:
-        st, reason = "?", ""
-    elif sid in perm_action:
-        st, reason = "waiting", perm_action[sid]
-    elif sid in form_title:
-        st, reason = "waiting", form_title[sid]
-    elif sid in active:
-        st, reason = "working", ""
-    else:
-        st, reason = "idle", ""
-    upd = (s.get("time", {}) or {}).get("updated", now)
-    age = "%dm" % max(0, int((now - upd) / 60000))
-    title = str(s.get("title") or "(untitled)").replace("\x1f", " ").replace("\t", " ").replace("\n", " ")
-    if reason:
-        title = "%s -- %s" % (title, reason)
-    rows.append((order[st], -upd, sid, st, age, title[:60]))
-nwaiting = sum(1 for r in rows if r[3] == "waiting")
-print("active_ok=%d waiting=%d" % (1 if active is not None else 0, nwaiting))
-for _, _, sid, st, age, title in sorted(rows):
-    print("%s\x1f%s\x1f%s\x1f%s" % (sid, st, age, title))
-EOF
-}
+# While the interactive picker is open, hide the persistent status-line
+# indicators: the picker already shows every agent's state, so the
+# status-right group would only duplicate it. statusline.sh is wrapped in
+# #{?@opencode_picker_open,,...} (see opencode_session_manager.tmux), so
+# setting this main-server option hides it at zero extra cost. Submodes
+# (--list/--toggle/--preview) are short-lived fzf helpers and must not touch
+# the flag — only the interactive session owns it.
+if [ -z "${1:-}" ]; then
+  tmux set-option -g @opencode_picker_open 1 2>/dev/null
+  trap 'tmux set-option -gu @opencode_picker_open 2>/dev/null' EXIT
+fi
 
 # _oc_pane_guess <tmux-session> — live-screen fallback. Prints working|waiting|""
 _oc_pane_guess() {
@@ -187,9 +44,13 @@ _ago_m() { # _ago_m <now_s> <at_s> -> "Nm" or "-"
 }
 
 # _oc_icon <state> — sets $icon (shared by parent and child rows).
+# waiting/error/done are attention states (input needed, failed, finished);
+# idle is acknowledged quiet; working is busy; unknown is last-resort grey.
 _oc_icon() {
   case "$1" in
   waiting) icon=$'\033[33m\u25cf\033[0m waiting' ;; # yellow - needs input
+  error)   icon=$'\033[31m\u2716\033[0m error  ' ;; # red    - run failed
+  done)    icon=$'\033[32m\u2713\033[0m done   ' ;; # green  - finished, unacked
   idle)    icon=$'\033[32m\u25cf\033[0m idle   ' ;; # green  - done, your turn
   working) icon=$'\033[31m\u25cf\033[0m working' ;; # red    - busy, leave it
   *)       icon=$'\033[90m\u25cf\033[0m   ?    ' ;; # grey   - unknown
@@ -225,8 +86,8 @@ _oc_toggle() {
 }
 
 emit_rows() {
-  local now s state at path icon rank ago detail
-  local has_active active_title active_ago newest_id newest_title newest_age active_ok
+  local now s state at ack path icon rank ago detail
+  local has_active active_title active_ago newest_id newest_title newest_age active_ok newest_outcome newest_upd
   local guess pstate indpfx cblock kids hdr wcount
   local _wsid wstate wage wtitle wait_detail wait_age
   local tmpd row crank krow sid cstate cage ctitle br total i
@@ -234,17 +95,26 @@ emit_rows() {
   _oc_fetch_cache
   tmpd=$(mktemp -d "${_oc_cache_dir}/rows.XXXXXX" 2>/dev/null) || return 0
 
-  # Phase 1: one row per tmux session (resolution order unchanged), plus an
+  # Phase 1: one row per tmux session (resolution order in api.sh), plus an
   # expand/collapse indicator and a stashed block of that session's children.
   octmux list-sessions -F '#{session_name}' 2>/dev/null | grep "^${prefix}" | while IFS= read -r s; do
     state=$(octmux show-options -qv -t "$s" @opencode_state 2>/dev/null)
     at=$(octmux show-options -qv -t "$s" @opencode_state_at 2>/dev/null)
+    ack=$(octmux show-options -qv -t "$s" @opencode_acked_at 2>/dev/null)
     detail=$(octmux show-options -qv -t "$s" @opencode_detail 2>/dev/null)
     path=$(octmux show-options -qv -t "$s" @opencode_dir 2>/dev/null)
     [ -z "$path" ] && path=$(octmux display-message -p -t "$s" '#{pane_current_path}' 2>/dev/null)
+    [[ "$at" =~ ^[0-9]+$ ]] || at=0
 
-    IFS=$'\x1f' read -r has_active active_title active_ago newest_id newest_title newest_age active_ok \
+    # Returning acknowledges completion only: an acked done reads as idle.
+    # Waiting/error are never acked away (see ack.sh).
+    if [ "$state" = 'done' ] && [[ "$ack" =~ ^[0-9]+$ ]] && (( ack > 0 )) && (( ack >= at )); then
+      state='idle'
+    fi
+
+    IFS=$'\x1f' read -r has_active active_title active_ago newest_id newest_title newest_age active_ok newest_outcome newest_upd \
       <<<"$(_oc_api_lookup "$path")"
+    [[ "$newest_upd" =~ ^[0-9]+$ ]] || newest_upd=0
 
     # Children drive both the indicator and the waiting state: a pending
     # permission or open question form outranks "running", which a blocked
@@ -276,13 +146,21 @@ emit_rows() {
       if [ "$pstate" = 'working' ] && [ -n "$at" ] && [ "$((now - at))" -lt 600 ]; then
         ago="$(_ago_m "$now" "$at")"
       fi
-      if [ -n "$detail" ] && [ -n "$active_title" ] && [ "$detail" != "$active_title" ]; then
+      if [ -n "$detail" ] && [ -n "$active_title" ] && [ "$detail" != "$active_title" ] \
+        && [[ "$detail" != "$active_title | "* ]]; then
         detail="$active_title | $detail"
-      else
+      elif [ -z "$detail" ]; then
         detail="$active_title"
       fi
+    elif [ "$state" = 'done' ]; then
+      # 3a. unacknowledged completion — persists until ack.sh runs on open.
+      if [ -n "$newest_title" ]; then detail="$newest_title"; fi
+      ago="$(_ago_m "$now" "$at")"
+    elif [ "$state" = 'error' ]; then
+      # 3b. failure persists like completion: only a new task clears it.
+      ago="$(_ago_m "$now" "$at")"
     elif [ "$state" = 'idle' ]; then
-      # 3. plugin says idle — trust, but prefer the API session title: it
+      # 3c. plugin says idle — trust, but prefer the API session title: it
       # tells WHAT the session is about ("done" is already shown by the icon).
       if [ -n "$newest_title" ]; then detail="$newest_title"; fi
       ago="$(_ago_m "$now" "$at")"
@@ -290,14 +168,25 @@ emit_rows() {
       # 4. fresh plugin "working" with nothing active (e.g. between steps).
       ago="$(_ago_m "$now" "$at")"
     else
-      # 5. newest session -> idle (only when liveness is known — never report
-      # a possibly-busy session as idle), else the local plugin stamp, else
-      # the live-screen heuristic, else unknown.
-      if [ -n "$newest_id" ] && [ "${active_ok:-0}" = '1' ]; then
+      # 5. newest session -> done/error/idle from its outcome, but ONLY for
+      # completions newer than the current stamp (history never re-fires),
+      # and only when liveness is known — never report a possibly-busy
+      # session as finished. Otherwise the local plugin stamp, the
+      # live-screen heuristic, else unknown.
+      if [ -n "$newest_id" ] && [ "${active_ok:-0}" = '1' ] && [ -n "$newest_outcome" ] \
+        && (( newest_upd > at * 1000 )); then
+        if [ "$newest_outcome" = 'failed' ]; then
+          state='error'; detail="$newest_title -- run failed"; ago="$newest_age"
+        elif [ "$newest_outcome" = 'interrupted' ]; then
+          state='error'; detail="$newest_title -- interrupted"; ago="$newest_age"
+        else
+          state='done'; detail="$newest_title"; ago="$newest_age"
+        fi
+      elif [ -n "$newest_id" ] && [ "${active_ok:-0}" = '1' ]; then
         state='idle'; detail="$newest_title"; ago="$newest_age"
       elif [ -n "$newest_id" ]; then
         state='?'; detail="$newest_title"; ago="$newest_age"
-      elif [ "$state" = 'waiting' ] || [ "$state" = 'idle' ]; then
+      elif [ "$state" = 'waiting' ] || [ "$state" = 'idle' ] || [ "$state" = 'done' ] || [ "$state" = 'error' ]; then
         ago="$(_ago_m "$now" "$at")"
       else
         # 6. live-screen heuristic; 7. unknown.
@@ -309,9 +198,11 @@ emit_rows() {
 
     case "$state" in
     waiting) rank=0 ;; # needs input - sorts first
-    idle)    rank=1 ;; # done, your turn
-    working) rank=3 ;; # busy - sorts last
-    *)       rank=2 ;; # unknown
+    error)   rank=1 ;; # failed - needs attention
+    done)    rank=2 ;; # finished, unacknowledged
+    idle)    rank=3 ;; # quiet
+    working) rank=5 ;; # busy - sorts last
+    *)       rank=4 ;; # unknown
     esac
     _oc_icon "$state"
     detail="${detail:-}"
@@ -399,11 +290,15 @@ export FZF_DEFAULT_OPTS=''
 sel=$(emit_rows | fzf --ansi --delimiter='\t' --with-nth=3,4,5,6 \
   --reverse --cycle --header='opencode sessions · tab: expand · enter: jump · ctrl-x: kill' \
   --preview="$self --preview {2}" --preview-window='right,62%,nowrap' \
-  --bind="ctrl-x:execute-silent(tmux -L $socket kill-session -t {2})+reload($self --list)" \
+  --bind="ctrl-x:execute-silent(tmux -L $socket kill-session -t {2}; rm -f ${TMPDIR:-/tmp}/opencode-picker-$USER/tombs/{2}.tomb)+reload($self --list)" \
   --bind="tab:execute-silent($self --toggle {2})+reload($self --list)")
 
 [ -z "$sel" ] && exit 0
 target=$(printf '%s' "$sel" | cut -f2)
+
+# Returning to the agent acknowledges completion (done -> idle) but never
+# clears an unresolved input request or error — see ack.sh.
+"$DIR_SELF/ack.sh" "$target" 2>/dev/null || true
 
 # Move the underlying parent (main-server) client to the session's origin window
 # (best-effort), then resume the session in a popup over it.
