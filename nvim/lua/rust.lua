@@ -11,7 +11,6 @@ rs_tools.setup({
 	tools = {
 		autoSetHints = true,
 		--hover_with_actions = true,
-		on_attach = true,
 
 		inlay_hints = {
 			show_parameter_hints = true,
@@ -25,6 +24,22 @@ rs_tools.setup({
 	-- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
 	-- https://rust-analyzer.github.io/manual.html#features
 	server = {
+		on_attach = function(_, bufnr)
+			local opts = { buffer = bufnr, remap = false }
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+			vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+			vim.keymap.set("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
+			vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, opts)
+			vim.keymap.set("n", "[d", function()
+				vim.diagnostic.jump({ count = -1, float = true })
+			end, opts)
+			vim.keymap.set("n", "]d", function()
+				vim.diagnostic.jump({ count = 1, float = true })
+			end, opts)
+			vim.keymap.set("n", "<leader>va", vim.lsp.buf.code_action, opts)
+			vim.keymap.set("n", "<leader>r", vim.lsp.buf.references, opts)
+			vim.keymap.set("n", "<leader>vr", vim.lsp.buf.rename, opts)
+		end,
 		settings = {
 			["rust-analyzer"] = {
 				assist = {
@@ -49,6 +64,3 @@ rs_tools.setup({
 	},
 })
 
-require("lspconfig").rust_analyzer.setup({
-	capabilities = vim.lsp.protocol.make_client_capabilities(),
-})

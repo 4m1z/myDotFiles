@@ -7,7 +7,7 @@ lsp.ensure_installed({
 	"angularls",
 	"rust_analyzer",
 })
-lsp.skip_server_setup({ "angularls", "stylua" })
+lsp.skip_server_setup({ "angularls", "stylua", "rust_analyzer" })
 
 -- Fix Undefined global 'vim'
 lsp.nvim_workspace()
@@ -56,10 +56,10 @@ lsp.on_attach(function(client, bufnr)
 		vim.diagnostic.open_float()
 	end, opts)
 	vim.keymap.set("n", "[d", function()
-		vim.diagnostic.goto_next()
+		vim.diagnostic.jump({ count = -1, float = true })
 	end, opts)
 	vim.keymap.set("n", "]d", function()
-		vim.diagnostic.goto_prev()
+		vim.diagnostic.jump({ count = 1, float = true })
 	end, opts)
 	vim.keymap.set("n", "<leader>va", function()
 		vim.lsp.buf.code_action()
