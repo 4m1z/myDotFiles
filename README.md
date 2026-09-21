@@ -21,6 +21,7 @@ Tracked configuration:
 - English/Persian keyboard layouts with `Alt + Shift` switching
 - Speedy on `Super + Shift + I`
 - Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
+- Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
 
 Run this from an Omarchy desktop session after cloning the repository:
 

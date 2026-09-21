@@ -102,6 +102,32 @@ if [[ ! -x $HOME/.cargo/bin/speedy ]]; then
   cargo install --git https://github.com/4m1z/speedy.git
 fi
 
+ensure_omarchy_plugin() {
+  local id=$1
+  local url=$2
+
+  if omarchy plugin list 2>/dev/null | grep -q "$id"; then
+    printf 'Plugin already installed: %s\n' "$id"
+  else
+    omarchy plugin add "$url" --enable
+  fi
+}
+
+# Third-party bar widgets used with this dotfiles setup (idempotent).
+# The GitHub widget additionally needs an authenticated gh CLI and jq.
+if ! command -v gh >/dev/null 2>&1; then
+  omarchy pkg add github-cli
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  omarchy pkg add jq
+fi
+
+ensure_omarchy_plugin "io.github.4m1z.speedy" "https://github.com/4m1z/speedy.git"
+ensure_omarchy_plugin "io.github.4m1z.terminalodo" "https://github.com/4m1z/terminalodo.git"
+ensure_omarchy_plugin "tmn73.calendar" "https://github.com/tmn73/omarchy-calendar.git"
+ensure_omarchy_plugin "robzolkos.github" "https://github.com/robzolkos/omarchy-github.git"
+
 if [[ " $(id -nG) " != *" input "* ]]; then
   sudo usermod -aG input "$USER"
   input_group_added=true
