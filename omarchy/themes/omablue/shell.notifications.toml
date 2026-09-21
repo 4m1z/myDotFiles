@@ -1,7 +1,7 @@
-# OmaBlue liquid glass: frosted notifications.
+# OmaBlue liquid glass: frosted notifications (blurred behind via layerrule).
 [notifications]
 background = "#011B40"
-background-alpha = 0.78
+background-alpha = 0.9
 text = "#FFFFFF"
 border = "#73B7FF"
 border-alpha = 0.5

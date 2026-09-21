@@ -536,6 +536,14 @@ def build_shell():
     sections = {
         "menu": card,
         "launcher": card,
+        "popups": {
+            "background": c["lighter_background"], "background-alpha": 0.92,
+            "text": c["foreground"], "border": c["accent"], "border-alpha": .75,
+        },
+        "bar": {
+            "background": c["dark_background"], "background-alpha": 0.88,
+            "text": c["foreground"], "active": c["accent"],
+        },
         "notifications": {
             "background": c["lighter_background"], "background-alpha": 1.0,
             "text": c["foreground"], "border": c["accent"], "border-alpha": .8,

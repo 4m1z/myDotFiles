@@ -41,8 +41,15 @@ hl.config({
       enabled = true,
       size = 14,
       passes = 3,
-      vibrancy = 0.2,
+      vibrancy = 0.3,
+      vibrancy_darkness = 0.5,
+      ignore_opacity = true,
       new_optimizations = true,
+      -- Blur layer-shell popups (calendar etc.) anchored to the bar.
+      popups = true,
+      popups_ignorealpha = 0.35,
+      input_methods = true,
+      input_methods_ignorealpha = 0.4,
     },
 
     shadow = {
@@ -65,3 +72,15 @@ hl.animation({ leaf = "layersIn", enabled = true, speed = 4, bezier = "easeOutQu
 hl.animation({ leaf = "layersOut", enabled = true, speed = 1.5, bezier = "quick", style = "fade" })
 hl.animation({ leaf = "workspaces", enabled = true, speed = 4.5, bezier = "easeOutQuint", style = "slide" })
 hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 3, bezier = "easeOutQuint", style = "slidevert" })
+
+-- Frosted glass for the Omarchy shell layers: blur the backdrop behind
+-- translucent bar popups (calendar), menus, notifications and launcher
+-- so text stays readable. Mirrors the system-wide rules in hypr/looknfeel.lua.
+hl.layer_rule({
+  match = {
+    namespace = "^(omarchy-bar.*|omarchy-menu|omarchy-notifications|omarchy-clipboard|omarchy-emojis|omarchy-image-selector|omarchy-osd|omarchy-polkit|omarchy-reminders|omarchy-keyboard-panel.*|omarchy-lock-preview|omarchy-network-qr|omarchy-.*speedtest)$",
+  },
+  blur = true,
+  blur_popups = true,
+  ignore_alpha = 0.35,
+})
