@@ -1,8 +1,11 @@
-mode = "light"
+mode = "dark"
 
 # Classic Windows PowerShell blue, extended into an Omarchy-wide palette.
-accent = "#FFFFFF"
-selection = "#2A5A8F"
+# Electric-blue accent so bar/active states glow instead of flat white.
+accent = "#73B7FF"
+selection = "#1A4A8A"
+selection_background = "#1A4A8A"
+selection_foreground = "#FFFFFF"
 muted = "#7BA2C7"
 
 background = "#012456"
@@ -15,8 +18,11 @@ dark_foreground = "#A8BDD2"
 light_foreground = "#DCE9F5"
 bright_foreground = "#FFFFFF"
 
-hyprland_active_border = "rgba(ffffffff) rgba(73b7ffee) 45deg"
-hyprland_inactive_border = "rgba(7ba2c788)"
+hyprland_active_border = "rgba(73b7ffee) rgba(72e6e6ee) 45deg"
+hyprland_inactive_border = "rgba(3a5a8caa)"
+active_border_color = "#73B7FF"
+active_tab_background = "#1A4A8A"
+active_tab_foreground = "#FFFFFF"
 
 red = "#FF7B72"
 yellow = "#FFD166"

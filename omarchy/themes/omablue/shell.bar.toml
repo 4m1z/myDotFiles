@@ -1,6 +1,6 @@
 # OmaBlue liquid glass: translucent bar so the wallpaper bleeds through.
 [bar]
-background = "#012456"
-background-alpha = 0.82
+background = "#011B40"
+background-alpha = 0.72
 text = "#FFFFFF"
 active = "#73B7FF"

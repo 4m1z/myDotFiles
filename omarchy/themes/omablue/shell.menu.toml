@@ -1,14 +1,14 @@
 # OmaBlue liquid glass: frosted menus over Hyprland blur.
 [menu]
-background = "#012456"
-background-alpha = 0.88
+background = "#0A326B"
+background-alpha = 0.78
 text = "#FFFFFF"
-border = "#FFFFFF"
-border-alpha = 0.6
+border = "#73B7FF"
+border-alpha = 0.5
 scrim = "#00132D"
-scrim-alpha = 0.45
-selected-background = "#2A5A8F"
+scrim-alpha = 0.5
+selected-background = "#1A4A8A"
 selected-background-alpha = 1.0
 selected-text = "#FFFFFF"
-selected-border = "#73B7FF"
+selected-border = "#72E6E6"
 selected-border-alpha = 0.6

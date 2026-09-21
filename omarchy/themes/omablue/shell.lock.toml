@@ -1,0 +1,13 @@
+# OmaBlue lock screen: deep-blue card, electric-blue focus ring.
+[lock]
+background = "#011B40"
+background-alpha = 0.85
+text = "#FFFFFF"
+placeholder = "#A8BDD2"
+text-error = "#FF7B72"
+border = "#7BA2C7"
+border-active = "#73B7FF"
+border-error = "#FF7B72"
+border-alpha = 1.0
+selection = "#73B7FF"
+selection-alpha = 0.45

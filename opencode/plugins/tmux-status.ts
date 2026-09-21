@@ -64,6 +64,56 @@ function stamp(socket: string, session: string, state: State, detail: string): v
   }
 }
 
+// Dedupe for desktop notifications: one turn can emit several
+// completion-shaped events (session.idle + session.status idle +
+// legacy execution events), and several sessions can share one project
+// dir. Notify on transition into a terminal state; suppress repeats of
+// the same state within the cooldown. A changed detail (e.g. a new
+// permission request) re-notifies after a short floor.
+const lastNotifiedByDir = new Map<string, { state: State; detail: string; at: number }>()
+const lastStateByDir = new Map<string, State>()
+const NOTIFY_COOLDOWN_MS = 120_000
+const NOTIFY_SAME_STATE_DETAIL_MS = 15_000
+
+// Desktop notification for when the user may be on another workspace /
+// window and can't see tmux. Only for terminal states that need attention:
+// done / waiting / error — never for working (too noisy).
+function notify(state: State, dir: string, detail: string): void {
+  if (state !== "done" && state !== "waiting" && state !== "error") return
+  const now = Date.now()
+  const prevState = lastStateByDir.get(dir)
+  const last = lastNotifiedByDir.get(dir)
+  // A fresh transition (e.g. working -> done) always notifies, so quick
+  // back-to-back tasks each ping. Only repeats of the same stamped state
+  // (session.idle + session.status idle for one turn) are deduped.
+  if (last && last.state === state && prevState === state) {
+    const cleanDetail = String(detail ?? "").replace(/[\t\r\n]+/g, " ").slice(0, 120)
+    const sameDetail = String(last.detail ?? "") === cleanDetail
+    if (sameDetail && now - last.at < NOTIFY_COOLDOWN_MS) return
+    if (!sameDetail && now - last.at < NOTIFY_SAME_STATE_DETAIL_MS) return
+    if (now - last.at < NOTIFY_COOLDOWN_MS) return
+  }
+  const project = String(dir ?? "").replace(/\/+$/, "").split("/").pop() || dir || "opencode"
+  const clean = String(detail ?? "").replace(/[\t\r\n]+/g, " ").slice(0, 120) || state
+  const title =
+    state === "waiting"
+      ? `opencode: input needed (${project})`
+      : state === "error"
+        ? `opencode: run failed (${project})`
+        : `opencode: done (${project})`
+  const urgency = state === "done" ? "normal" : "critical"
+  const args = ["notification", "send", "--app-name", "opencode", "-u", urgency, title, clean]
+  try {
+    const r = spawnSync("omarchy", args, { timeout: 3000 })
+    lastNotifiedByDir.set(dir, { state, detail: clean, at: Date.now() })
+    if (r.status === 0) return
+    // Fallback for systems where the omarchy wrapper is unavailable.
+    spawnSync("notify-send", ["-a", "opencode", "-u", urgency, title, clean], { timeout: 3000 })
+  } catch {
+    // notifications must never break status stamping
+  }
+}
+
 // Normalize the many envelope shapes opencode V2 can deliver:
 //   - legacy/V1-style:          { type, data/sessionID/... }
 //   - V2 global event:          { directory, payload: { type, properties } }
@@ -168,6 +218,8 @@ export default {
       const session = tmuxSessionFor(prefix, dir)
       if (!session) return
       stamp(socket, session, state, detail || state)
+      notify(state, dir, detail || state)
+      lastStateByDir.set(dir, state)
     };
 
     // Synchronous hooks: instant signal, no event-stream delay.

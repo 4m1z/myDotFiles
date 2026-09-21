@@ -1,7 +1,7 @@
 # OmaBlue liquid glass: frosted popups/flyouts.
 [popups]
-background = "#012456"
-background-alpha = 0.9
+background = "#011B40"
+background-alpha = 0.78
 text = "#FFFFFF"
-border = "#FFFFFF"
-border-alpha = 0.6
+border = "#73B7FF"
+border-alpha = 0.5
