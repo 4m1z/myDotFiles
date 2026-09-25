@@ -25,6 +25,12 @@ hl.config({
   },
 })
 
+-- Opaque terminals for readability: opt out of Omarchy's default
+-- 0.985/0.96 window opacity so terminal backgrounds stay solid.
+-- (Terminal apps also set their own opacity to 1.0.)
+o.window("^(Alacritty|com.mitchellh.ghostty|foot|kitty|org.codeberg.dnkl.foot)$", { tag = "-default-opacity" })
+o.window("^(Alacritty|com.mitchellh.ghostty|foot|kitty|org.codeberg.dnkl.foot)$", { opacity = "1 1" })
+
 -- Apply backdrop blur to every Omarchy shell layer except the wallpaper.
 -- ignore_alpha lets the blur show through translucent surfaces while
 -- opaque ones (alpha 1.0) are unaffected.

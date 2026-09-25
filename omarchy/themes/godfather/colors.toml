@@ -1,0 +1,43 @@
+# Godfather — The Family
+# A dark noir theme: warm black ink, aged gold, wine red, ivory paper.
+# Don's office at night — venetian blinds, desk lamp, whiskey and roses.
+mode = "dark"
+
+accent = "#C9A86A"
+selection = "#3A2A1A"
+selection_background = "#3A2A1A"
+selection_foreground = "#FFF2D6"
+muted = "#8A7A64"
+
+background = "#12100C"
+dark_background = "#0D0B09"
+darker_background = "#080706"
+lighter_background = "#1E1813"
+
+foreground = "#E8DCC3"
+dark_foreground = "#9A8B73"
+light_foreground = "#F0E6D2"
+bright_foreground = "#FFF2D6"
+
+# Aged-gold edge, like lamplight catching a signet ring.
+hyprland_active_border = "rgba(c9a86aee)"
+hyprland_inactive_border = "rgba(3a2a1aaa)"
+active_border_color = "#C9A86A"
+active_tab_background = "#3A2A1A"
+active_tab_foreground = "#FFF2D6"
+
+red = "#B54545"
+yellow = "#C9A86A"
+orange = "#C07A3E"
+green = "#8AA86A"
+cyan = "#7AA89A"
+blue = "#7E98B8"
+magenta = "#A87A8A"
+brown = "#A67C52"
+
+bright_red = "#E0807A"
+bright_yellow = "#E6C78B"
+bright_green = "#ACCAA0"
+bright_cyan = "#9AC8BB"
+bright_blue = "#A0B9DD"
+bright_magenta = "#C89AA8"

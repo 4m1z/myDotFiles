@@ -10,8 +10,8 @@ idle_screensaver_seconds=3600
 idle_lock_seconds=3600
 theme=${1:-omablue}
 
-if (( $# > 1 )) || [[ $theme != omablue && $theme != firouzeh ]]; then
-  printf 'Usage: %s [omablue|firouzeh]\n' "$0" >&2
+if (( $# > 1 )) || [[ $theme != omablue && $theme != firouzeh && $theme != godfather ]]; then
+  printf 'Usage: %s [omablue|firouzeh|godfather]\n' "$0" >&2
   exit 1
 fi
 
@@ -138,6 +138,7 @@ link_config "$dotfiles_dir/hypr/input.lua" "$config_home/hypr/input.lua"
 link_config "$dotfiles_dir/hypr/looknfeel.lua" "$config_home/hypr/looknfeel.lua"
 link_config "$dotfiles_dir/themes/omablue" "$config_home/omarchy/themes/omablue"
 link_config "$dotfiles_dir/themes/firouzeh" "$config_home/omarchy/themes/firouzeh"
+link_config "$dotfiles_dir/themes/godfather" "$config_home/omarchy/themes/godfather"
 ensure_shell_idle
 
 if command -v gsettings >/dev/null 2>&1; then

@@ -151,6 +151,7 @@ local THEME_NAME_TO_SCHEME = {
 	-- uses Rosé Pine dark instead: `rose-pine` with variant=auto picks `main`
 	-- when vim.o.background=dark (see lua/rose_pine_conf.lua).
 	["tokyo-night"] = "rose-pine",
+	["solarizedosaka"] = "solarized-osaka-vivid",
 	["anonymous"] = "monochrome",
 	["batou"] = "monochrome",
 	["deadspace"] = "monochrome",
