@@ -158,6 +158,7 @@ local THEME_NAME_TO_SCHEME = {
 	["manga"] = "monochrome",
 	["vantablack"] = "monochrome",
 	["omablue"] = "monochrome",
+	["white"] = "github-monochrome-light",
 }
 
 --- Pick the colorscheme to use. Sets `vim.o.background` from the theme mode

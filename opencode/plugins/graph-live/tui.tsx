@@ -1,0 +1,1 @@
+/home/amir/Personal/opencode-graph-live/src/tui.tsx
