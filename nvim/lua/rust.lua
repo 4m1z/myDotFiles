@@ -1,6 +1,3 @@
---
--- DON't forget this =>  rustup component add rust-analyzer
---require('rust-tools').setup(opts)
 local status, rs_tools = pcall(require, "rust-tools")
 if not status then
 	return
@@ -9,10 +6,11 @@ end
 rs_tools.setup({
 	-- rust-tools options
 	tools = {
-		autoSetHints = true,
+		autoSetHints = false,
 		--hover_with_actions = true,
 
 		inlay_hints = {
+			auto = false,
 			show_parameter_hints = false,
 			parameter_hints_prefix = "",
 			other_hints_prefix = "",
@@ -25,6 +23,12 @@ rs_tools.setup({
 	-- https://rust-analyzer.github.io/manual.html#features
 	server = {
 		on_attach = function(_, bufnr)
+			-- rust-tools/native inlay hints back on via auto/native defaults,
+			-- so force them off for this buffer
+			pcall(vim.lsp.inlay_hint.enable, false, { bufnr = bufnr })
+			pcall(function()
+				require("rust-tools").inlay_hints.disable_inlay_hints()
+			end)
 			local opts = { buffer = bufnr, remap = false }
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
@@ -53,11 +57,15 @@ rs_tools.setup({
 					-- default: `cargo check`
 					command = "clippy",
 				},
-			},
-			inlayHints = {
-				lifetimeElisionHints = {
-					enable = true,
-					useParameterNames = true,
+				inlayHints = {
+					enable = false,
+					parameterHints = { enable = false },
+					typeHints = { enable = false },
+					chainingHints = { enable = false },
+					lifetimeElisionHints = {
+						enable = false,
+						useParameterNames = false,
+					},
 				},
 			},
 		},
