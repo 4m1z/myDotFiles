@@ -20,6 +20,7 @@ Tracked configuration:
 - [Firouzeh — فیروزه](omarchy/themes/firouzeh/) theme with original Iranian courtyard and geometric wallpapers
 - English/Persian keyboard layouts with `Alt + Shift` switching
 - Speedy on `Super + Shift + I`
+- Notes webapp (`https://amirahmadzadeh.com/p/notes`, launcher `note`) on `Super + Shift + W` (replaces Omawrite), floating centered at 1200x800
 - Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
 - Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
 

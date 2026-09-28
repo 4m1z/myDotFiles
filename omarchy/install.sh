@@ -167,4 +167,4 @@ if [[ $input_group_added == true ]]; then
   printf 'Log out and back in before using Speedy so the input group takes effect.\n'
 fi
 
-printf 'Omarchy dotfiles installed. Switch English/Persian with Alt + Shift and launch Speedy with Super + Shift + I.\n'
+printf 'Omarchy dotfiles installed. Switch English/Persian with Alt + Shift, launch Speedy with Super + Shift + I and Notes with Super + Shift + W.\n'
