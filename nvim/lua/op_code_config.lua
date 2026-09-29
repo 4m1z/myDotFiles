@@ -60,3 +60,64 @@ end, { desc = "Fix diagnostics" })
 vim.keymap.set("n", "<leader>og", function()
 	opencode.prompt("Review @diff")
 end, { desc = "Review git diff" })
+
+-- Tmux prefix+y handoff: publish visual selection to the current tmux pane.
+-- Normal mode publishes nothing (prefix+y stays as-is, empty box).
+-- Visual mode publishes pane-local @opencode_context="visual:/abs/file:S-E"
+-- plus @opencode_context_at=epoch; launch.sh consumes it when fresh and
+-- opens a NEW opencode session prefilled via `opencode --prompt`.
+do
+	if vim.env.TMUX_PANE == nil then
+		return
+	end
+
+	local group = vim.api.nvim_create_augroup("OpencodeTmuxContext", { clear = true })
+
+	local function tmux_set(opt, val)
+		vim.fn.jobstart({ "tmux", "set-option", "-p", opt, val }, { detach = true })
+	end
+
+	local function publish()
+		local mode = vim.fn.mode()
+		if not mode:match("[vV\22]") then
+			return
+		end
+		local file = vim.fn.expand("%:p")
+		if file == nil or file == "" then
+			return
+		end
+		local s = vim.fn.line("v")
+		local e = vim.fn.line(".")
+		if s > e then
+			s, e = e, s
+		end
+		tmux_set("@opencode_context", string.format("visual:%s:%d-%d", file, s, e))
+		tmux_set("@opencode_context_at", tostring(os.time()))
+	end
+
+	local function clear()
+		tmux_set("@opencode_context", "")
+		tmux_set("@opencode_context_at", "0")
+	end
+
+	-- Entering/updating visual selection.
+	vim.api.nvim_create_autocmd("ModeChanged", {
+		group = group,
+		pattern = "*:[vV\22]*",
+		callback = publish,
+	})
+	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorHold" }, {
+		group = group,
+		callback = publish,
+	})
+	-- Leaving visual -> normal press must behave as before (no prefill).
+	vim.api.nvim_create_autocmd("ModeChanged", {
+		group = group,
+		pattern = "[vV\22]*:*",
+		callback = clear,
+	})
+	vim.api.nvim_create_autocmd("VimLeave", {
+		group = group,
+		callback = clear,
+	})
+end

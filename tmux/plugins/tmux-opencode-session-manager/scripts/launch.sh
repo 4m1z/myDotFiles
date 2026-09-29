@@ -6,6 +6,7 @@
 # Args (expanded by run-shell in the binding):
 #   $1  pane PID        (#{pane_pid})   - used to resolve the real cwd
 #   $2  origin window   (#{window_id})  - recorded so the picker can jump back
+#   $3  origin pane     (#{pane_id})    - used to read nvim visual context
 set -uo pipefail
 DIR_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=helpers.sh
@@ -13,6 +14,7 @@ DIR_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PANE_PID="${1:-}"
 ORIGIN_WINDOW="${2:-}"
+ORIGIN_PANE="${3:-}"
 
 prefix="$(get_tmux_option @opencode_session_prefix 'oc_')"
 cmd="$(get_tmux_option @opencode_command 'opencode')"
@@ -52,6 +54,31 @@ fi
 
 session="${prefix}$(session_hash "$path")"
 
+# Nvim visual-selection handoff (normal mode stays 100% as-is).
+# Nvim publishes pane-local @opencode_context="visual:/abs/file:START-END"
+# plus @opencode_context_at=epoch while in visual mode, and clears it on
+# leaving visual. A fresh visual context forces a NEW tmux session prefilled
+# via `opencode --prompt` (prefill only, no autosubmit), so an already-running
+# per-dir session is left untouched.
+is_visual=0
+prompt_text=""
+if [[ -n "${ORIGIN_PANE:-}" ]]; then
+  ctx="$(tmux display-message -p -t "$ORIGIN_PANE" '#{@opencode_context}' 2>/dev/null || true)"
+  ctx_at="$(tmux display-message -p -t "$ORIGIN_PANE" '#{@opencode_context_at}' 2>/dev/null || true)"
+  ttl="$(get_tmux_option @opencode_context_ttl '15')"
+  [[ "$ttl" =~ ^[0-9]+$ ]] || ttl=15
+  now="$(date +%s)"
+  if [[ "$ctx" == visual:* ]] && [[ "$ctx_at" =~ ^[0-9]+$ ]] && (( now - ctx_at <= ttl )); then
+    ref="${ctx#visual:}"
+    if [[ -n "$ref" ]]; then
+      is_visual=1
+      session="${session}_sel_${now}"
+      # Trailing space so the user can keep typing after the prefilled ref.
+      prompt_text="@${ref} "
+    fi
+  fi
+fi
+
 # Don't open a popup-in-popup: bail if we're already inside an opencode session.
 # NOTE: this must query the CURRENT server (plain tmux), not the dedicated
 # opencode-popup server (octmux). The popup sessions persist on the dedicated
@@ -64,10 +91,15 @@ fi
 
 # Create the detached opencode session on the dedicated server if absent, and
 # configure the nested server to behave like "just opencode in a frame".
+# Visual selections always force a new session (never reuse the per-dir one).
 is_new=0
-if ! octmux has-session -t "=${session}" 2>/dev/null; then
+if [ "$is_visual" = '1' ] || ! octmux has-session -t "=${session}" 2>/dev/null; then
   is_new=1
-  octmux new-session -d -s "$session" -c "$path" "$cmd"
+  if [ "$is_visual" = '1' ]; then
+    octmux new-session -d -s "$session" -c "$path" "$cmd" --prompt "$prompt_text"
+  else
+    octmux new-session -d -s "$session" -c "$path" "$cmd"
+  fi
 
   octmux set-option -g status off
   octmux set-option -g prefix C-a

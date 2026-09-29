@@ -25,9 +25,10 @@ list_key="$(get_tmux_option @opencode_list_key 'u')"
 
 # Launch / re-attach an opencode session for the current pane's directory.
 # #{pane_pid} resolves the real cwd (incl. nvim); #{window_id} is recorded as
-# the origin so the picker can jump back here.
+# the origin so the picker can jump back here. #{pane_id} lets launch.sh read
+# the nvim visual-selection context (@opencode_context) for that exact pane.
 tmux bind-key "$launch_key" \
-  run-shell "$CURRENT_DIR/scripts/launch.sh '#{pane_pid}' '#{window_id}'"
+  run-shell "$CURRENT_DIR/scripts/launch.sh '#{pane_pid}' '#{window_id}' '#{pane_id}'"
 
 # Open the session picker. From inside an opencode popup, list.sh closes it
 # first so the picker opens full-size on the outer client.
