@@ -89,7 +89,7 @@ How the pieces fit (all state lives in per-session tmux options, keyed by
 stable `oc_<hash>` names, so renames, popup reopening, and multiple clients
 can't duplicate or misroute agents):
 
-- `opencode-tmux-status` pushes lifecycle events instantly
+- `opencode-tmux-session-status` pushes lifecycle events instantly
   (`working` on tool/prompt/step start, `waiting` on
   `permission.asked`/`question.asked`, `done` on `session.idle`, `error` on
   `session.error`/step failure). It handles both V2 (`payload.properties`)
@@ -155,14 +155,13 @@ Sessions needing attention (`waiting`, `error`, `done`) sort to the top.
 
 ## Status setup (the opencode plugin)
 
-Status is pushed by the standalone [`opencode-tmux-status`](../../../opencode-tmux-status)
-plugin package. Publish it to npm, then install it through your OpenCode plugin
-configuration. It is a native
-**V2** plugin: V1 hook implementations do not run in V2, and V2 plugins
-execute in the background service (outside tmux), so instead of `$TMUX_PANE`
-it maps each event's project directory to the tmux session with the same
-`oc_<cksum-of-dir>` hash the launcher uses, then stamps the session via
-`tmux -L <socket> set-option`:
+Status is pushed by the standalone `opencode-tmux-session-status` npm package.
+Install it with `opencode plugin add opencode-tmux-session-status@latest`. It is
+a native **V2** plugin: V1 hook implementations do not run in V2, and V2
+plugins execute in the background service (outside tmux), so instead of
+`$TMUX_PANE` it maps each event's project directory to the tmux session with
+the same `oc_<cksum-of-dir>` hash the launcher uses, then stamps the session
+via `tmux -L <socket> set-option`:
 
 | opencode event(s)                                              | State        | Meaning                   |
 | -------------------------------------------------------------- | ------------ | ------------------------- |

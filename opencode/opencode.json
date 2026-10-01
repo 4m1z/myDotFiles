@@ -3,6 +3,7 @@
   "theme": "system",
   "autoupdate": false,
   "plugins": [
-    "opencode-graph-live@latest"
+    "opencode-graph-live@latest",
+    "opencode-tmux-session-status@latest"
   ]
 }
