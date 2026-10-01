@@ -1,1 +1,0 @@
-/home/amir/Personal/opencode-graph-live/src/index.ts

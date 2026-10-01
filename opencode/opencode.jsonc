@@ -20,8 +20,5 @@
                 "command": ["npx", "-y", "effect-mcp@latest"]
             }
         }
-    },
-    "plugins": [
-        "/home/amir/Personal/opencode-graph-live"
-    ]
+    }
 }
