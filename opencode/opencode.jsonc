@@ -5,20 +5,20 @@
             "tauri": {
                 "type": "local",
                 "command": ["npx", "-y", "@hypothesi/tauri-mcp-server"]
+            },
+            "figma": {
+                "type": "remote",
+                "url": "https://mcp.figma.com/mcp",
+                "disabled": true
+            },
+            "chrome-devtools": {
+                "type": "local",
+                "command": ["/usr/bin/mise", "exec", "--", "npx", "-y", "chrome-devtools-mcp@latest"]
+            },
+            "effect-docs": {
+                "type": "local",
+                "command": ["npx", "-y", "effect-mcp@latest"]
             }
-        },
-        "figma": {
-            "type": "remote",
-            "url": "https://mcp.figma.com/mcp",
-            "enabled": false
-        },
-        "chrome-devtools": {
-            "type": "local",
-            "command": ["/usr/bin/mise", "exec", "--", "npx", "-y", "chrome-devtools-mcp@latest"]
-        },
-        "effect-docs": {
-            "type": "local",
-            "command": ["npx", "-y", "effect-mcp@latest"]
         }
     },
     "plugins": [
