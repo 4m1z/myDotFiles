@@ -1,0 +1,161 @@
+@define-color background     #012456;
+@define-color foreground     #FFFFFF;
+@define-color black          #00132D;
+@define-color red            #FF7B72;
+@define-color green          #7EE787;
+@define-color yellow         #FFD166;
+@define-color blue           #73B7FF;
+@define-color magenta        #D6A8FF;
+@define-color cyan           #72E6E6;
+@define-color white          #DCE9F5;
+@define-color bright_black   #0A326B;
+@define-color bright_red     #FFA198;
+@define-color bright_green   #A7F3AD;
+@define-color bright_yellow  #FFE59A;
+@define-color bright_blue    #A8D4FF;
+@define-color bright_magenta #E7C8FF;
+@define-color bright_cyan    #A5F3F3;
+@define-color bright_white   #FFFFFF;
+
+@define-color accent_bg_color #1A4A8A;
+@define-color accent_fg_color #FFFFFF;
+@define-color accent_color #73B7FF;
+
+@define-color window_bg_color @background;
+@define-color window_fg_color @foreground;
+
+@define-color view_bg_color #011B40;
+@define-color view_fg_color @foreground;
+@define-color sidebar_bg_color @black;
+@define-color sidebar_fg_color #A8BDD2;
+@define-color sidebar_backdrop_color @black;
+@define-color sidebar_shade_color @black;
+
+@define-color headerbar_bg_color @background;
+@define-color headerbar_fg_color @foreground;
+@define-color headerbar_backdrop_color @black;
+@define-color headerbar_shade_color @black;
+@define-color card_bg_color #0A326B;
+@define-color card_fg_color @foreground;
+
+@define-color popover_bg_color #011B40;
+@define-color popover_fg_color @foreground;
+
+@define-color destructive_bg_color @red;
+@define-color destructive_fg_color @background;
+
+@define-color success_bg_color @green;
+@define-color success_fg_color @background;
+
+@define-color warning_bg_color @yellow;
+@define-color warning_fg_color @background;
+
+@define-color error_bg_color @red;
+@define-color error_fg_color @background;
+
+@define-color dialog_bg_color @background;
+@define-color dialog_fg_color @foreground;
+
+@define-color borders alpha(@foreground, 0.15);
+
+@define-color theme_fg_color @foreground;
+@define-color theme_text_color @foreground;
+@define-color theme_bg_color @background;
+@define-color theme_base_color #011B40;
+@define-color theme_selected_bg_color #1A4A8A;
+@define-color theme_selected_fg_color #FFFFFF;
+@define-color insensitive_bg_color @background;
+@define-color insensitive_fg_color #7BA2C7;
+@define-color insensitive_base_color @black;
+@define-color theme_unfocused_fg_color @foreground;
+@define-color theme_unfocused_text_color @foreground;
+@define-color theme_unfocused_bg_color @background;
+@define-color theme_unfocused_base_color @black;
+@define-color theme_unfocused_selected_bg_color #1A4A8A;
+@define-color theme_unfocused_selected_fg_color #FFFFFF;
+@define-color unfocused_insensitive_color #7BA2C7;
+@define-color unfocused_borders alpha(@foreground, 0.1);
+@define-color warning_color @yellow;
+@define-color error_color @red;
+@define-color success_color @green;
+@define-color destructive_color @red;
+
+@define-color content_view_bg #011B40;
+@define-color text_view_bg #011B40;
+
+messagedialog {
+    background-color: @dialog_bg_color;
+}
+
+messagedialog label {
+    color: @dialog_fg_color;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+messagedialog .secondary-text {
+    font-size: 10pt;
+    font-style: italic;
+}
+
+messagedialog button {
+    background-color: @black;
+    color: @foreground;
+    border: 1px solid @bright_black;
+    padding: 10px;
+}
+
+messagedialog button:hover {
+    background-color: @blue;
+}
+
+banner revealer widget {
+    background: @bright_black;
+    padding: 5px;
+    color: @foreground;
+}
+
+alertdialog.background {
+    background-color: @dialog_bg_color;
+    color: @dialog_fg_color;
+}
+
+alertdialog .titlebar {
+    background-color: @headerbar_bg_color;
+    color: @headerbar_fg_color;
+}
+
+alertdialog box {
+    background-color: @dialog_bg_color;
+}
+
+alertdialog label {
+    color: @dialog_fg_color;
+}
+
+filechooser .dialog-action-box {
+    border-top: 1px solid @bright_black;
+}
+
+filechooser .dialog-action-box:backdrop {
+    border-top-color: @black;
+}
+
+filechooser #pathbarbox {
+    border-bottom: 1px solid @bright_black;
+}
+
+filechooserbutton:drop(active) {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+toast {
+    background-color: @black;
+    color: @foreground;
+}
+
+toast button.circular.flat.image-button:hover {
+    color: @background;
+    background-color: @red;
+}

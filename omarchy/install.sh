@@ -139,6 +139,7 @@ link_config "$dotfiles_dir/hypr/looknfeel.lua" "$config_home/hypr/looknfeel.lua"
 link_config "$dotfiles_dir/themes/omablue" "$config_home/omarchy/themes/omablue"
 link_config "$dotfiles_dir/themes/firouzeh" "$config_home/omarchy/themes/firouzeh"
 link_config "$dotfiles_dir/themes/godfather" "$config_home/omarchy/themes/godfather"
+link_config "$dotfiles_dir/hooks/gtk-css.sh" "$config_home/omarchy/hooks/theme-set.d/gtk-css.sh"
 ensure_shell_idle
 
 # Set up the OpenCode V2 config and install its package plugins during bootstrap.

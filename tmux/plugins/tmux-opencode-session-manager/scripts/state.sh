@@ -4,7 +4,7 @@
 #   state.sh <working|waiting|done|error|idle> [detail]
 #
 # NOTE (opencode v2): plugins run in the background service, outside tmux, so
-# the V2 plugin (opencode/plugins/tmux-status.ts) stamps state directly by
+# the V2 `opencode-tmux-status` plugin stamps state directly by
 # directory hash and no longer calls this. This script stays for manual use
 # and backwards compatibility: it stamps the session owning $TMUX_PANE.
 set -uo pipefail
