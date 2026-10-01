@@ -95,7 +95,6 @@ alias vi="nvim"
 alias vim="nvim"
 alias lzg="lazygit"
 alias lzd="lazydocker"
-# v2 beta `opencode2` removed — using v1 `opencode`
 alias oc="opencode"
 alias kc="kubectl"
 export PATH=$HOME/.local/bin:$PATH
@@ -117,9 +116,6 @@ export CXX=clang++
 # e.g. GEMINI_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY, etc.
 [ -f "$HOME/.config/opencode/secrets.zsh" ] && source "$HOME/.config/opencode/secrets.zsh"
 
-# opencode
-export PATH=/home/amir/.opencode/bin:$PATH
-
 # bun completions
 [ -s "/home/amir/.bun/_bun" ] && source "/home/amir/.bun/_bun"
 
@@ -128,6 +124,9 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 eval "$(mise activate zsh)"
+
+# Prefer the V2 CLI installed by opencode/install.sh over older mise versions.
+export PATH="$HOME/.opencode/bin:$PATH"
 
 # Ctrl+G to open lazygit
 function _lazygit() {

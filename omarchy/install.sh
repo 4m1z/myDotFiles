@@ -141,6 +141,9 @@ link_config "$dotfiles_dir/themes/firouzeh" "$config_home/omarchy/themes/firouze
 link_config "$dotfiles_dir/themes/godfather" "$config_home/omarchy/themes/godfather"
 ensure_shell_idle
 
+# Set up the OpenCode V2 config and install its package plugins during bootstrap.
+"$dotfiles_dir/../opencode/install.sh"
+
 if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.interface cursor-theme 'macOS'
   gsettings set org.gnome.desktop.interface cursor-size 24

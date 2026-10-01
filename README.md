@@ -23,6 +23,7 @@ Tracked configuration:
 - Notes webapp (`https://amirahmadzadeh.com/p/notes`, launcher `note`) on `Super + Shift + W` (replaces Omawrite), floating centered at 1200x800
 - Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
 - Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
+- OpenCode V2 config and the latest `opencode-graph-live` plugin
 
 Run this from an Omarchy desktop session after cloning the repository:
 
@@ -45,6 +46,10 @@ The installer is safe to run again. Existing target files are moved to
 timestamped `.bak` files before new symlinks are created. It may ask for your
 password while installing the cursor package or adding your user to the
 `input` group required by Speedy.
+
+For OpenCode setup on its own, run `./opencode/install.sh`. It installs OpenCode
+V2 if needed, links the tracked config and local plugins, and installs/updates
+`opencode-graph-live@latest` during setup.
 
 ## Neovim ↔ Omarchy theme sync
 
