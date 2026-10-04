@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "amir.memory",
+  "name": "Memory gauge",
+  "version": "1.0.0",
+  "author": "Amir Ahmadzadeh",
+  "description": "Shows current system memory use in the Omarchy bar.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Memory gauge",
+    "description": "Live memory use with pressure-aware colors.",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}

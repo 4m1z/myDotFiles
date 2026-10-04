@@ -78,6 +78,48 @@ else:
 PY
 }
 
+ensure_memory_widget() {
+  local shell_json="$config_home/omarchy/shell.json"
+  local plugin_id="amir.memory"
+
+  link_config "$dotfiles_dir/plugins/$plugin_id" "$config_home/omarchy/plugins/$plugin_id"
+  omarchy-shell shell rescanPlugins
+  if ! omarchy plugin list 2>/dev/null | awk -v id="$plugin_id" '$1 == id && $2 == "enabled" { found = 1 } END { exit !found }'; then
+    omarchy plugin enable "$plugin_id" center
+  fi
+
+  SHELL_JSON="$shell_json" python3 - <<'PY'
+import json
+import os
+
+path = os.environ["SHELL_JSON"]
+with open(path, encoding="utf-8") as f:
+    data = json.load(f)
+
+bar = data.setdefault("bar", {})
+layout = bar.setdefault("layout", {})
+center = layout.setdefault("center", [])
+memory_id = "amir.memory"
+
+if not any(isinstance(entry, dict) and entry.get("id") == memory_id for entry in center):
+    update_index = next(
+        (i for i, entry in enumerate(center)
+         if isinstance(entry, dict) and entry.get("id") == "omarchy.system-update"),
+        None,
+    )
+    if update_index is None:
+        center.append({"id": memory_id})
+    else:
+        center.insert(update_index + 1, {"id": memory_id})
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    print(f"Placed {memory_id} beside the Omarchy update widget")
+else:
+    print(f"Bar widget already placed: {memory_id}")
+PY
+}
+
 if ! command -v omarchy >/dev/null 2>&1; then
   printf 'This installer requires Omarchy.\n' >&2
   exit 1
@@ -141,6 +183,7 @@ link_config "$dotfiles_dir/themes/firouzeh" "$config_home/omarchy/themes/firouze
 link_config "$dotfiles_dir/themes/godfather" "$config_home/omarchy/themes/godfather"
 link_config "$dotfiles_dir/hooks/gtk-css.sh" "$config_home/omarchy/hooks/theme-set.d/gtk-css.sh"
 ensure_shell_idle
+ensure_memory_widget
 
 # Set up the OpenCode V2 config and install its package plugins during bootstrap.
 "$dotfiles_dir/../opencode/install.sh"

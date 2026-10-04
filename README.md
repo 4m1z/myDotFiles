@@ -23,6 +23,7 @@ Tracked configuration:
 - Notes webapp (`https://amirahmadzadeh.com/p/notes`, launcher `note`) on `Super + Shift + W` (replaces Omawrite), floating centered at 1200x800
 - Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
 - Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
+- Repo-managed `amir.memory` Omarchy bar plugin: a five-segment live memory gauge beside the Omarchy update widget, with a pressure warning at 75% and critical warning at 90%
 - OpenCode V2 config and the latest `opencode-graph-live` plugin
 
 Run this from an Omarchy desktop session after cloning the repository:
