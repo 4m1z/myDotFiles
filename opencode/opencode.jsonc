@@ -13,7 +13,7 @@
             },
             "chrome-devtools": {
                 "type": "local",
-                "command": ["/usr/bin/mise", "exec", "--", "npx", "-y", "chrome-devtools-mcp@latest"]
+                "command": ["mise", "exec", "--", "npx", "-y", "chrome-devtools-mcp@latest"]
             },
             "effect-docs": {
                 "type": "local",

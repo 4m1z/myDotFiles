@@ -7,7 +7,7 @@ end
 
 vim.cmd([[packadd packer.nvim]])
 
-packer.startup(function(use)
+packer.startup({ function(use)
 	-- packer
 	use("wbthomason/packer.nvim")
 	-- Common utilities
@@ -145,23 +145,18 @@ packer.startup(function(use)
 	use("fxn/vim-monochrome")
 	use("craftzdog/solarized-osaka.nvim")
 	use("nlknguyen/papercolor-theme")
-	-- Omarchy's canonical theme engine: template-generated Omarchy themes
-	-- (like omablue, which ships only a colors.toml) resolve to the `aether`
-	-- colorscheme, so this must be installed for the theme sync to be exact.
+	-- Optional Aether fallback for user-selected palettes that do not have a
+	-- dedicated installed colorscheme.
 	use({ "bjarneo/aether.nvim", branch = "v3" })
 
 	use({ "ellisonleao/gruvbox.nvim" })
 
-	-- Sunny/light counterpart: https://github.com/bjarneo/omarchy-kanagawa-lotus-theme
-	-- (Omarchy drops *.lua from cloned themes, so its staged neovim.lua is the
-	-- generic aether template; nvim maps the theme name back to kanagawa-lotus
-	-- in lua/omarchy.lua). Provides kanagawa-lotus / kanagawa-wave / kanagawa-dragon.
+	-- Provides kanagawa-lotus / kanagawa-wave / kanagawa-dragon; the
+	-- distro-neutral theme bridge chooses lotus in light mode.
 	use("rebelot/kanagawa.nvim")
 
-	-- Dark counterpart for Tokyo Night: https://github.com/rose-pine/neovim
-	-- (Omarchy Tokyo Night ships `tokyonight-night`; nvim maps the theme name
-	-- back to rose-pine in lua/omarchy.lua so dark mode uses Rosé Pine).
-	-- Provides rose-pine / rose-pine-main / rose-pine-moon / rose-pine-dawn.
+	-- Provides rose-pine / rose-pine-main / rose-pine-moon / rose-pine-dawn;
+	-- the distro-neutral theme bridge chooses Rosé Pine in dark mode.
 	use({ "rose-pine/neovim", as = "rose-pine" })
 
 	use("justinmk/vim-sneak")
@@ -204,4 +199,8 @@ packer.startup(function(use)
 	})
 
 	use("idr4n/github-monochrome.nvim")
-end)
+end, config = {
+	-- Generated file contains machine-local paths; keep it in XDG state,
+	-- never in the portable tracked config tree.
+	compile_path = vim.fn.stdpath("state") .. "/packer_compiled.lua",
+} })

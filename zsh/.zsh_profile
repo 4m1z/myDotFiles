@@ -1,30 +1,40 @@
-export XDG_CONFIG_HOME=$HOME/.config
+# myDotFiles zsh profile. Sourced by .zshrc. Portable, no secrets.
+export XDG_CONFIG_HOME="$HOME/.config"
 VIM="nvim"
 
-#PERSONAL=$XDG_CONFIG_HOME/personal
-#for i in `find -L $PERSONAL`; do
-    #source $i
-#done
-#source /usr/share/doc/fzf/examples/key-bindings.zsh
-#source /usr/share/doc/fzf/examples/completion.zsh
-
-export CC="clang-10"
-export CXX="clang++-10"
-export PYTHONBREAKPOINT="pudb.set_trace"
-export DARWINS_DIR="$HOME/work/darwins"
-export TVUI="$HOME/work/tvui"
-#export TENFOOTIDFILE=`ls ~/.ssh/id_*_tenfootui`
-export API_TOOLS=$HOME/work/tools/edge/scripts
 export GIT_EDITOR=$VIM
-export EOSIO_INSTALL_DIR=$HOME/personal/eos
-export NF_IDFILE=$HOME/.idfile
-export DENO_INSTALL="$HOME/.deno"
-[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
+# Wi-Fi interface for throttle helpers. Override per machine, e.g.
+#   export WIFI_IFACE=wlan0
+# in ~/.config/opencode/secrets.zsh or similar. Auto-detected when unset.
+_wifi_iface() {
+  if [[ -n "${WIFI_IFACE:-}" ]]; then
+    print -r -- "$WIFI_IFACE"
+    return 0
+  fi
+  local dev
+  dev=$(iw dev 2>/dev/null | awk '/Interface/ {print $2; exit}')
+  if [[ -z "$dev" ]]; then
+    echo "no wireless interface found (set WIFI_IFACE)" >&2
+    return 1
+  fi
+  print -r -- "$dev"
+}
 
-# Where should I put you?
-bindkey -s ^f "t.sh\n"
-bindkey -s ^o "opencode\n"
+addThrottle() {
+  local iface kbs="kbps"
+  iface=$(_wifi_iface) || return 1
+  echo "About to throttle $iface to $1 $kbs"
+  sudo tc qdisc add dev "$iface" handle 1: root htb default 11
+  sudo tc class add dev "$iface" parent 1: classid 1:1 htb rate "$1$kbs"
+  sudo tc class add dev "$iface" parent 1:1 classid 1:11 htb rate "$1$kbs"
+}
+
+removeThrottle() {
+  local iface
+  iface=$(_wifi_iface) || return 1
+  sudo tc qdisc del dev "$iface" root
+}
 
 catr() {
     tail -n "+$1" $3 | head -n "$(($2 - $1 + 1))"
@@ -40,22 +50,6 @@ goWork() {
 
 goPersonal() {
     cp ~/.npm_personal_rc ~/.npmrc
-}
-
-addThrottle() {
-    local kbs="kbps"
-    echo $kbs
-    echo "About to throttle to $1 $kbs"
-    echo "sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11"
-    echo "sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs"
-    echo "sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs"
-    sudo tc qdisc add dev wlp59s0 handle 1: root htb default 11
-    sudo tc class add dev wlp59s0 parent 1: classid 1:1 htb rate $1$kbs
-    sudo tc class add dev wlp59s0 parent 1:1 classid 1:11 htb rate $1$kbs
-}
-
-removeThrottle() {
-    sudo tc qdisc del dev wlp59s0 root
 }
 
 cat1Line() {
@@ -75,9 +69,7 @@ eslintify() {
     npx eslint
 }
 
-
-
 ### openai
-# API key loaded from ~/.config/opencode/secrets.zsh (never committed).
+# API keys load from ~/.config/opencode/secrets.zsh (never committed).
+# See opencode/secrets.zsh.example. Example:
 # export OPENAI_API_KEY="..."
-

@@ -1,4 +1,9 @@
-general.import = [ "~/.config/omarchy/current/theme/alacritty.toml" ]
+# Noctalia-native theming. No Omarchy theme import: when the Noctalia
+# builtin alacritty template is enabled it writes themes/noctalia.toml on
+# every palette/mode change (see cachyos/noctalia/50-mydotfiles.toml); the
+# installer places a static dark placeholder there until then, so this
+# import never points at a missing file.
+general.import = ["~/.config/alacritty/themes/noctalia.toml"]
 
 [env]
 TERM = "xterm-256color"
@@ -10,7 +15,8 @@ italic = { family = "Ubuntu Sans Mono", style = "SemiBold Italic" }
 size = 9
 
 [window]
-opacity = 0.85
+# Opaque: readability over glass. (Hyprland also forces terminal opacity.)
+opacity = 1.0
 padding.x = 80
 padding.y = 20
 decorations = "None"

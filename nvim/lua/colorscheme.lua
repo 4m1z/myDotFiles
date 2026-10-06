@@ -1,10 +1,10 @@
-local omarchy_ok, omarchy = pcall(require, "omarchy")
+local theme_ok, theme = pcall(require, "system_theme")
 
 local function base_scheme()
-	-- On Omarchy, follow the system-wide theme; elsewhere keep the old default.
-	if omarchy_ok then
-		local preferred = omarchy.preferred_scheme()
-		if preferred ~= nil and preferred ~= "" then
+	-- Follow the system light/dark mode; safe default when unavailable.
+	if theme_ok then
+		local ok, preferred = pcall(theme.preferred_scheme)
+		if ok and preferred ~= nil and preferred ~= "" then
 			return preferred
 		end
 	end
@@ -14,18 +14,17 @@ end
 function ColorMYVim(color)
 	color = color or base_scheme()
 
-	-- The intended scheme may not be installed (e.g. system theme is gruvbox
-	-- but only aether/solarized/monochrome are). Walk the fallbacks instead
+	-- The intended scheme may not be installed. Walk the fallbacks instead
 	-- of erroring out.
 	local applied = color
 	if not pcall(vim.cmd.colorscheme, color) then
 		applied = nil
-		if omarchy_ok then
+		if theme_ok then
 			local candidates = { color }
-			for _, fallback in ipairs(omarchy.fallbacks()) do
+			for _, fallback in ipairs(theme.fallbacks()) do
 				table.insert(candidates, fallback)
 			end
-			applied = omarchy.try_schemes(candidates)
+			applied = theme.try_schemes(candidates)
 		else
 			pcall(vim.cmd.colorscheme, "monochrome")
 			applied = "monochrome"
@@ -41,9 +40,9 @@ function ColorMYVim(color)
 	vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { bg = "none" })
 	vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
 
-	-- Paint the Omarchy palette (terminal colors, fg, selection) on top.
-	if omarchy_ok then
-		omarchy.apply_palette()
+	-- Paint the system palette (terminal colors, fg, selection) on top.
+	if theme_ok then
+		theme.apply_palette()
 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 	end
 end
@@ -53,19 +52,24 @@ ColorMYVim()
 -- Keep the palette on top if something changes the scheme later.
 vim.api.nvim_create_autocmd("ColorScheme", {
 	callback = function()
-		if omarchy_ok then
-			omarchy.apply_palette()
+		if theme_ok then
+			theme.apply_palette()
 			vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 		end
 	end,
 })
 
--- Re-read Omarchy state (after `omarchy theme set`) without restarting.
-vim.api.nvim_create_user_command("OmarchyTheme", function()
-	if omarchy_ok then
-		omarchy.reload()
+-- Re-read system theme state (after toggling light/dark) without restarting.
+vim.api.nvim_create_user_command("SystemTheme", function()
+	if theme_ok then
+		theme.reload()
 	end
 	ColorMYVim()
-	local name = vim.g.omarchy_theme_name or vim.g.active_colorscheme
-	print("Theme synced: " .. tostring(name))
+	local name = vim.g.active_colorscheme
+	print("Theme synced: " .. tostring(name) .. " (" .. vim.o.background .. ")")
+end, {})
+
+-- Legacy alias (Omarchy-era muscle memory). Prefer :SystemTheme.
+vim.api.nvim_create_user_command("OmarchyTheme", function()
+	vim.cmd("SystemTheme")
 end, {})

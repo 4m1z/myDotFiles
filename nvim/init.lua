@@ -1,49 +1,65 @@
 -- Core
 require("sets")
-require("plugins")
 require("remap")
 
+-- Plugin manager and plugins are provisioned by cachyos/install.sh, but a
+-- first-start/editor invocation can happen before that network setup has
+-- completed (SSH, Docker, or headless sessions included). Keep the core
+-- editor usable and isolate optional plugin modules until their deps exist.
+local packer_ok = pcall(require, "packer")
+require("plugins")
+
+local function safe_plugin(module)
+	if not packer_ok then
+		return
+	end
+	local ok, err = pcall(require, module)
+	if not ok then
+		vim.notify("myDotFiles: skipped " .. module .. " (plugin unavailable): " .. tostring(err), vim.log.levels.WARN)
+	end
+end
+
 -- LSP & completion
-require("lsp")
-require("lsp_mason")
-require("angular_conf")
-require("null_ls")
-require("prettier_conf")
+safe_plugin("lsp")
+safe_plugin("lsp_mason")
+safe_plugin("angular_conf")
+safe_plugin("null_ls")
+safe_plugin("prettier_conf")
 
 -- Languages
-require("rust")
-require("go_conf")
-require("cp_go")
+safe_plugin("rust")
+safe_plugin("go_conf")
+safe_plugin("cp_go")
 
 -- UI
-require("colorscheme")
-require("solarized")
-require("kanagawa_conf")
-require("rose_pine_conf")
-require("lualine")
-require("treesitter")
-require("tree_sitter_context")
-require("no_neck_pain_conf")
-require("smear_conf")
-require("icons")
+safe_plugin("colorscheme")
+safe_plugin("solarized")
+safe_plugin("kanagawa_conf")
+safe_plugin("rose_pine_conf")
+safe_plugin("lualine")
+safe_plugin("treesitter")
+safe_plugin("tree_sitter_context")
+safe_plugin("no_neck_pain_conf")
+safe_plugin("smear_conf")
+safe_plugin("icons")
 
 -- Navigation & files
-require("telescope_conf")
-require("harpoon_conf")
-require("nvim_tree_conf")
-require("outline_conf")
-require("trouble_conf")
+safe_plugin("telescope_conf")
+safe_plugin("harpoon_conf")
+safe_plugin("nvim_tree_conf")
+safe_plugin("outline_conf")
+safe_plugin("trouble_conf")
 
 -- Git
-require("git_config")
-require("neo_git")
-require("lazygit_conf")
-require("github_conf")
+safe_plugin("git_config")
+safe_plugin("neo_git")
+safe_plugin("lazygit_conf")
+safe_plugin("github_conf")
 
 -- Tools
-require("neo_test_tree")
-require("md_preview")
-require("op_code_config")
+safe_plugin("neo_test_tree")
+safe_plugin("md_preview")
+safe_plugin("op_code_config")
 require("config.remote_clipboard").setup()
 
 -- Disabled: DAP stack (debugger.lua) is kept but unwired; enabling it

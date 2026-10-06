@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Focus the existing Speedy window, or launch Speedy when not running.
+# No Omarchy dependency. Binary source: https://github.com/4m1z/speedy
+set -euo pipefail
+
+APP_ID="SpeedyApp"
+
+find_speedy() {
+  if command -v speedy >/dev/null 2>&1; then
+    command -v speedy
+  elif [[ -x "$HOME/.local/bin/speedy" ]]; then
+    printf '%s' "$HOME/.local/bin/speedy"
+  elif [[ -x "$HOME/.cargo/bin/speedy" ]]; then
+    printf '%s' "$HOME/.cargo/bin/speedy"
+  else
+    return 1
+  fi
+}
+
+focus_existing() {
+  command -v hyprctl >/dev/null 2>&1 || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+  local addr
+  addr=$(hyprctl clients -j 2>/dev/null | jq -r --arg id "$APP_ID" \
+    '[.[] | select(.class == $id)][0].address // empty')
+  [[ -n "$addr" ]] || return 1
+  hyprctl dispatch focuswindow "address:$addr" >/dev/null
+}
+
+launch_speedy() {
+  local bin=$1
+  local prefix=""
+  if command -v uwsm >/dev/null 2>&1; then
+    prefix="uwsm app -- "
+  fi
+  if command -v foot >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    exec $prefix foot --app-id "$APP_ID" --title Speedy "$bin"
+  elif command -v kitty >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    exec $prefix kitty --class "$APP_ID" --title Speedy "$bin"
+  elif command -v alacritty >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    exec $prefix alacritty --class "$APP_ID" --title Speedy -e "$bin"
+  else
+    printf 'mydotfiles-speedy: no supported terminal (foot/kitty/alacritty) found\n' >&2
+    exit 1
+  fi
+}
+
+main() {
+  focus_existing && exit 0
+  local bin
+  if ! bin=$(find_speedy); then
+    printf 'mydotfiles-speedy: speedy binary not found (run ./cachyos/install.sh)\n' >&2
+    exit 1
+  fi
+  launch_speedy "$bin"
+}
+
+main "$@"

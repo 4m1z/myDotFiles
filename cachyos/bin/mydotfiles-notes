@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Focus the existing Notes PWA window, or launch it when not running.
+# Notes: https://amirahmadzadeh.com/p/notes
+# No Omarchy webapp-helper dependency. Prefers a Chromium-family browser
+# with --app (stable WM_CLASS NotesApp for the Hyprland float rule);
+# falls back to the default browser as a normal tab.
+set -euo pipefail
+
+NOTES_URL="https://amirahmadzadeh.com/p/notes"
+APP_CLASS="NotesApp"
+
+focus_existing() {
+  command -v hyprctl >/dev/null 2>&1 || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+  local addr
+  addr=$(hyprctl clients -j 2>/dev/null | jq -r --arg cls "$APP_CLASS" --arg url "$NOTES_URL" '
+    ([.[] | select(.class == $cls)][0].address // empty),
+    ([.[] | select((.title // "") | test($url; "i"))][0].address // empty)
+    | select(. != "")' | head -n 1)
+  [[ -n "$addr" ]] || return 1
+  hyprctl dispatch focuswindow "address:$addr" >/dev/null
+}
+
+launch_notes() {
+  local prefix=""
+  if command -v uwsm >/dev/null 2>&1; then
+    prefix="uwsm app -- "
+  fi
+  local chromium=""
+  for candidate in chromium chromium-browser google-chrome-stable google-chrome brave brave-browser; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      chromium="$candidate"
+      break
+    fi
+  done
+  if [[ -n "$chromium" ]]; then
+    # shellcheck disable=SC2086
+    exec $prefix "$chromium" --app="$NOTES_URL" --class="$APP_CLASS" --name="$APP_CLASS"
+  fi
+  if command -v xdg-open >/dev/null 2>&1; then
+    if [[ -n "$prefix" ]]; then
+      exec uwsm app -- xdg-open "$NOTES_URL"
+    fi
+    exec xdg-open "$NOTES_URL"
+  fi
+  printf 'mydotfiles-notes: no browser found to open %s\n' "$NOTES_URL" >&2
+  exit 1
+}
+
+main() {
+  focus_existing && exit 0
+  launch_notes
+}
+
+main "$@"

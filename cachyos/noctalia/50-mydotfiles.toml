@@ -1,0 +1,66 @@
+# myDotFiles hand layer for Noctalia v5 (TOML).
+# Installed by cachyos/install.sh as ~/.config/noctalia/50-mydotfiles.toml.
+# Noctalia deep-merges every *.toml in ~/.config/noctalia/ alphabetically,
+# so this file wins over the CachyOS-shipped config.toml without forking it.
+# GUI/IPC changes land in ~/.local/state/noctalia/settings.toml and still
+# win over this file; if a value here seems ignored, inspect that file.
+
+# --- Bottom dock: OFF. No replacement dock is installed. Apps launch via
+# --- the Noctalia launcher, keybindings, terminal, or workspaces.
+[dock]
+enabled = false
+
+# Make the required top bar explicit, while using the official CachyOS
+# default widget lanes. Drop its hardware-monitor capsule group (GPU/RAM
+# polling every two seconds) to reduce idle wakeups; launcher, clock,
+# workspaces, media, tray, notifications, network, volume, and session
+# controls remain available.
+[bar.default]
+enabled = true
+position = "top"
+reserve_space = true
+start = ["launcher", "clock", "spacer_1"]
+end = [
+  "media", "spacer_1", "tray", "notifications", "network", "bluetooth",
+  "volume", "brightness", "battery", "control-center", "session",
+]
+
+[system.monitor]
+gpu_poll_seconds = 15
+
+# Keep the distro-neutral Neovim bridge in sync with native automatic or
+# manual mode changes without polling. `started` covers initial resolution;
+# `theme_mode_changed` handles later sunrise/sunset and explicit IPC changes.
+[hooks]
+started = "$HOME/.local/bin/mydotfiles-sync-theme-mode"
+theme_mode_changed = "$HOME/.local/bin/mydotfiles-sync-theme-mode"
+
+# --- Theme: native Noctalia palettes with automatic day/night.
+# mode = "auto" follows the [location] schedule below (fixed laptop-friendly
+# times; no geolocation needed). Manual override stays available:
+#   SUPER + SHIFT + T  -> toggle (mydotfiles-theme-toggle)
+#   noctalia msg theme-mode-set dark|light|auto
+[theme]
+mode = "auto"
+shell_mode = "follow"
+source = "builtin"
+builtin = "Noctalia"
+
+# Fixed day/night schedule. Night starts at sunset, day at sunrise.
+# (Astronomical times are used instead when custom_schedule is removed and
+# coordinates/address are configured; see Noctalia location docs.)
+[location]
+auto_locate = false
+custom_schedule = true
+sunset = "20:00"
+sunrise = "07:00"
+
+# --- Application theme propagation (Noctalia-native templates).
+# The alacritty template writes ~/.config/alacritty/themes/noctalia.toml on
+# every palette/mode change; our alacritty.toml imports that file (a static
+# placeholder is installed until the template first renders).
+# Enable more IDs in the Noctalia settings UI or with:
+#   noctalia msg templates-apply
+[theme.templates]
+enable_builtin_templates = true
+builtin_ids = ["alacritty"]

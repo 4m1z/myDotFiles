@@ -22,7 +22,10 @@ link_config() {
 }
 
 if [[ ! -x $opencode_bin ]] || [[ $($opencode_bin --version) != 'opencode v2.'* ]]; then
-  curl -fsSL https://opencode.ai/v2/install | bash
+  # --no-modify-path: our shell rc already exports ~/.opencode/bin, and on
+  # this repo ~/.zshrc is a symlink into the checkout (must not be edited).
+  curl --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
+    https://opencode.ai/v2/install | bash -s -- --no-modify-path
 fi
 
 if [[ ! -x $opencode_bin ]] || [[ $($opencode_bin --version) != 'opencode v2.'* ]]; then
@@ -36,6 +39,19 @@ for plugin in "$dotfiles_dir"/plugins/*.ts; do
   link_config "$plugin" "$config_dir/plugins/${plugin##*/}"
 done
 
-"$opencode_bin" plugin update opencode-graph-live@latest
-"$opencode_bin" plugin list | grep -Eq '^graph-live[[:space:]]'
-printf 'OpenCode graph-live plugin installed.\n'
+ensure_package_plugin() {
+  # The current OpenCode config key is `plugin` (singular), and the CLI
+  # resolves npm packages lazily when the service starts. Running `plugin
+  # add` against a package already listed in config is an error, so only
+  # add it when the tracked config does not declare it.
+  local spec=$1 id=$2
+  if ! grep -Fq -- "$spec" "$dotfiles_dir/opencode.json"; then
+    "$opencode_bin" plugin add "$spec"
+  fi
+  printf 'Configured OpenCode plugin: %s (%s)\n' "$spec" "$id"
+}
+
+# Keep in sync with the "plugin" array in opencode.json.
+ensure_package_plugin opencode-graph-live@latest graph-live
+ensure_package_plugin opencode-tmux-session-status@latest tmux-status
+printf 'OpenCode package plugins installed.\n'

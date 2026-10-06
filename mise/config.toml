@@ -1,0 +1,10 @@
+# Tracked mise base config. Linked to ~/.config/mise/config.toml by
+# cachyos/install.sh ONLY when no config exists there yet (your real config
+# is never clobbered). Tool versions, not ancient pins: `mise upgrade`
+# moves these forward.
+[tools]
+node = "lts"
+go = "latest"
+java = "latest"
+bun = "latest"
+zig = "latest"

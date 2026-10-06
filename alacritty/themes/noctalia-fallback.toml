@@ -1,0 +1,36 @@
+# Static fallback rendered into ~/.config/alacritty/themes/noctalia.toml by
+# cachyos/install.sh when the Noctalia builtin alacritty template has not
+# generated it yet. Opaque dark defaults; replaced automatically once the
+# template is enabled (Noctalia settings -> templates, or
+# `noctalia msg templates-apply`).
+[colors.primary]
+background = "#012456"
+foreground = "#FFFFFF"
+
+[colors.cursor]
+text = "#012456"
+cursor = "#73B7FF"
+
+[colors.selection]
+text = "#FFFFFF"
+background = "#1A4A8A"
+
+[colors.normal]
+black = "#00132D"
+red = "#FF7B72"
+green = "#7EE787"
+yellow = "#FFD166"
+blue = "#73B7FF"
+magenta = "#D6A8FF"
+cyan = "#72E6E6"
+white = "#A8BDD2"
+
+[colors.bright]
+black = "#3A5A8C"
+red = "#FFA198"
+green = "#A7F3AD"
+yellow = "#FFE59A"
+blue = "#A8D4FF"
+magenta = "#E7C8FF"
+cyan = "#A5F3F3"
+white = "#FFFFFF"
