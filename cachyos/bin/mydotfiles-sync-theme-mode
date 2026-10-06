@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Noctalia hook target: persist the resolved mode so Neovim (including
+# SSH/headless sessions) follows native Noctalia auto/light/dark changes.
+set -euo pipefail
+
+mode="${NOCTALIA_THEME_MODE:-}"
+if [[ "$mode" != dark && "$mode" != light ]]; then
+  command -v noctalia >/dev/null 2>&1 || exit 0
+  mode=$(noctalia msg theme-mode-get 2>/dev/null) || exit 0
+fi
+[[ "$mode" == dark || "$mode" == light ]] || exit 0
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/mydotfiles"
+mkdir -p -- "$state_dir"
+tmp="$state_dir/theme.tmp.$$"
+printf 'mode=%s\n' "$mode" >"$tmp"
+mv -- "$tmp" "$state_dir/theme"

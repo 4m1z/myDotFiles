@@ -1,3 +1,7 @@
+-- LEGACY / REFERENCE ONLY (Omarchy era). Nothing in this repository requires
+-- this module anymore; nvim/lua/colorscheme.lua uses system_theme.lua.
+-- Kept so old manual `:lua require("omarchy")` experiments and the Omarchy
+-- section of the README stay understandable. Do not add new callers.
 local M = {}
 
 M._cache = nil

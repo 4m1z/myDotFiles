@@ -56,9 +56,9 @@ long="$(oc_label /home/u/a-very-long-directory-name 0)"
 # 4. session_hash: stable + matches the launcher contract (cksum of dir).
 # shellcheck source=helpers.sh
 . "$DIR_SELF/helpers.sh"
-h1="$(session_hash /home/amir/Personal/myDotFiles)"
-h2="$(session_hash /home/amir/Personal/myDotFiles)"
-h3="$(printf '%s' /home/amir/Personal/myDotFiles | cksum | cut -d' ' -f1)"
+h1="$(session_hash /repo/myDotFiles)"
+h2="$(session_hash /repo/myDotFiles)"
+h3="$(printf '%s' /repo/myDotFiles | cksum | cut -d' ' -f1)"
 [ "$h1" = "$h2" ] && [ "$h1" = "$h3" ] && [ -n "$h1" ] && ok 'session_hash stable, matches cksum' || bad 'session_hash' "$h1 $h2 $h3"
 [ "$(session_hash /a)" != "$(session_hash /b)" ] && ok 'session_hash differs per dir' || bad 'session_hash differs per dir'
 

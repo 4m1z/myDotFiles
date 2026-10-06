@@ -1,12 +1,6 @@
--- Kanagawa (rebelot/kanagawa.nvim) setup for the sunny Omarchy theme:
--- https://github.com/bjarneo/omarchy-kanagawa-lotus-theme
---
--- That Omarchy theme ships a `neovim.lua` asking for `kanagawa-lotus`, but
--- Omarchy does not stage *.lua from third-party cloned themes, so the live
--- staged theme resolves to the generic `aether` template. `lua/omarchy.lua`
--- maps the theme name back to `kanagawa-lotus`; this file just configures the
--- plugin so the scheme looks right (transparent like the rest of this config,
--- terminal colors on, lotus bg matching the Omarchy colors.toml).
+-- Kanagawa (rebelot/kanagawa.nvim) setup. system_theme.lua selects the light
+-- lotus variant and dark wave variant according to the current system mode;
+-- transparent backgrounds match the rest of this config.
 local ok, kanagawa = pcall(require, "kanagawa")
 if not ok then
 	return
