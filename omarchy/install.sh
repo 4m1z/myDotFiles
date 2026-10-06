@@ -97,6 +97,7 @@ with open(path, encoding="utf-8") as f:
     data = json.load(f)
 
 bar = data.setdefault("bar", {})
+bar["centerAnchor"] = ""
 layout = bar.setdefault("layout", {})
 center = layout.setdefault("center", [])
 memory_id = "amir.memory"
