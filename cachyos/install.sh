@@ -265,56 +265,6 @@ install_speedy() {
   fi
 }
 
-install_cursor() {
-  # macOS-style black cursor, user-local only: never patch /usr/share.
-  if [[ "${MYDOTFILES_TEST_MODE:-0}" == "1" ]]; then
-    log "Skipping optional cursor install in clean-room test mode."
-    return 0
-  fi
-  local theme_dir="$HOME/.local/share/icons/macOS"
-  if [[ ! -f "$theme_dir/cursors/hand1" ]]; then
-    if $IS_CACHYOS && command -v pacman >/dev/null 2>&1; then
-      local aur=""
-      for helper in yay paru; do
-        if command -v "$helper" >/dev/null 2>&1; then aur="$helper"; break; fi
-      done
-      if [[ -n "$aur" ]]; then
-        log "Installing apple_cursor via $aur..."
-        "$aur" -S --needed --noconfirm apple_cursor || warn "apple_cursor install failed."
-      else
-        warn "Cursor theme missing and no AUR helper (yay/paru); skipping cursor install."
-        return 0
-      fi
-      # AUR installs system-wide; mirror user-locally instead of patching it.
-      local src=/usr/share/icons/macOS
-      if [[ -f "$src/cursors/hand1" && ! -f "$theme_dir/cursors/hand1" ]]; then
-        mkdir -p -- "$HOME/.local/share/icons"
-        cp -r -- "$src" "$theme_dir"
-        log "Mirrored cursor theme user-locally."
-      fi
-    else
-      warn "Cursor theme not present; skipping (install apple_cursor manually)."
-      return 0
-    fi
-  fi
-  if [[ -f "$theme_dir/cursors/hand1" ]]; then
-    python3 "$REPO_DIR/cachyos/cursors/black_hands.py" "$theme_dir"
-  fi
-  if command -v gsettings >/dev/null 2>&1; then
-    gsettings set org.gnome.desktop.interface cursor-theme 'macOS' 2>/dev/null || true
-    gsettings set org.gnome.desktop.interface cursor-size 24 2>/dev/null || true
-  fi
-  # UWSM session env (authoritative on CachyOS; ~/.config/uwsm/env wins).
-  local uwsm_env="$CONFIG_HOME/uwsm/env"
-  if [[ -f "$uwsm_env" ]]; then
-    ensure_line "export XCURSOR_THEME=macOS" "$uwsm_env"
-    ensure_line "export XCURSOR_SIZE=24" "$uwsm_env"
-  fi
-  if has_systemd && command -v systemctl >/dev/null 2>&1; then
-    systemctl --user set-environment XCURSOR_THEME=macOS XCURSOR_SIZE=24 2>/dev/null || true
-  fi
-}
-
 phase_user() {
   install_oh_my_zsh
   link_portable_configs
@@ -322,7 +272,6 @@ phase_user() {
   log "Setting up OpenCode..."
   "$REPO_DIR/opencode/install.sh"
   install_speedy
-  install_cursor
 }
 
 # ------------------------------------------------------- desktop overrides

@@ -32,7 +32,7 @@ portable user-level setup and skips the rest with a message.
 | Phase | What |
 |---|---|
 | packages | `cachyos/packages.sh` via pacman `--needed`: git, gh, curl, jq, ripgrep, fd, fzf, tmux, neovim, zsh, lazygit, wl-clipboard, foot, Chromium (Notes PWA app mode), bluez, Docker stack, kubectl, k9s, lazydocker, base-devel, rust, power-profiles-daemon, thermald, fwupd, fprintd, sof-firmware, and lightweight laptop diagnostics (`dmidecode`, `pciutils`, `usbutils`, `iw`, `v4l-utils`, `libva-utils`, `mpv`, `powertop`). mise via pacman or `mise.run` fallback. Enables on-demand `docker.socket`, `power-profiles-daemon`, and Bluetooth under systemd (thermald on Intel only). |
-| user | Oh My Zsh + autosuggestions/syntax-highlighting; links for zsh, nvim, tmux, alacritty, mise (only when absent), `~/.local/bin` helpers; installs Packer + runs one-time `PackerSync` for the tracked Neovim plugin set; `opencode/install.sh` (V2 + plugins); Speedy binary (release tarball, cargo fallback); macOS cursor user-locally (`~/.local/share/icons/`). |
+| user | Oh My Zsh + autosuggestions/syntax-highlighting; links for zsh, nvim, tmux, alacritty, mise (only when absent), `~/.local/bin` helpers; installs Packer + runs one-time `PackerSync` for the tracked Neovim plugin set; `opencode/install.sh` (V2 + plugins); Speedy binary (release tarball, cargo fallback). |
 | desktop (CachyOS) | Noctalia hand layer `50-mydotfiles.toml` (dock off, auto theme, alacritty template) + optional OmaBlue palette; Hyprland `personal.lua` (layouts, keys, opaque foot, Notes rules); `binds.lua` patch (Notes on `SUPER+SHIFT+W`, wallpaper menu → `SUPER+SHIFT+B`); theme-state backfill; `hyprctl reload` when in a live session. |
 | verify | `cachyos/tests/test-bootstrap.sh --verify-only`. |
 
@@ -159,5 +159,3 @@ use them, and no runtime config depends on Omarchy anymore:
   path. Speedy itself works standalone via `mydotfiles-speedy`.
 - Firouzeh/Godfather themes were not migrated (documented above).
 - `alacritty.toml` no longer imports the staged Omarchy theme.
-- The cursor patcher script moved to `cachyos/cursors/` (same behavior,
-  user-local install).
