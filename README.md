@@ -1,15 +1,5 @@
 # myDotFiles
 
-```text
-Framework Laptop 13 Pro
-        ↓
-CachyOS (Hyprland + Noctalia desktop profile)
-        ↓
-myDotFiles (small personal overrides + dev environment)
-        ↓
-zsh · tmux · Neovim · mise · OpenCode · Speedy · Docker
-```
-
 ## Fresh laptop installation
 
 1. Update Framework firmware if appropriate (`fwupdmgr`, or the EFI shell
