@@ -20,7 +20,7 @@ Tracked configuration:
 - [Firouzeh — فیروزه](omarchy/themes/firouzeh/) theme with original Iranian courtyard and geometric wallpapers
 - English/Persian/German keyboard layouts with `Alt + Shift` switching
 - Speedy on `Super + Shift + I`
-- Notes webapp (`https://amirahmadzadeh.com/p/notes`, launcher `note`) on `Super + Shift + W` (replaces Omawrite), floating centered at 1200x800
+- Notes webapp (`https://amirahmadzadeh.com/p/notes`, launcher `note`) on `Super + Shift + W` (replaces Omawrite), floating centered at 1200x800. `Super + W` hides Notes while keeping its current note/editor running; `Super + Shift + W` restores it. The header's close button fully closes the window.
 - Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
 - Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
 - Repo-managed `amir.memory` Omarchy bar plugin: a five-segment live memory gauge beside the Omarchy update widget, with a pressure warning at 75% and critical warning at 90%
