@@ -3,12 +3,6 @@ general.import = [ "~/.config/omarchy/current/theme/alacritty.toml" ]
 [env]
 TERM = "xterm-256color"
 
-[font]
-normal = { family = "Ubuntu Sans Mono", style = "SemiBold" }
-bold   = { family = "Ubuntu Sans Mono", style = "Bold" }
-italic = { family = "Ubuntu Sans Mono", style = "SemiBold Italic" }
-size = 9
-
 [window]
 opacity = 0.85
 padding.x = 80
