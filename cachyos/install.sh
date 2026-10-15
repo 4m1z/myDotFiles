@@ -130,6 +130,38 @@ install_oh_my_zsh() {
   done
 }
 
+set_default_shell() {
+  $DO_PACKAGES || { log "Skipping login-shell change (--no-packages)."; return 0; }
+  $IS_CACHYOS || { log "Not CachyOS: skipping login-shell change."; return 0; }
+  local account zsh_bin current_shell
+  account=$(id -un)
+  zsh_bin=$(command -v zsh)
+  current_shell=$(getent passwd "$account" | cut -d: -f7)
+  if [[ "$current_shell" == "$zsh_bin" ]] \
+    || [[ $(readlink -f -- "$current_shell") == "$(readlink -f -- "$zsh_bin")" ]]; then
+    log "Zsh is already the login shell for $account."
+    return 0
+  fi
+  log "Setting the login shell for $account to $zsh_bin..."
+  as_root usermod --shell "$zsh_bin" "$account"
+  log "Zsh will be the default shell after logging out and back in."
+}
+
+install_openclaw() {
+  local prefix="${XDG_DATA_HOME:-$HOME/.local/share}/openclaw"
+  if [[ ! -x "$prefix/bin/openclaw" ]]; then
+    log "Installing OpenClaw CLI with its supported private Node runtime..."
+    curl --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
+      https://openclaw.ai/install-cli.sh \
+      | bash -s -- --prefix "$prefix" --runtime-only
+  else
+    log "OpenClaw already installed."
+  fi
+  "$prefix/bin/openclaw" --version
+  link_config "$prefix/bin/openclaw" "$HOME/.local/bin/openclaw"
+  log "OpenClaw CLI ready. Complete account/channel setup with: openclaw onboard --install-daemon"
+}
+
 link_portable_configs() {
   log "Linking portable configs..."
   # shell (tracked files live at repo/zsh/)
@@ -164,6 +196,36 @@ link_portable_configs() {
   for helper in mydotfiles-speedy mydotfiles-notes mydotfiles-theme-toggle mydotfiles-sync-theme-mode; do
     link_config "$REPO_DIR/cachyos/bin/$helper" "$HOME/.local/bin/$helper"
   done
+  # Desktop launchers do not necessarily inherit the interactive shell PATH.
+  # Use an absolute Exec path so Noctalia can launch Notes immediately.
+  local applications="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+  mkdir -p -- "$applications"
+  python3 - "$applications/mydotfiles-notes.desktop" "$HOME/.local/bin/mydotfiles-notes" <<'PY'
+import pathlib
+import sys
+
+target, helper = sys.argv[1:]
+# Desktop Entry double-quoted argument escaping, followed by string escaping.
+argument = helper.replace('%', '%%')
+for char in ('\\', '"', '`', '$'):
+    argument = argument.replace(char, '\\' + char)
+argument = argument.replace('\\', '\\\\')
+pathlib.Path(target).write_text(
+    '[Desktop Entry]\n'
+    'Type=Application\n'
+    'Name=Notes\n'
+    'Comment=Personal notes at amirahmadzadeh.com/p/notes\n'
+    f'Exec="{argument}"\n'
+    'Icon=accessories-text-editor\n'
+    'Terminal=false\n'
+    'Categories=Office;Utility;\n'
+    'Keywords=notes;note;amir;\n'
+    'StartupWMClass=NotesApp\n'
+)
+PY
+  if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$applications"
+  fi
   # secrets template pointer (real secrets stay in ~/.config/opencode/secrets.zsh)
   if [[ ! -e "$CONFIG_HOME/opencode/secrets.zsh" ]]; then
     log "No opencode secrets file; see opencode/secrets.zsh.example (optional)."
@@ -202,6 +264,29 @@ install_nvim_plugins() {
     warn "Neovim PackerSync failed; plugins can be retried with :PackerSync."
     return 1
   fi
+}
+
+install_dev_runtimes() {
+  $DO_PACKAGES || { log "Skipping runtime downloads (--no-packages)."; return 0; }
+  $IS_CACHYOS || { log "Not CachyOS: skipping runtime installation."; return 0; }
+  log "Installing configured mise tools (Node.js, TypeScript, Bun, Go, and other configured tools)..."
+  (
+    # Avoid picking up project-specific runtime versions from the repo/cwd.
+    cd "$HOME"
+    mise trust "$CONFIG_HOME/mise/config.toml"
+    mise install --yes
+    # Fail immediately if an existing personal config omits a required tool.
+    # Keep its versions intact rather than replacing the user's config.
+    mise exec -- node --version
+    mise exec -- tsc --version
+    mise exec -- bun --version
+    mise exec -- go version
+  )
+  rustc --version
+  cargo --version
+  docker --version
+  docker compose version
+  kubectl version --client
 }
 
 install_speedy() {
@@ -268,9 +353,12 @@ install_speedy() {
 phase_user() {
   install_oh_my_zsh
   link_portable_configs
+  set_default_shell
+  install_dev_runtimes
   install_nvim_plugins
   log "Setting up OpenCode..."
   "$REPO_DIR/opencode/install.sh"
+  install_openclaw
   install_speedy
 }
 
@@ -313,6 +401,10 @@ ensure_hypr_personal() {
   local hypr_main="$CONFIG_HOME/hypr/hyprland.lua"
   [[ -f $hypr_main ]] || { warn "No $hypr_main; skipping hypr personal.lua (is the CachyOS profile installed?)."; return 0; }
   link_config "$REPO_DIR/cachyos/hypr/personal.lua" "$CONFIG_HOME/hypr/config/personal.lua"
+  local module
+  for module in input bindings; do
+    link_config "$REPO_DIR/cachyos/hypr/$module.lua" "$CONFIG_HOME/hypr/config/mydotfiles/$module.lua"
+  done
   local marker='require("config.personal") -- myDotFiles'
   if grep -Fq 'config.personal' "$hypr_main"; then
     log "hyprland.lua already requires config.personal."
@@ -334,8 +426,6 @@ phase_desktop() {
   log "Installing Hyprland/Noctalia overrides..."
   link_config "$REPO_DIR/cachyos/noctalia/50-mydotfiles.toml" \
     "$CONFIG_HOME/noctalia/50-mydotfiles.toml"
-  link_config "$REPO_DIR/cachyos/noctalia/palettes/OmaBlue.json" \
-    "$CONFIG_HOME/noctalia/palettes/OmaBlue.json"
   # Persist dock-hidden state too when the shell is already running. This
   # wins over a stale GUI settings override; config.toml remains authoritative
   # on the next fresh start. IPC unavailable before login is expected.

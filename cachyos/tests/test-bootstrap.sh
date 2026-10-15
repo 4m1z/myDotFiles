@@ -43,7 +43,7 @@ check_output() { # check_output <description> <expected> <command...>
 
 verify_machine() {
   # --- expected binaries
-  for bin in git zsh tmux nvim mise opencode gh rg fzf jq; do
+  for bin in git zsh tmux nvim mise opencode openclaw gh rg fzf jq; do
     check "binary: $bin" command -v "$bin"
   done
 
@@ -54,6 +54,8 @@ verify_machine() {
     "$config_home/tmux/tmux.conf" \
     "$config_home/tmux/plugins/tmux-opencode-session-manager" \
     "$config_home/alacritty/alacritty.toml" \
+    "$config_home/opencode/opencode.json" \
+    "$config_home/opencode/opencode.jsonc" \
     "$HOME/.local/bin/mydotfiles-speedy" \
     "$HOME/.local/bin/mydotfiles-notes" \
     "$HOME/.local/bin/mydotfiles-theme-toggle" \
@@ -81,6 +83,16 @@ verify_machine() {
 
   # --- shell starts non-interactively
   check "zsh startup" zsh -ic 'echo shell-ok'
+  check "Oh My Zsh installed" test -f "$HOME/.oh-my-zsh/oh-my-zsh.sh"
+  for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+    check "Oh My Zsh plugin: $plugin" test -d "$HOME/.oh-my-zsh/custom/plugins/$plugin"
+  done
+  if [[ "${MYDOTFILES_TEST_MODE:-0}" != 1 ]] \
+    && [[ -f /etc/os-release ]] \
+    && [[ "$(. /etc/os-release; printf '%s' "${ID:-}")" == cachyos ]]; then
+    check "Zsh is the login shell" bash -c \
+      '[[ $(readlink -f -- "$(getent passwd "$(id -un)" | cut -d: -f7)") == "$(readlink -f -- "$(command -v zsh)")" ]]'
+  fi
 
   # --- tmux config parses
   check "tmux config" tmux -L mydotfiles-test -f "$config_home/tmux/tmux.conf" start-server ';' kill-server
@@ -98,6 +110,7 @@ verify_machine() {
   # --- opencode v2 + plugins (no auth needed for these read-only commands)
   check_output "opencode v2" "opencode v2." bash -c 'cd "$HOME" && opencode --version'
   check "opencode plugin list" bash -c 'cd "$HOME" && opencode plugin list'
+  check "OpenClaw CLI" openclaw --version
   check "OpenCode graph-live configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugin"]; assert "opencode-graph-live@latest" in p'
   check "OpenCode tmux-status configured" python3 -c \
@@ -105,6 +118,17 @@ verify_machine() {
 
   # --- mise works
   check "mise" mise --version
+
+  # Resolve managed runtimes from HOME, independently of project overrides.
+  check "Node.js runtime" bash -c 'cd "$HOME" && mise exec -- node --version'
+  check "TypeScript compiler" bash -c 'cd "$HOME" && mise exec -- tsc --version'
+  check "Bun runtime" bash -c 'cd "$HOME" && mise exec -- bun --version'
+  check "Go toolchain" bash -c 'cd "$HOME" && mise exec -- go version'
+  check "Rust compiler" rustc --version
+  check "Cargo" cargo --version
+  check "Docker client" docker --version
+  check "Docker Compose" docker compose version
+  check "kubectl client" kubectl version --client
 
   # --- speedy installed (binary present; recorder may not run headless)
   check "speedy binary" command -v speedy
@@ -114,9 +138,17 @@ verify_machine() {
     check "helper executable: $helper" test -x "$HOME/.local/bin/$helper"
   done
   check "notes helper usage-free probe" bash -n "$HOME/.local/bin/mydotfiles-notes"
+  local notes_entry="${XDG_DATA_HOME:-$HOME/.local/share}/applications/mydotfiles-notes.desktop"
+  check "Notes launcher entry" test -f "$notes_entry"
+  check "Notes launcher name" grep -Fxq 'Name=Notes' "$notes_entry"
+  if command -v desktop-file-validate >/dev/null 2>&1; then
+    check "Notes desktop entry validates" desktop-file-validate "$notes_entry"
+  fi
 
   # --- CachyOS-only file checks (run when present, never fail elsewhere)
   if [[ -f "$config_home/noctalia/50-mydotfiles.toml" ]]; then
+    check "Zen Browser package" pacman -Q zen-browser-bin
+    check "Telegram Desktop package" pacman -Q telegram-desktop
     check "noctalia: dock disabled" grep -q 'enabled = false' "$config_home/noctalia/50-mydotfiles.toml"
     if grep -Eq 'waybar|swaync|quickshell|cairo-dock|nwg-dock|latte-dock|\brofi\b|\bwofi\b|\bmako\b|\bags\b|\bplank\b' \
       "$config_home/noctalia/50-mydotfiles.toml"; then

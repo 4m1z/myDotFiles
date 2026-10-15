@@ -1,5 +1,5 @@
-# Noctalia-native theming. No Omarchy theme import: when the Noctalia
-# builtin alacritty template is enabled it writes themes/noctalia.toml on
+# Noctalia-native theming. When the builtin alacritty template is enabled
+# it writes themes/noctalia.toml on
 # every palette/mode change (see cachyos/noctalia/50-mydotfiles.toml); the
 # installer places a static dark placeholder there until then, so this
 # import never points at a missing file.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Focus the existing Speedy window, or launch Speedy when not running.
-# No Omarchy dependency. Binary source: https://github.com/4m1z/speedy
+# Binary source: https://github.com/4m1z/speedy
 set -euo pipefail
 
 APP_ID="SpeedyApp"

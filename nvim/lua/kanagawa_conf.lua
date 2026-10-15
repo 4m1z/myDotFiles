@@ -22,7 +22,7 @@ kanagawa.setup({
 		theme = {
 			lotus = {
 				ui = {
-					-- Match the Omarchy theme's background (#f1e9d2 in colors.toml).
+					-- Warm background for the light Lotus variant.
 					bg = "#f1e9d2",
 				},
 			},

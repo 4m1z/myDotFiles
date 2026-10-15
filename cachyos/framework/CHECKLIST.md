@@ -130,8 +130,7 @@ Intel (Arc/Xe): needs `intel-media-driver`; AMD: Mesa `radeonsi`
 - [ ] Bottom dock absent (and no screen space reserved for it)
 - [ ] `SUPER+Space` launcher, notifications, `SUPER+X` control center
 - [ ] `SUPER+SHIFT+T` toggles dark/light; auto mode follows 07:00/20:00
-- [ ] `noctalia msg color-scheme-set custom OmaBlue` applies the
-      optional palette; `builtin <Tab>` lists natives
+- [ ] `noctalia msg color-scheme-set builtin Nord` applies a built-in palette
 - [ ] `SUPER+SHIFT+I` focuses/launches Speedy
 - [ ] `SUPER+SHIFT+W` focuses/launches Notes (1200x800 floating)
 - [ ] `us,ir,de` layouts cycle with Alt+Shift

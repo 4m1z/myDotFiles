@@ -74,21 +74,12 @@ else
   printf 'SKIP: python tomllib unavailable\n'
 fi
 
-# --- JSON sanity for the Noctalia palette
-if python3 -c "import json; json.load(open('cachyos/noctalia/palettes/OmaBlue.json'))"; then
-  pass "OmaBlue.json parses"
-else
-  fail "OmaBlue.json parses"
-fi
-
-# --- Omarchy coupling audit: runtime paths must be clean.
-# Legacy/reference locations are allow-listed explicitly.
-# (The audit scripts match their own patterns, so they are excluded.)
-if grep -rEn 'omarchy|OMARCHY|omarchy-launch|o\.bind|o\.window|/\.config/omarchy|\.local/state/omarchy|/usr/share/omarchy' \
+# --- Omarchy coupling audit: all app configs must be clean.
+# The audit scripts match their own patterns, so they are excluded.
+if grep -rEin 'omarchy|o\.bind|o\.window' \
   cachyos/hypr cachyos/noctalia cachyos/bin cachyos/install.sh cachyos/packages.sh \
   cachyos/lib cachyos/framework \
-  nvim/lua/colorscheme.lua nvim/lua/system_theme.lua nvim/init.lua \
-  tmux/.tmux.conf zsh alacritty opencode/opencode.json opencode/opencode.jsonc 2>/dev/null; then
+  nvim tmux zsh alacritty mise opencode README.md .dockerignore 2>/dev/null; then
   fail "omarchy coupling in runtime paths (see matches above)"
 else
   pass "no omarchy coupling in runtime paths"

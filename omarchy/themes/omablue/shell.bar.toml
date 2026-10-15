@@ -1,6 +1,0 @@
-# OmaBlue liquid glass: translucent bar, blurred behind via layerrule.
-[bar]
-background = "#011B40"
-background-alpha = 0.86
-text = "#FFFFFF"
-active = "#73B7FF"

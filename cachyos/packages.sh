@@ -26,6 +26,12 @@ DEV_PACKAGES=(
   bluez-utils
 )
 
+# Desktop apps from CachyOS/Arch repositories (no AUR helper required).
+DESKTOP_PACKAGES=(
+  zen-browser-bin
+  telegram-desktop
+)
+
 # Containers / k8s.
 OPS_PACKAGES=(
   docker
@@ -35,7 +41,8 @@ OPS_PACKAGES=(
   lazydocker
 )
 
-# Build-from-source fallback (Speedy when no release binary exists).
+# Rust development toolchain (the rust package includes rustc and cargo),
+# also used for the Speedy build-from-source fallback.
 BUILD_PACKAGES=(
   base-devel
   rust
@@ -64,6 +71,7 @@ LAPTOP_PACKAGES=(
 # shellcheck disable=SC2034 # consumed by cachyos/install.sh after sourcing
 PACKAGES=(
   "${DEV_PACKAGES[@]}"
+  "${DESKTOP_PACKAGES[@]}"
   "${OPS_PACKAGES[@]}"
   "${BUILD_PACKAGES[@]}"
   "${LAPTOP_PACKAGES[@]}"

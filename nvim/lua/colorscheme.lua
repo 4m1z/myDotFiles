@@ -68,8 +68,3 @@ vim.api.nvim_create_user_command("SystemTheme", function()
 	local name = vim.g.active_colorscheme
 	print("Theme synced: " .. tostring(name) .. " (" .. vim.o.background .. ")")
 end, {})
-
--- Legacy alias (Omarchy-era muscle memory). Prefer :SystemTheme.
-vim.api.nvim_create_user_command("OmarchyTheme", function()
-	vim.cmd("SystemTheme")
-end, {})

@@ -4,6 +4,7 @@
 # moves these forward.
 [tools]
 node = "lts"
+"npm:typescript" = "latest"
 go = "latest"
 java = "latest"
 bun = "latest"

@@ -14,7 +14,8 @@ cd ~/myDotFiles
 ./cachyos/install.sh
 ```
 
-4. Log out and back in if group membership changed (`input`, `docker`).
+4. Log out and back in to start Zsh as the default shell and apply group
+   membership changes (`input`, `docker`).
 5. Verify: Noctalia top bar exists, bottom dock does not
    (`SUPER+Space` launcher, `SUPER+X` control center).
 6. Verify light/dark: `SUPER+SHIFT+T`, or
@@ -33,13 +34,82 @@ portable user-level setup and skips the rest with a message.
 |---|---|
 | packages | `cachyos/packages.sh` via pacman `--needed`: git, gh, curl, jq, ripgrep, fd, fzf, tmux, neovim, zsh, lazygit, wl-clipboard, foot, Chromium (Notes PWA app mode), bluez, Docker stack, kubectl, k9s, lazydocker, base-devel, rust, power-profiles-daemon, thermald, fwupd, fprintd, sof-firmware, and lightweight laptop diagnostics (`dmidecode`, `pciutils`, `usbutils`, `iw`, `v4l-utils`, `libva-utils`, `mpv`, `powertop`). mise via pacman or `mise.run` fallback. Enables on-demand `docker.socket`, `power-profiles-daemon`, and Bluetooth under systemd (thermald on Intel only). |
 | user | Oh My Zsh + autosuggestions/syntax-highlighting; links for zsh, nvim, tmux, alacritty, mise (only when absent), `~/.local/bin` helpers; installs Packer + runs one-time `PackerSync` for the tracked Neovim plugin set; `opencode/install.sh` (V2 + plugins); Speedy binary (release tarball, cargo fallback). |
-| desktop (CachyOS) | Noctalia hand layer `50-mydotfiles.toml` (dock off, auto theme, alacritty template) + optional OmaBlue palette; Hyprland `personal.lua` (layouts, keys, opaque foot, Notes rules); `binds.lua` patch (Notes on `SUPER+SHIFT+W`, wallpaper menu → `SUPER+SHIFT+B`); theme-state backfill; `hyprctl reload` when in a live session. |
+| desktop (CachyOS) | Noctalia hand layer `50-mydotfiles.toml` (dock off, auto theme, alacritty template); Hyprland `personal.lua` (layouts, keys, Notes rules); `binds.lua` patch (Notes on `SUPER+SHIFT+W`, wallpaper menu → `SUPER+SHIFT+B`); theme-state backfill; `hyprctl reload` when in a live session. |
 | verify | `cachyos/tests/test-bootstrap.sh --verify-only`. |
 
 The package phase selects Framework 13 Pro Intel or AMD integrated-graphics
 firmware/media packages from the CPU vendor; it does not install both stacks.
 
 Flags: `--no-packages`, `--no-desktop`, `--no-verify`.
+
+### Development tools installed automatically
+
+On a fresh CachyOS install, run `./cachyos/install.sh` to install all of:
+
+| Tool | Installation |
+|---|---|
+| Node.js + npm | mise, current Node.js LTS |
+| TypeScript (`tsc`, `tsserver`) | mise npm backend, latest |
+| Bun | mise, latest |
+| Rust + Cargo | pacman `rust` (includes `rustc` and `cargo`) |
+| Go | mise, latest |
+| Docker + Compose | pacman `docker` + `docker-compose`; enables `docker.socket` |
+| kubectl | pacman `kubectl` |
+
+The installer runs `mise install` after linking `mise/config.toml`, so
+configured runtimes are downloaded, including Java and Zig from the base
+manifest. An existing mise config is preserved and must declare Node.js,
+Bun, Go, and TypeScript (`npm:typescript`); its configured versions are used. Runtime installation errors
+stop the installer. `--no-packages` skips both pacman and runtime downloads.
+
+Open a new terminal after installation so zsh activates mise. Log out and
+back in once for Docker group membership to take effect. Verify with:
+
+```bash
+node --version && npm --version
+tsc --version
+bun --version
+rustc --version && cargo --version
+go version
+docker --version && docker compose version
+kubectl version --client
+```
+
+### Shell, terminal workflow, and AI tools
+
+The same `./cachyos/install.sh` command also sets up:
+
+- **Zsh + Oh My Zsh** with `zsh-autosuggestions` and
+  `zsh-syntax-highlighting`. Tracked `zsh/.zshrc` and `zsh/.zsh_profile`
+  are symlinked into your home directory, including aliases, keybindings,
+  mise activation, and the `robbyrussell` theme. On CachyOS, the installer
+  changes your account's default login shell to Zsh.
+- **tmux**, with its tracked configuration, helpers, and OpenCode session
+  manager symlinked into `~/.config/tmux/`.
+- **OpenCode V2**, with tracked configs and local plugins symlinked into
+  `~/.config/opencode/` (plus configured package plugins).
+- **OpenClaw CLI**, installed through the official rootless installer under
+  `${XDG_DATA_HOME:-~/.local/share}/openclaw`, with a supported private Node
+  runtime and a command symlink at `~/.local/bin/openclaw`.
+
+After logging back in, finish the machine-specific sign-ins and OpenClaw
+setup:
+
+```bash
+opencode auth login
+openclaw onboard --install-daemon
+```
+
+OpenClaw's generated account/channel configuration stays machine-local;
+there is no tracked OpenClaw configuration to symlink yet. `--no-packages`
+also skips changing the login shell.
+
+### Desktop applications
+
+The default installer also installs **Zen Browser** (`zen-browser-bin` from
+the CachyOS repository) and **Telegram Desktop** (`telegram-desktop`, the
+official native client packaged for Arch). Both are installed through pacman
+and appear in the desktop launcher. `--no-packages` skips these installations.
 
 ## Desktop
 
@@ -51,14 +121,31 @@ false`; no replacement dock installed).
 
 Keybindings on top of CachyOS defaults:
 
+Notes also appears in the app launcher: **SUPER+Space → type Notes → Enter**.
+Its desktop entry launches `mydotfiles-notes`, opening
+`https://amirahmadzadeh.com/p/notes` in a standalone Chromium app window,
+or focusing the existing Notes window.
+
 | Binding | Action |
 |---|---|
+| `SUPER+1` … `SUPER+9` | switch directly to workspace 1 … 9 (replaces stock monitor-focus bindings) |
+| `SUPER+0` | switch directly to workspace 10 |
 | `SUPER+SHIFT+T` | toggle light/dark (free in official binds) |
 | `SUPER+SHIFT+I` | focus or launch Speedy (free in official binds) |
 | `SUPER+SHIFT+W` | focus or launch Notes PWA, floating 1200x800 (official wallpaper menu moved to `SUPER+SHIFT+B`) |
 | `Alt+Shift` | cycle `us,ir,de` layouts |
 
+Workspace shortcuts use the physical number row so they work across all
+three keyboard layouts. Workspaces are created when selected; they do not
+need to be opened in advance.
+
 ## Themes
+
+Personal Hyprland settings live in `cachyos/hypr/`: `input.lua` keeps the
+keyboard layouts, and `bindings.lua` keeps workspace shortcuts, Speedy/Notes
+bindings, and Notes window rules. The installer
+links these modules under `~/.config/hypr/config/mydotfiles/` and loads
+them through `personal.lua`.
 
 Native Noctalia palettes: Ayu, Catppuccin, Dracula, Eldritch, Gruvbox,
 Kanagawa, Noctalia, Nord, Rosé Pine, Tokyo-Night.
@@ -74,10 +161,6 @@ Kanagawa, Noctalia, Nord, Rosé Pine, Tokyo-Night.
   Bluetooth, brightness, battery, and control-center widgets. It removes
   the official CachyOS sample GPU/RAM sysmon widget group (and lengthens
   GPU polling to 15 seconds) to reduce background activity.
-- **OmaBlue is optional**: `cachyos/noctalia/palettes/OmaBlue.json`
-  (dark ported from the legacy theme, light is best-effort). Apply with
-  `noctalia msg color-scheme-set custom OmaBlue`. Firouzeh and Godfather
-  were intentionally not migrated.
 
 ## OpenCode / AI workflow
 
@@ -143,19 +226,4 @@ nvim/ tmux/ zsh/    portable app configs (no CachyOS coupling)
 opencode/           distro-independent AI workflow + installer
 alacritty/          Noctalia-template-driven terminal config
 mise/               base runtime manifest (linked only when absent)
-omarchy/            LEGACY Omarchy setup (reference only, not used by bootstrap)
 ```
-
-## Legacy: Omarchy setup (reference only)
-
-The previous workstation ran Omarchy. `omarchy/install.sh` and the
-`omarchy/` tree are kept for reference; the CachyOS bootstrap does not
-use them, and no runtime config depends on Omarchy anymore:
-
-- `nvim/lua/omarchy.lua` → superseded by `nvim/lua/system_theme.lua`
-  (`:OmarchyTheme` remains as an alias of `:SystemTheme`).
-- Omarchy bar plugins (`amir.memory`, Speedy/Terminalodo/calendar/GitHub
-  widgets) have no Noctalia equivalent and were removed from the active
-  path. Speedy itself works standalone via `mydotfiles-speedy`.
-- Firouzeh/Godfather themes were not migrated (documented above).
-- `alacritty.toml` no longer imports the staged Omarchy theme.
