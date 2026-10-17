@@ -4,6 +4,7 @@
   "autoupdate": false,
   "plugins": [
     "opencode-graph-live@latest",
-    "opencode-tmux-session-status@latest"
+    "opencode-tmux-session-status@latest",
+    "@dietrichgebert/ponytail"
   ]
 }

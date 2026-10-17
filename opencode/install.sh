@@ -39,3 +39,7 @@ done
 "$opencode_bin" plugin update opencode-graph-live@latest
 "$opencode_bin" plugin list | grep -Eq '^graph-live[[:space:]]'
 printf 'OpenCode graph-live plugin installed.\n'
+
+"$opencode_bin" plugin update @dietrichgebert/ponytail
+"$opencode_bin" plugin list | grep -Eq '^ponytail[[:space:]]'
+printf 'OpenCode ponytail plugin installed.\n'
