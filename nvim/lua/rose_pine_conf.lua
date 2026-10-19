@@ -4,7 +4,7 @@ if not ok then
 end
 
 rose_pine.setup({
-	variant = "auto", -- auto follows vim.o.background (set from Omarchy mode)
+	variant = "auto", -- auto follows vim.o.background (set from system mode)
 	dark_variant = "main", -- dark mode = Rosé Pine main
 	dim_inactive_windows = false,
 	extend_background_behind_borders = true,

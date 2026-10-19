@@ -1,111 +1,94 @@
-# Dotfiles
+# myDotFiles
 
+CachyOS (Hyprland + Noctalia) dotfiles: a small CachyOS bootstrap layer plus
+portable zsh / tmux / Neovim / alacritty / OpenCode configs.
 
-Tracked configuration:
-- `zsh/.zshrc`
-- `zsh/.zsh_profile`
-- `tmux/.tmux.conf`
-- `tmux/tmux-sessionizer`
-- `nvim/`
-- `alacritty/`
-- `foot/foot.ini`
-- `opencode/`
-- `omarchy/`
-- `skills/`
+## Install
 
-## Omarchy setup
+1. Install CachyOS with the **Hyprland + Noctalia** desktop and reboot.
+2. ```bash
+   git clone git@github.com:4m1z/myDotFiles.git ~/myDotFiles
+   cd ~/myDotFiles && ./cachyos/install.sh
+   ```
+3. Log out and back in (Zsh becomes the login shell; `input`/`docker` groups apply).
+4. `./cachyos/tests/test-bootstrap.sh --verify-only`, then work through
+   `cachyos/framework/CHECKLIST.md` on the real hardware.
 
-`omarchy/install.sh` installs and links these customizations:
+`cachyos/install.sh` is idempotent: conflicting files move to timestamped
+`.bak`s, never deleted. System packages change **only on CachyOS**; elsewhere
+it does the portable user-level setup. Flags: `--no-packages`, `--no-desktop`,
+`--no-verify`.
 
-- OmaBlue theme and blue-and-white wallpaper set
-- [Firouzeh — فیروزه](omarchy/themes/firouzeh/) theme with original Iranian courtyard and geometric wallpapers
-- English/Persian/German keyboard layouts with `Alt + Shift` switching
-- Speedy on `Super + Shift + I`
-- Notes webapp (`https://amirahmadzadeh.com/p/notes`, launcher `note`) on `Super + Shift + W` (replaces Omawrite), floating centered at 1200x800. `Super + W` hides Notes while keeping its current note/editor running; `Super + Shift + W` restores it. The header's close button fully closes the window.
-- Apple black cursor theme (`macOS` from AUR `apple_cursor`, hand cursors patched to black via `omarchy/cursors/black_hands.py`)
-- Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
-- Repo-managed `amir.memory` Omarchy bar plugin: a five-segment live memory gauge beside the Omarchy update widget, with a pressure warning at 75% and critical warning at 90%
-- OpenCode V2 config and the latest `opencode-graph-live` plugin
-- Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) as an OpenCode plugin: it registers the brainstorming / writing-plans / TDD / systematic-debugging / code-review skill set and injects the skill bootstrap. Declared in `opencode/opencode.json` (`plugins` array) and installed by `opencode/install.sh`; update it with `opencode plugin update superpowers@git+https://github.com/obra/superpowers.git`
-- Agent skills in `~/.agents/skills/`: the UI/UX Pro Max bundle, the ecosystem skills from the [skills CLI](https://skills.sh) (Vercel frontend, Supabase Postgres, marketing/growth, Trail of Bits security, Playwright CLI) and the vendored skills in `skills/`. `skills/manifest.txt` is the expected list, `opencode/skills.sh` installs it and `opencode/skills.sh --verify` reports what is missing. Refresh with `npx skills update -g`.
-- Global agent instructions in `~/.config/opencode/AGENTS.md` (linked from `opencode/AGENTS.md`): engineering rules and the skill-to-phase map.
-- The `supply-chain-risk-auditor` skill runs its scripts with `uv` (install it with `omarchy pkg add uv`; the CachyOS setup installs it as a package).
+## What it installs
 
-Run this from an Omarchy desktop session after cloning the repository:
+- **Packages** — toolchain + apps via pacman `--needed`: git, gh, tmux, neovim,
+  zsh, lazygit, foot, Chromium, Docker stack, kubectl/k9s/lazydocker,
+  base-devel, rust, power/thermal/firmware tooling, Zen Browser, Telegram.
+  Enables `docker.socket` on demand, `power-profiles-daemon`, Bluetooth.
+- **Runtimes** — mise base manifest (Node LTS, Bun, Go, Java, Zig, TypeScript);
+  Rust via pacman. An existing mise config is kept.
+- **User** — Oh My Zsh (+ autosuggestions/syntax-highlighting), symlinks for
+  zsh/nvim/tmux/alacritty/opencode, Packer + one-time `PackerSync`, OpenCode V2
+  and plugins, Speedy, OpenClaw CLI, macOS cursor.
+- **Desktop** — Noctalia layer `50-mydotfiles.toml` (dock off, auto theme,
+  alacritty template) and Hyprland `personal.lua` / `input.lua` / `bindings.lua`.
 
-```sh
-./omarchy/install.sh
+## Desktop
+
+Noctalia is the whole shell: bar, launcher, notifications, control center,
+clipboard, session, lock, wallpaper, OSD. No Waybar/rofi/wofi/mako/swaync/AGS/
+Quickshell, and **no bottom dock**.
+
+Keys on top of CachyOS defaults:
+
+| Binding | Action |
+|---|---|
+| `SUPER+1` … `SUPER+0` | switch to workspace 1 … 10 |
+| `SUPER+SHIFT+T` | toggle light/dark |
+| `SUPER+SHIFT+I` | focus or launch Speedy |
+| `SUPER+SHIFT+W` | focus or launch Notes PWA (floating 1200x800) |
+| `Alt+Shift` | cycle `us,ir,de` layouts |
+
+Personal Hyprland settings live in `cachyos/hypr/` and are linked under
+`~/.config/hypr/config/mydotfiles/` and loaded via `personal.lua`.
+
+## Themes
+
+Native Noctalia palettes (Ayu, Catppuccin, Dracula, Eldritch, Gruvbox,
+Noctalia, Nord, Rosé Pine, Tokyo-Night). `mode = "auto"` follows a
+fixed 07:00/20:00 schedule. Manual control: `SUPER+SHIFT+T`,
+`noctalia msg theme-mode-set dark|light|auto`,
+`noctalia msg color-scheme-set builtin <name>`. The alacritty template
+propagates the theme to the terminal; Neovim follows via
+`nvim/lua/system_theme.lua` (`:SystemTheme` resyncs a running instance).
+
+## OpenCode / AI workflow
+
+V2 CLI (`~/.opencode/bin` first on PATH), tracked `opencode.json[.jsonc]`,
+package plugins (`graph-live`, `tmux-session-status`, `ponytail`), and the tmux
+popup session manager (`prefix+y` launch, `prefix+u` picker). Secrets live in
+`~/.config/opencode/secrets.zsh` (see the `.example`); nothing secret is
+committed. Per-machine auth: `opencode auth login`, `gh auth login`.
+
+## Tests
+
+```bash
+./cachyos/tests/static.sh                    # syntax + coupling audits
+./cachyos/tests/sandbox-test.sh              # isolated user-level 2-run test
+./cachyos/tests/test-bootstrap.sh --verify-only
+./cachyos/tests/test-bootstrap.sh --docker   # clean-room: 2 installs + checks
 ```
 
-To select Firouzeh during installation:
+Docker covers packages, symlinks, shells, tmux, Neovim, OpenCode, mise, Speedy,
+and idempotency. It cannot cover Hyprland/Noctalia rendering, Wayland, GPU or
+Framework hardware — those go through `cachyos/framework/CHECKLIST.md`.
 
-```sh
-./omarchy/install.sh firouzeh
+## Layout
+
+```text
+cachyos/            CachyOS layer (bootstrap, Hyprland/Noctalia overrides, tests)
+nvim/ tmux/ zsh/    portable app configs (no CachyOS coupling)
+opencode/           distro-independent AI workflow + installer
+alacritty/          Noctalia-template-driven terminal config
+mise/               base runtime manifest (linked only when absent)
 ```
-
-Both themes are linked by the installer; its default selection is OmaBlue.
-After installation, switch to the turquoise-and-indigo Firouzeh theme with
-`omarchy theme set firouzeh`. See its [README](omarchy/themes/firouzeh/README.md)
-for a theme-only installation, palette and artwork build instructions.
-
-The installer is safe to run again. Existing target files are moved to
-timestamped `.bak` files before new symlinks are created. It may ask for your
-password while installing the cursor package or adding your user to the
-`input` group required by Speedy.
-
-For OpenCode setup on its own, run `./opencode/install.sh`. It installs OpenCode
-V2 if needed, links the tracked config and local plugins, and installs/updates
-`opencode-graph-live@latest` during setup.
-
-## Neovim ↔ Omarchy theme sync
-
-The custom Neovim config (packer-based, not LazyVim) follows the system-wide
-Omarchy theme. `nvim/lua/omarchy.lua` reads the live staged theme at
-`~/.local/state/omarchy/current/theme/` on startup (`theme.name`,
-`colors.toml`, generated `neovim.lua`) and applies its background mode,
-intended colorscheme and palette (terminal colors, foreground, selection).
-`nvim/lua/colorscheme.lua` falls back through
-`aether → solarized-osaka → tokyonight-night → monochrome`, so any theme works
-even when its dedicated Vim colorscheme is not installed.
-
-- New Neovim instances pick up `omarchy theme set <name>` automatically.
-- In a running instance, run `:OmarchyTheme` to re-sync without restarting.
-- On non-Omarchy machines the module is inert and `monochrome` is used.
-- After pulling, run `:PackerSync` once inside Neovim to install
-  `bjarneo/aether.nvim` (Omarchy's canonical fallback theme),
-  `rebelot/kanagawa.nvim` (sunny `kanagawa-lotus` theme below) and
-  `rose-pine/neovim` (dark `tokyo-night` override below).
-
-### Kanagawa Lotus (sunny theme)
-
-The Omarchy theme [`bjarneo/omarchy-kanagawa-lotus-theme`](https://github.com/bjarneo/omarchy-kanagawa-lotus-theme)
-is a third-party clone, so Omarchy does not stage its `neovim.lua` — the live
-staged theme resolves to the generic `aether` template. Neovim maps the theme
-slug back to the author's intent:
-
-- `nvim/lua/plugins.lua` installs `rebelot/kanagawa.nvim`.
-- `nvim/lua/kanagawa_conf.lua` configures it (transparent, terminal colors,
-  lotus `bg #f1e9d2` to match the Omarchy `colors.toml`).
-- `nvim/lua/omarchy.lua` maps theme name `kanagawa-lotus` → colorscheme
-  `kanagawa-lotus` (light background), even though staged `neovim.lua` says
-  `aether`. Other themes are unaffected (`omablue` still uses `aether`).
-
-So `omarchy theme set kanagawa-lotus` gives you `kanagawa-lotus` in Neovim
-automatically; `:OmarchyTheme` re-syncs a running instance.
-
-### Rose Pine (Tokyo Night dark mode)
-
-When the system theme is `tokyo-night` (dark), Neovim uses
-[Rosé Pine](https://github.com/rose-pine/neovim) in dark mode instead of
-`tokyonight-night`:
-
-- `nvim/lua/plugins.lua` installs `rose-pine/neovim`.
-- `nvim/lua/rose_pine_conf.lua` configures it (transparent, terminal colors,
-  `variant = "auto"` + `dark_variant = "main"` so dark background picks the
-  dark `main` variant).
-- `nvim/lua/omarchy.lua` maps theme name `tokyo-night` → colorscheme
-  `rose-pine` (dark background), even though staged `neovim.lua` says
-  `tokyonight-night`. Other themes are unaffected.
-
-So `omarchy theme set tokyo-night` gives you `rose-pine` (dark `main`) in
-Neovim automatically; `:OmarchyTheme` re-syncs a running instance.

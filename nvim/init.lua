@@ -18,7 +18,6 @@ require("cp_go")
 -- UI
 require("colorscheme")
 require("solarized")
-require("kanagawa_conf")
 require("rose_pine_conf")
 require("lualine")
 require("treesitter")
