@@ -29,6 +29,7 @@ Tracked configuration:
 - Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) as an OpenCode plugin: it registers the brainstorming / writing-plans / TDD / systematic-debugging / code-review skill set and injects the skill bootstrap. Declared in `opencode/opencode.json` (`plugins` array) and installed by `opencode/install.sh`; update it with `opencode plugin update superpowers@git+https://github.com/obra/superpowers.git`
 - Agent skills in `~/.agents/skills/`: the UI/UX Pro Max bundle, the ecosystem skills from the [skills CLI](https://skills.sh) (Vercel frontend, Supabase Postgres, marketing/growth, Trail of Bits security, Playwright CLI) and the vendored skills in `skills/`. `skills/manifest.txt` is the expected list, `opencode/skills.sh` installs it and `opencode/skills.sh --verify` reports what is missing. Refresh with `npx skills update -g`.
 - Global agent instructions in `~/.config/opencode/AGENTS.md` (linked from `opencode/AGENTS.md`): engineering rules and the skill-to-phase map.
+- The `supply-chain-risk-auditor` skill runs its scripts with `uv` (install it with `omarchy pkg add uv`; the CachyOS setup installs it as a package).
 
 Run this from an Omarchy desktop session after cloning the repository:
 
