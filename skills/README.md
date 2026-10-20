@@ -17,3 +17,8 @@ Two sources:
 `diagnose-crash/` is vendored from the omarchy package (MIT, omarchy 4.0.4):
 the crash-diagnosis workflow is distro-agnostic, but the package that ships it
 is not installed everywhere.
+
+Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) is **not**
+listed here: for OpenCode it is a plugin, not a `~/.agents/skills` bundle. It
+is declared in the `plugins` array of `opencode/opencode.json` and installed by
+`opencode/install.sh`; the plugin registers the skills itself.
