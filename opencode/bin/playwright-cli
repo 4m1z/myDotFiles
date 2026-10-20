@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cli="${XDG_DATA_HOME:-$HOME/.local/share}/mydotfiles/playwright-cli/bin/playwright-cli"
+if [[ ! -f $cli ]]; then
+  printf 'Playwright CLI is missing; run opencode/skills.sh from the dotfiles repo.\n' >&2
+  exit 1
+fi
+
+# Resolve the global runtime without changing the project/browser working directory.
+if command -v node >/dev/null 2>&1; then
+  exec node "$cli" "$@"
+fi
+node=$(cd "$HOME" && mise which node)
+export PATH="${node%/*}:$PATH"
+exec "$node" "$cli" "$@"

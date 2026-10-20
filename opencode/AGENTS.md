@@ -9,6 +9,11 @@ Applies to every project. Keep it short: a rule that is not actionable is noise.
   does not need.
 - **Smallest complete change.** Include the callers, tests, fixtures, and
   config a change breaks. Do not leave "for later" scaffolding.
+- **Follow the project's design.** When Figma designs are linked or connected,
+  inspect the relevant frames, components, tokens, and assets before UI work.
+  Use them and the project's existing design system as the source of truth;
+  design skills help implement it, not replace it. If access or a required
+  state is missing, ask for the design/access instead of inventing a redesign.
 - **Ask first** for destructive, privileged, production-affecting, or
   security-sensitive actions, and for anything that spends money or touches
   production data.
@@ -48,9 +53,10 @@ Pick the skills that match the phase; do not load everything.
 
 - This machine is Arch-based: `pacman` for packages, `mise` for runtimes
   (node, bun, go, python), `uv` for python tooling.
-- The OpenCode config, plugins, themes, and skills are **managed by a dotfiles
-  repository**: `~/.config/opencode/` and `~/.agents/skills/` are symlinks
-  into it. Edit the repository, not the symlink target's copy.
+- The OpenCode config, plugins, themes, and vendored skills are **managed by a
+  dotfiles repository**. Edit their repository sources through the existing
+  symlinks. Ecosystem and design skills are installed copies, updated by their
+  CLIs; do not assume all of `~/.agents/skills/` is linked into the repository.
 - The dotfiles repo keeps two installers (`cachyos/install.sh`,
   `opencode/install.sh`); both are idempotent and must stay that way.
 - System paths owned by packages (e.g. `/usr/share/<package>`) are read-only:

@@ -1,8 +1,9 @@
 # Agent skills
 
 `manifest.txt` is the single source of truth: one `<skill-name> <source>` per
-line. `opencode/skills.sh` installs them and `--verify` reports what is
-missing (the CachyOS test suite runs that check).
+line. `opencode/skills.sh` installs missing skills. `--verify` requires a
+readable, nonempty `SKILL.md` for every entry and the working Playwright CLI
+command interface (the CachyOS test suite runs that check).
 
 Three sources:
 
@@ -12,10 +13,29 @@ Three sources:
   `npx skills update -g`.
 - `ui-ux-pro-max` — installed by the
   [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) CLI
-  (`ui-ux-pro-max` plus its bundled design skills).
+  (`ui-ux-pro-max` plus its bundled design skills). The bundle is generated in
+  a temporary HOME; only missing/invalid skills are copied into place. Normal
+  bootstrap never force-refreshes existing design skills.
 - `vendored` — a directory in this repo, symlinked into `~/.agents/skills/`
-  (only when nothing is installed there yet, so a distro-provided skill is
-  never clobbered).
+  (existing usable skills, including distro-provided ones, are preserved).
+
+Invalid skill entries are moved to timestamped directories under
+`${XDG_STATE_HOME:-~/.local/state}/mydotfiles/skills-backups/` before repair.
+Back up customized skills before explicitly refreshing them with an upstream
+CLI; ecosystem updates are separate from bootstrap.
+
+The installer also provisions the official `@playwright/cli` in
+`${XDG_DATA_HOME:-~/.local/share}/mydotfiles/playwright-cli/`. Its repo-managed
+launcher is linked as `~/.local/bin/playwright-cli` (an existing command is
+backed up alongside it). Node tooling falls back to the global mise runtime
+when it is not on PATH. Browser binaries are managed by Playwright; use
+`playwright-cli install-browser` if no supported browser is installed.
+
+`opencode/verify-plugins.sh` checks that graph-live, tmux-status, ponytail, and
+Superpowers actually appear in the runtime plugin list. Installers fail if
+skill/tool verification or runtime plugin verification fails.
+
+Run the offline installer regressions with `python3 opencode/tests/test_setup.py`.
 
 Vendored here:
 
