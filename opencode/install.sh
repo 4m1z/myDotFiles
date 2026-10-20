@@ -35,6 +35,8 @@ fi
 
 link_config "$dotfiles_dir/opencode.json" "$config_dir/opencode.json"
 link_config "$dotfiles_dir/opencode.jsonc" "$config_dir/opencode.jsonc"
+# Global instructions for the agent (skill map + engineering rules).
+link_config "$dotfiles_dir/AGENTS.md" "$config_dir/AGENTS.md"
 for plugin in "$dotfiles_dir"/plugins/*.ts; do
   link_config "$plugin" "$config_dir/plugins/${plugin##*/}"
 done

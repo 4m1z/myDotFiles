@@ -30,10 +30,11 @@ it does the portable user-level setup. Flags: `--no-packages`, `--no-desktop`,
 - **User** — Oh My Zsh (+ autosuggestions/syntax-highlighting), symlinks for
   zsh/nvim/tmux/alacritty/opencode, Packer + one-time `PackerSync`, OpenCode V2
   and plugins, Speedy, OpenClaw CLI, macOS cursor.
-- **Agent skills** — `~/.agents/skills/` gets the UI/UX Pro Max bundle
-  (`ui-ux-pro-max` + its design skills) and the vendored `diagnose-crash`
-  skill; `skills/manifest.txt` is the expected list and
-  `opencode/skills.sh --verify` checks it.
+- **Agent skills** — `~/.agents/skills/` gets the UI/UX Pro Max bundle, the
+  ecosystem skills from the [skills CLI](https://skills.sh) (Vercel frontend,
+  Supabase Postgres, marketing/growth, Trail of Bits security, Playwright CLI)
+  and the vendored skills in `skills/`; `skills/manifest.txt` is the expected
+  list and `opencode/skills.sh --verify` checks it.
 - **Desktop** — Noctalia layer `50-mydotfiles.toml` (dock off, auto theme,
   alacritty template) and Hyprland `personal.lua` / `input.lua` / `bindings.lua`.
 
@@ -82,10 +83,15 @@ by `opencode/install.sh`; update it with
 `opencode plugin update superpowers@git+https://github.com/obra/superpowers.git`.
 
 Agent skills land in the agent-standard `~/.agents/skills/`: the UI/UX Pro Max
-bundle (`npx ui-ux-pro-max-cli init --ai universal --global --force`, needs
-node + python) and the vendored `diagnose-crash` skill. `skills/manifest.txt`
-is the expected list, `opencode/skills.sh` installs it and
-`opencode/skills.sh --verify` reports what is missing.
+bundle, the ecosystem skills from the [skills CLI](https://skills.sh) (Vercel
+frontend, Supabase Postgres, marketing/growth, Trail of Bits security,
+Playwright CLI) and the vendored skills in `skills/`. `skills/manifest.txt` is
+the expected list, `opencode/skills.sh` installs it and
+`opencode/skills.sh --verify` reports what is missing. Refresh the ecosystem
+skills with `npx skills update -g`.
+
+Global agent instructions live in `~/.config/opencode/AGENTS.md` (linked from
+`opencode/AGENTS.md`): engineering rules and the skill-to-phase map.
 
 ## Tests
 
