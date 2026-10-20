@@ -5,6 +5,7 @@
   "plugins": [
     "opencode-graph-live@latest",
     "opencode-tmux-session-status@latest",
-    "@dietrichgebert/ponytail"
+    "@dietrichgebert/ponytail",
+    "superpowers@git+https://github.com/obra/superpowers.git"
   ]
 }

@@ -26,6 +26,7 @@ Tracked configuration:
 - Third-party bar widgets: Speedy, Terminalodo, Google Calendar (`tmn73.calendar`) and GitHub (`robzolkos.github`, needs authenticated `gh`)
 - Repo-managed `amir.memory` Omarchy bar plugin: a five-segment live memory gauge beside the Omarchy update widget, with a pressure warning at 75% and critical warning at 90%
 - OpenCode V2 config and the latest `opencode-graph-live` plugin
+- Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) as an OpenCode plugin: it registers the brainstorming / writing-plans / TDD / systematic-debugging / code-review skill set and injects the skill bootstrap. Declared in `opencode/opencode.json` (`plugins` array) and installed by `opencode/install.sh`; update it with `opencode plugin update superpowers@git+https://github.com/obra/superpowers.git`
 - Agent skills in `~/.agents/skills/`: the UI/UX Pro Max bundle (`ui-ux-pro-max` plus its design skills) and the vendored `diagnose-crash` skill. `skills/manifest.txt` is the expected list, `opencode/skills.sh` installs it and `opencode/skills.sh --verify` reports what is missing. Refresh the design bundle with `npx -y ui-ux-pro-max-cli init --ai universal --global --force` (needs Python 3 for its search script).
 
 Run this from an Omarchy desktop session after cloning the repository:

@@ -47,3 +47,9 @@ printf 'OpenCode graph-live plugin installed.\n'
 "$opencode_bin" plugin update @dietrichgebert/ponytail
 "$opencode_bin" plugin list | grep -Eq '^ponytail[[:space:]]'
 printf 'OpenCode ponytail plugin installed.\n'
+
+# Superpowers (obra/superpowers): a plugin that registers the brainstorming /
+# TDD / debugging skill set and injects the skill bootstrap.
+"$opencode_bin" plugin update superpowers@git+https://github.com/obra/superpowers.git
+"$opencode_bin" plugin list | grep -Eq '^superpowers[[:space:]]'
+printf 'OpenCode superpowers plugin installed.\n'
