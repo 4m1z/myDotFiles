@@ -116,6 +116,17 @@ verify_machine() {
   check "OpenCode tmux-status configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugin"]; assert "opencode-tmux-session-status@latest" in p'
 
+  # --- agent skills in ~/.agents/skills (the design bundle needs node)
+  if command -v npx >/dev/null 2>&1 || command -v mise >/dev/null 2>&1; then
+    if bash "$REPO_DIR/opencode/skills.sh" --verify; then
+      pass "agent skills installed in ~/.agents/skills"
+    else
+      fail "agent skills installed in ~/.agents/skills (run: ./opencode/skills.sh)"
+    fi
+  else
+    printf 'SKIP: agent skills check (no npx/mise in this environment)\n'
+  fi
+
   # --- mise works
   check "mise" mise --version
 

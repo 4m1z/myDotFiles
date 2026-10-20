@@ -39,6 +39,10 @@ for plugin in "$dotfiles_dir"/plugins/*.ts; do
   link_config "$plugin" "$config_dir/plugins/${plugin##*/}"
 done
 
+# Agent skills in ~/.agents/skills: the UI/UX Pro Max bundle plus the
+# vendored ones from skills/. Never fatal; --verify reports what is missing.
+bash "$dotfiles_dir/skills.sh"
+
 ensure_package_plugin() {
   # The current OpenCode config key is `plugin` (singular), and the CLI
   # resolves npm packages lazily when the service starts. Running `plugin

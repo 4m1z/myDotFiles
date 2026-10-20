@@ -173,8 +173,10 @@ link_portable_configs() {
   link_config "$REPO_DIR/tmux/.tmux.conf" "$CONFIG_HOME/tmux/tmux.conf"
   link_config "$REPO_DIR/tmux/tmux-sessionizer" "$CONFIG_HOME/tmux/tmux-sessionizer"
   link_config "$REPO_DIR/tmux/tmux-todo.sh" "$CONFIG_HOME/tmux/tmux-todo.sh"
-  if $IS_CACHYOS; then
-    run_as_root ln -sfn -- "$REPO_DIR/tmux/tmux-sessionizer" /usr/local/bin/tmux-sessionizer
+  if $IS_CACHYOS && [[ ${MYDOTFILES_TEST_MODE:-0} != 1 ]]; then
+    # System-wide convenience link; skipped in the sandbox so the test never
+    # touches root-owned paths outside its fake HOME.
+    as_root ln -sfn -- "$REPO_DIR/tmux/tmux-sessionizer" /usr/local/bin/tmux-sessionizer
   fi
   link_config "$REPO_DIR/tmux/plugins/tmux-opencode-session-manager" \
     "$CONFIG_HOME/tmux/plugins/tmux-opencode-session-manager"
