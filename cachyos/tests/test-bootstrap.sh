@@ -109,7 +109,7 @@ verify_machine() {
 
   # --- opencode v2 + plugins (no auth needed for these read-only commands)
   check_output "opencode v2" "opencode v2." bash -c 'cd "$HOME" && opencode --version'
-  check "opencode plugin list" bash -c 'cd "$HOME" && opencode plugin list'
+  check "OpenCode package plugins loaded" bash "$REPO_DIR/opencode/verify-plugins.sh"
   check "OpenClaw CLI" openclaw --version
   check "OpenCode graph-live configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "opencode-graph-live@latest" in p'
@@ -118,15 +118,11 @@ verify_machine() {
   check "OpenCode superpowers configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "superpowers@git+https://github.com/obra/superpowers.git" in p'
 
-  # --- agent skills in ~/.agents/skills (the design bundle needs node)
-  if command -v npx >/dev/null 2>&1 || command -v mise >/dev/null 2>&1; then
-    if bash "$REPO_DIR/opencode/skills.sh" --verify; then
-      pass "agent skills installed in ~/.agents/skills"
-    else
-      fail "agent skills installed in ~/.agents/skills (run: ./opencode/skills.sh)"
-    fi
+  # --- skill files and the browser CLI must be usable, regardless of PATH
+  if bash "$REPO_DIR/opencode/skills.sh" --verify; then
+    pass "agent skills and browser CLI installed"
   else
-    printf 'SKIP: agent skills check (no npx/mise in this environment)\n'
+    fail "agent skills and browser CLI installed (run: ./opencode/skills.sh)"
   fi
 
   # --- mise works

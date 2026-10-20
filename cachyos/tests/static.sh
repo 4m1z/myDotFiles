@@ -35,6 +35,13 @@ else
   printf 'SKIP: shellcheck not installed\n'
 fi
 
+# --- installer behavior, with package downloads and the service stubbed
+if python3 "$REPO_DIR/opencode/tests/test_setup.py"; then
+  pass "OpenCode installer regressions"
+else
+  fail "OpenCode installer regressions"
+fi
+
 # --- Lua syntax (parse only, never execute: personal.lua needs Hyprland's
 # --- `hl` global, so execution is expected to fail outside Hyprland)
 check_lua() {

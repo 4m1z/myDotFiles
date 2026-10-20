@@ -44,7 +44,7 @@ LUA
 
 # The host may already run an opencode service on the default port
 # (127.0.0.1:49374). Pre-install the sandbox binary and pin it to a free
-# port so `opencode plugin update` inside the bootstrap never collides.
+# port so plugin registration inside the bootstrap never collides.
 FREEPORT=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')
 curl --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
   https://opencode.ai/v2/install | bash -s -- --no-modify-path

@@ -45,27 +45,11 @@ done
 # plugin stays invisible to the plugin manager until it restarts.
 "$opencode_bin" service restart >/dev/null 2>&1 || true
 
-# Agent skills in ~/.agents/skills: the UI/UX Pro Max bundle plus the
-# vendored ones from skills/. Never fatal; --verify reports what is missing.
+# Install skills and their browser tool, then require a usable installation.
 bash "$dotfiles_dir/skills.sh"
+bash "$dotfiles_dir/skills.sh" --verify
 
-ensure_package_plugin() {
-  # The OpenCode config key is `plugins` (plural; the singular one is
-  # deprecated), and the CLI resolves packages lazily when the service starts.
-  # Running `plugin add` against a package already listed in config is an
-  # error, so only add it when the tracked config does not declare it.
-  local spec=$1 id=$2
-  if ! grep -Fq -- "$spec" "$dotfiles_dir/opencode.json"; then
-    "$opencode_bin" plugin add "$spec"
-  fi
-  printf 'Configured OpenCode plugin: %s (%s)\n' "$spec" "$id"
-}
-
-# Keep in sync with the "plugins" array in opencode.json.
-ensure_package_plugin opencode-graph-live@latest graph-live
-ensure_package_plugin opencode-tmux-session-status@latest tmux-status
-ensure_package_plugin @dietrichgebert/ponytail ponytail
-# Superpowers (obra/superpowers): registers the brainstorming/TDD/debugging
-# skill set and injects the skill bootstrap.
-ensure_package_plugin superpowers@git+https://github.com/obra/superpowers.git superpowers
-printf 'OpenCode package plugins installed.\n'
+# The config declares the packages (graph-live, tmux-status, ponytail and
+# superpowers, which registers the skill set); the service installs them on
+# boot. Require their runtime registrations, waiting for that async install.
+bash "$dotfiles_dir/verify-plugins.sh" "$opencode_bin"
