@@ -6,7 +6,6 @@ description: >
   why an application crashed or disappeared, or when a "Process crashed:" desktop
   notification is acted on. Triggers: crash, segfault, SIGSEGV, SIGABRT, core dump,
   coredumpctl, "why did X crash", "X keeps crashing", backtrace symbolization.
-  Covers reporting a confirmed Omarchy bug upstream — see reporting.md.
 ---
 
 # Diagnosing a Crash
@@ -89,9 +88,10 @@ ambiguous, say so rather than assembling confidence out of guesswork.
 reconfigure. The one thing to clean up is your own: delete the core you extracted
 above, which is a copy of the crashed process's memory.
 
-## If it is an Omarchy bug
+## If it is a bug in the platform, not the program
 
-Most application crashes are upstream bugs in those applications, not Omarchy's
-doing. In the minority of cases where the cause really does sit within Omarchy's
-sphere of control, read [`reporting.md`](reporting.md) before offering to file
-anything.
+Most application crashes are upstream bugs in those applications, not the
+system's doing. When the evidence points at something the system provides
+(a driver, a library, a packaging layer), say so and name the upstream
+project that owns it. Do not file issues on the user's behalf: hand them the
+finished report and let them decide.

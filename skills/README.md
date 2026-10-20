@@ -19,8 +19,10 @@ Three sources:
 
 Vendored here:
 
-- `diagnose-crash/` — from the omarchy package (MIT, omarchy 4.0.4): the
-  crash-diagnosis workflow is distro-agnostic, the package is not.
+- `diagnose-crash/` — adapted from the omarchy package (MIT, omarchy 4.0.4): the
+  crash-diagnosis workflow is distro-agnostic, the package is not. The
+  upstream-filing appendix (Omarchy-specific) was dropped; everything else is
+  verbatim.
 - `api-design-review/`, `product-feature-delivery/`, `production-readiness/` —
   the product-engineering skills, written for this setup because no upstream
   skill covers them.
