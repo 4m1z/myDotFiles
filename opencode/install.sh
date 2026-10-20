@@ -36,6 +36,10 @@ for plugin in "$dotfiles_dir"/plugins/*.ts; do
   link_config "$plugin" "$config_dir/plugins/${plugin##*/}"
 done
 
+# The running service caches the config it started with, so a newly declared
+# plugin stays invisible to the plugin manager until it restarts.
+"$opencode_bin" service restart >/dev/null 2>&1 || true
+
 # Agent skills in ~/.agents/skills: the UI/UX Pro Max bundle plus the
 # vendored ones from skills/. Never fatal; --verify reports what is missing.
 bash "$dotfiles_dir/skills.sh"
