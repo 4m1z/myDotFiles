@@ -1,0 +1,11 @@
+# Agent skills this setup expects in ~/.agents/skills after a bootstrap.
+# One skill name per line; blank lines and #-comments are ignored.
+# opencode/skills.sh installs them, `opencode/skills.sh --verify` checks them.
+banner-design
+brand
+design
+design-system
+diagnose-crash
+slides
+ui-styling
+ui-ux-pro-max

@@ -36,6 +36,10 @@ for plugin in "$dotfiles_dir"/plugins/*.ts; do
   link_config "$plugin" "$config_dir/plugins/${plugin##*/}"
 done
 
+# Agent skills in ~/.agents/skills: the UI/UX Pro Max bundle plus the
+# vendored ones from skills/. Never fatal; --verify reports what is missing.
+bash "$dotfiles_dir/skills.sh"
+
 "$opencode_bin" plugin update opencode-graph-live@latest
 "$opencode_bin" plugin list | grep -Eq '^graph-live[[:space:]]'
 printf 'OpenCode graph-live plugin installed.\n'
