@@ -22,6 +22,7 @@ DEV_PACKAGES=(
   wl-clipboard
   foot
   python # the ui-ux-pro-max skill's search script
+  uv # python tooling; the supply-chain-risk-auditor skill runs its scripts with uv
   chromium # Notes PWA --app window (NotesApp WM class) and dev browser
   bluez
   bluez-utils
