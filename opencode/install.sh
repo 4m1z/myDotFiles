@@ -44,10 +44,10 @@ done
 bash "$dotfiles_dir/skills.sh"
 
 ensure_package_plugin() {
-  # The current OpenCode config key is `plugin` (singular), and the CLI
-  # resolves npm packages lazily when the service starts. Running `plugin
-  # add` against a package already listed in config is an error, so only
-  # add it when the tracked config does not declare it.
+  # The OpenCode config key is `plugins` (plural; the singular one is
+  # deprecated), and the CLI resolves packages lazily when the service starts.
+  # Running `plugin add` against a package already listed in config is an
+  # error, so only add it when the tracked config does not declare it.
   local spec=$1 id=$2
   if ! grep -Fq -- "$spec" "$dotfiles_dir/opencode.json"; then
     "$opencode_bin" plugin add "$spec"
@@ -55,8 +55,11 @@ ensure_package_plugin() {
   printf 'Configured OpenCode plugin: %s (%s)\n' "$spec" "$id"
 }
 
-# Keep in sync with the "plugin" array in opencode.json.
+# Keep in sync with the "plugins" array in opencode.json.
 ensure_package_plugin opencode-graph-live@latest graph-live
 ensure_package_plugin opencode-tmux-session-status@latest tmux-status
 ensure_package_plugin @dietrichgebert/ponytail ponytail
+# Superpowers (obra/superpowers): registers the brainstorming/TDD/debugging
+# skill set and injects the skill bootstrap.
+ensure_package_plugin superpowers@git+https://github.com/obra/superpowers.git superpowers
 printf 'OpenCode package plugins installed.\n'

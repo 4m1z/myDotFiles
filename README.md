@@ -69,10 +69,17 @@ propagates the theme to the terminal; Neovim follows via
 ## OpenCode / AI workflow
 
 V2 CLI (`~/.opencode/bin` first on PATH), tracked `opencode.json[.jsonc]`,
-package plugins (`graph-live`, `tmux-session-status`, `ponytail`), and the tmux
-popup session manager (`prefix+y` launch, `prefix+u` picker). Secrets live in
-`~/.config/opencode/secrets.zsh` (see the `.example`); nothing secret is
-committed. Per-machine auth: `opencode auth login`, `gh auth login`.
+package plugins (`graph-live`, `tmux-session-status`, `ponytail`, `superpowers`),
+and the tmux popup session manager (`prefix+y` launch, `prefix+u` picker).
+Secrets live in `~/.config/opencode/secrets.zsh` (see the `.example`); nothing
+secret is committed. Per-machine auth: `opencode auth login`, `gh auth login`.
+
+Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) is an
+OpenCode plugin: it registers the brainstorming / writing-plans / TDD /
+systematic-debugging / code-review skill set and injects the skill bootstrap.
+It is declared in the `plugins` array of `opencode/opencode.json` and installed
+by `opencode/install.sh`; update it with
+`opencode plugin update superpowers@git+https://github.com/obra/superpowers.git`.
 
 Agent skills land in the agent-standard `~/.agents/skills/`: the UI/UX Pro Max
 bundle (`npx ui-ux-pro-max-cli init --ai universal --global --force`, needs

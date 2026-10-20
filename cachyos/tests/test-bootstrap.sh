@@ -112,9 +112,12 @@ verify_machine() {
   check "opencode plugin list" bash -c 'cd "$HOME" && opencode plugin list'
   check "OpenClaw CLI" openclaw --version
   check "OpenCode graph-live configured" python3 -c \
-    'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugin"]; assert "opencode-graph-live@latest" in p'
+    'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "opencode-graph-live@latest" in p'
   check "OpenCode tmux-status configured" python3 -c \
-    'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugin"]; assert "opencode-tmux-session-status@latest" in p'
+    'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "opencode-tmux-session-status@latest" in p'
+  check "OpenCode superpowers configured" python3 -c \
+    'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "superpowers@git+https://github.com/obra/superpowers.git" in p'
+  check_output "OpenCode superpowers plugin" "superpowers" bash -c 'cd "$HOME" && opencode plugin list'
 
   # --- agent skills in ~/.agents/skills (the design bundle needs node)
   if command -v npx >/dev/null 2>&1 || command -v mise >/dev/null 2>&1; then
