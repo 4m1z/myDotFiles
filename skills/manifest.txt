@@ -1,11 +1,38 @@
 # Agent skills this setup expects in ~/.agents/skills after a bootstrap.
-# One skill name per line; blank lines and #-comments are ignored.
-# opencode/skills.sh installs them, `opencode/skills.sh --verify` checks them.
-banner-design
-brand
-design
-design-system
-diagnose-crash
-slides
-ui-styling
-ui-ux-pro-max
+#
+#   <skill-name> <source>
+#
+# Sources:
+#   <owner/repo>   installed by the skills CLI (npx skills add <owner/repo> -s <skill>)
+#   ui-ux-pro-max  installed by the ui-ux-pro-max CLI
+#   vendored       vendored in skills/<skill-name>/ and symlinked into place
+#
+# opencode/skills.sh installs them and `opencode/skills.sh --verify` reports
+# what is missing. Keep this list sorted; it is the single source of truth.
+ab-testing coreyhaines31/marketingskills
+analytics coreyhaines31/marketingskills
+api-design-review vendored
+banner-design ui-ux-pro-max
+brand ui-ux-pro-max
+design ui-ux-pro-max
+design-system ui-ux-pro-max
+differential-review trailofbits/skills
+diagnose-crash vendored
+onboarding coreyhaines31/marketingskills
+playwright-cli microsoft/playwright-cli
+pricing coreyhaines31/marketingskills
+product-feature-delivery vendored
+product-marketing coreyhaines31/marketingskills
+production-readiness vendored
+property-based-testing trailofbits/skills
+sarif-parsing trailofbits/skills
+semgrep trailofbits/skills
+seo-audit coreyhaines31/marketingskills
+slides ui-ux-pro-max
+supabase-postgres-best-practices supabase/agent-skills
+supply-chain-risk-auditor trailofbits/skills
+ui-styling ui-ux-pro-max
+ui-ux-pro-max ui-ux-pro-max
+vercel-composition-patterns vercel-labs/agent-skills
+vercel-react-best-practices vercel-labs/agent-skills
+web-design-guidelines vercel-labs/agent-skills
