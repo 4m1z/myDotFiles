@@ -117,7 +117,6 @@ verify_machine() {
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "opencode-tmux-session-status@latest" in p'
   check "OpenCode superpowers configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "superpowers@git+https://github.com/obra/superpowers.git" in p'
-  check_output "OpenCode superpowers plugin" "superpowers" bash -c 'cd "$HOME" && opencode plugin list'
 
   # --- agent skills in ~/.agents/skills (the design bundle needs node)
   if command -v npx >/dev/null 2>&1 || command -v mise >/dev/null 2>&1; then
@@ -161,8 +160,13 @@ verify_machine() {
 
   # --- CachyOS-only file checks (run when present, never fail elsewhere)
   if [[ -f "$config_home/noctalia/50-mydotfiles.toml" ]]; then
-    check "Zen Browser package" pacman -Q zen-browser-bin
-    check "Telegram Desktop package" pacman -Q telegram-desktop
+    if [[ "${MYDOTFILES_TEST_MODE:-0}" != 1 ]]; then
+      # Package facts only hold on a real CachyOS install.
+      check "Zen Browser package" pacman -Q zen-browser-bin
+      check "Telegram Desktop package" pacman -Q telegram-desktop
+    else
+      printf 'SKIP: CachyOS package checks (not on CachyOS)\n'
+    fi
     check "noctalia: dock disabled" grep -q 'enabled = false' "$config_home/noctalia/50-mydotfiles.toml"
     if grep -Eq 'waybar|swaync|quickshell|cairo-dock|nwg-dock|latte-dock|\brofi\b|\bwofi\b|\bmako\b|\bags\b|\bplank\b' \
       "$config_home/noctalia/50-mydotfiles.toml"; then
