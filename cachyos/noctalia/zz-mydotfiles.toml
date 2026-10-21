@@ -1,7 +1,13 @@
 # myDotFiles hand layer for Noctalia v5 (TOML).
-# Installed by cachyos/install.sh as ~/.config/noctalia/50-mydotfiles.toml.
-# Noctalia deep-merges every *.toml in ~/.config/noctalia/ alphabetically,
-# so this file wins over the CachyOS-shipped config.toml without forking it.
+# Installed by cachyos/install.sh as ~/.config/noctalia/zz-mydotfiles.toml.
+#
+# ORDERING MATTERS. Noctalia deep-merges every *.toml in ~/.config/noctalia/
+# and a LATER filename wins over an earlier one. The CachyOS profile ships
+# config.toml, so this layer MUST sort after "config.toml" to take effect:
+#   "50-mydotfiles.toml" < "config.toml"  -> the layer was silently ignored
+#   "zz-mydotfiles.toml" > "config.toml" -> the layer wins
+# cachyos/tests/static.sh enforces this ordering.
+#
 # GUI/IPC changes land in ~/.local/state/noctalia/settings.toml and still
 # win over this file; if a value here seems ignored, inspect that file.
 
@@ -61,6 +67,10 @@ sunrise = "07:00"
 # placeholder is installed until the template first renders).
 # Enable more IDs in the Noctalia settings UI or with:
 #   noctalia msg templates-apply
+#
+# builtin_ids is deliberately NOT overridden: the CachyOS profile already
+# ships ["btop","gtk3","gtk4","kcolorscheme","kitty","qt","alacritty"], so
+# alacritty is covered. Narrowing this list would silently drop theme
+# propagation from GTK/Qt/Kitty apps (light dialogs in a dark shell).
 [theme.templates]
 enable_builtin_templates = true
-builtin_ids = ["alacritty"]
