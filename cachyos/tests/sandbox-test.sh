@@ -191,47 +191,9 @@ printf '[sandbox] PASS: theme helper persists manual dark/light mode\n'
 export PATH="${PATH#"$SANDBOX/stubbin:"}"
 
 printf '[sandbox] verification...\n'
-# The plugin check needs a running opencode server that uses the SANDBOX
-# config (the repo's opencode.json, linked above). Start a private one on
-# the sandbox port so the host's service is never contacted, and stop it
-# again when the sandbox goes away.
-if [[ -x "$HOME/.opencode/bin/opencode" ]]; then
-  "$HOME/.opencode/bin/opencode" serve --port "$FREEPORT" --hostname 127.0.0.1 \
-    >"$SANDBOX/opencode-serve.log" 2>&1 &
-  SANDBOX_SERVER_PID=$!
-  printf '[sandbox] sandbox opencode server pid=%s port=%s\n' \
-    "$SANDBOX_SERVER_PID" "$FREEPORT"
-  # The server generates its own password and prints it. The CLI reads the
-  # password from service.json, so hand it over, otherwise every request
-  # is rejected and the plugin list comes back empty.
-  for _ in $(seq 1 60); do
-    if grep -q 'server password' "$SANDBOX/opencode-serve.log" 2>/dev/null; then
-      break
-    fi
-    sleep 1
-  done
-  password=$(sed -n 's/.*server password \([A-Za-z0-9_-]\{20,\}\).*/\1/p' \
-    "$SANDBOX/opencode-serve.log" 2>/dev/null | head -n1)
-  if [[ -n "$password" ]]; then
-    printf '{"port": %s, "password": "%s"}\n' "$FREEPORT" "$password" \
-      >"$OPENCODE_CONFIG_DIR/service.json"
-    printf '[sandbox] sandbox server password handed to the CLI\n'
-  else
-    printf '[sandbox] WARNING: could not read the sandbox server password\n'
-  fi
-  for _ in $(seq 1 60); do
-    # The probe runs in a subshell, so the socket is closed again when it
-    # exits. (Never `exec 3<&- 2>/dev/null` here: `exec` would apply the
-    # stderr redirect to the whole script and swallow the check output.)
-    if (exec 3<>"/dev/tcp/127.0.0.1/$FREEPORT") 2>/dev/null; then
-      break
-    fi
-    sleep 1
-  done
-fi
-if ! (cd "$REPO_DIR" && ./cachyos/tests/test-bootstrap.sh --verify-only); then
-  printf '[sandbox] verification FAILED; last 40 lines of the sandbox server log:\n'
-  tail -40 "$SANDBOX/opencode-serve.log" 2>/dev/null || true
-  exit 1
-fi
+# NOTE: no private OpenCode server is started here. The CLI always talks to
+# the background service on the default port, so a sandbox-local server
+# would never be seen; the runtime plugin registration is therefore checked
+# on the real host instead (and the declaration is checked here).
+(cd "$REPO_DIR" && ./cachyos/tests/test-bootstrap.sh --verify-only)
 printf '[sandbox] ALL GREEN\n'

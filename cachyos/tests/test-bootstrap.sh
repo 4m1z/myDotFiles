@@ -128,7 +128,12 @@ verify_machine() {
 
   # --- opencode v2 + plugins (no auth needed for these read-only commands)
   check_output "opencode v2" "opencode v2." bash -c 'cd "$HOME" && opencode --version'
-  check "OpenCode package plugins loaded" bash "$REPO_DIR/opencode/verify-plugins.sh"
+  if $package_checks; then
+    # The runtime registration lives in the OpenCode background service, which
+    # always listens on the default port: the sandbox cannot host its own
+    # service, so this only makes sense against a real installation.
+    check "OpenCode package plugins loaded" bash "$REPO_DIR/opencode/verify-plugins.sh"
+  fi
   check "OpenClaw CLI" openclaw --version
   check "OpenCode graph-live configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "opencode-graph-live@latest" in p'
