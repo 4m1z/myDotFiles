@@ -34,7 +34,9 @@ it does the portable user-level setup. Flags: `--no-packages`, `--no-desktop`,
   ecosystem skills from the [skills CLI](https://skills.sh) (Vercel frontend,
   Supabase Postgres, marketing/growth, Trail of Bits security, Playwright CLI)
   and the vendored skills in `skills/`; `skills/manifest.txt` is the expected
-  list and `opencode/skills.sh --verify` checks it.
+  list and `opencode/skills.sh --verify` checks it. The
+  `supply-chain-risk-auditor` skill runs its scripts with `uv`, installed as
+  a package.
 - **Desktop** — Noctalia layer `50-mydotfiles.toml` (dock off, auto theme,
   alacritty template) and Hyprland `personal.lua` / `input.lua` / `bindings.lua`.
 
