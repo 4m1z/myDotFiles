@@ -31,7 +31,10 @@ packer.startup({ function(use)
 		branch = "v1.x",
 		requires = {
 			-- LSP Support
-			{ "neovim/nvim-lspconfig" },
+			-- lsp-zero (v1.x) is built on the nvim-lspconfig v1
+			-- framework. nvim-lspconfig v2 deprecated it and raises an
+			-- error on every startup, so pin the last v1 release.
+			{ "neovim/nvim-lspconfig", tag = "v1.8.0" },
 			{ "williamboman/mason.nvim" },
 			{ "williamboman/mason-lspconfig.nvim" },
 
