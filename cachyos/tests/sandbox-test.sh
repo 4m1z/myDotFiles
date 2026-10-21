@@ -14,7 +14,12 @@ set -euo pipefail
 REPO_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 SANDBOX=$(mktemp -d "${TMPDIR:-/tmp}/mydotfiles-sandbox-XXXXXX")
 
-cleanup() { rm -rf -- "$SANDBOX"; }
+cleanup() {
+  if [[ -n "${SANDBOX_SERVER_PID:-}" ]]; then
+    kill "$SANDBOX_SERVER_PID" 2>/dev/null || true
+  fi
+  rm -rf -- "$SANDBOX"
+}
 trap cleanup EXIT
 
 export HOME="$SANDBOX/home"
@@ -43,13 +48,21 @@ LUA
 # binaries plus the sandbox HOME bins will resolve below.
 
 # The host may already run an opencode service on the default port
-# (127.0.0.1:49374). Pre-install the sandbox binary and pin it to a free
-# port so plugin registration inside the bootstrap never collides.
+# (127.0.0.1:49374). Give the sandbox its own port AND its own config dir
+# so that nothing the sandbox does can reach (or reconfigure) the host's
+# service.
+#
+# NOTE: `opencode service set port` talks to the RUNNING service, which on
+# a real desktop is the host's, so it must not be used here. The port is
+# written straight into the sandbox's service.json instead.
 FREEPORT=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')
-curl --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
-  https://opencode.ai/v2/install | bash -s -- --no-modify-path
-"$HOME/.opencode/bin/opencode" service set port "$FREEPORT" \
-  || printf '[sandbox] warning: could not pin opencode service port\n'
+export OPENCODE_CONFIG_DIR="$XDG_CONFIG_HOME/opencode"
+mkdir -p -- "$OPENCODE_CONFIG_DIR"
+printf '{"port": %s}\n' "$FREEPORT" >"$OPENCODE_CONFIG_DIR/service.json"
+# Never restart a service from inside the sandbox.
+export OPENCODE_SKIP_SERVICE_RESTART=1
+# The sandbox must not change the host's group memberships either.
+# (install.sh now gates those behind --allow-groups, which is off here.)
 export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$PATH"
 
 printf '[sandbox] HOME=%s\n' "$HOME"
@@ -63,7 +76,7 @@ cat "$XDG_CONFIG_HOME/hypr/config/binds.lua"
 printf '[sandbox] hyprland.lua after hook:\n'
 cat "$XDG_CONFIG_HOME/hypr/hyprland.lua"
 printf '[sandbox] noctalia hand layer:\n'
-cat "$XDG_CONFIG_HOME/noctalia/50-mydotfiles.toml"
+cat "$XDG_CONFIG_HOME/noctalia/zz-mydotfiles.toml"
 
 # Exercise the manual theme helper against a deterministic Noctalia IPC stub
 # (the real shell is not installed in this non-GUI sandbox).
@@ -100,5 +113,23 @@ printf '[sandbox] PASS: theme helper persists manual dark/light mode\n'
 export PATH="${PATH#"$SANDBOX/stubbin:"}"
 
 printf '[sandbox] verification...\n'
+# The plugin check needs a running opencode server that uses the SANDBOX
+# config (the repo's opencode.json, linked above). Start a private one on
+# the sandbox port so the host's service is never contacted, and stop it
+# again when the sandbox goes away.
+if [[ -x "$HOME/.opencode/bin/opencode" ]]; then
+  "$HOME/.opencode/bin/opencode" serve --port "$FREEPORT" --hostname 127.0.0.1 \
+    >"$SANDBOX/opencode-serve.log" 2>&1 &
+  SANDBOX_SERVER_PID=$!
+  printf '[sandbox] sandbox opencode server pid=%s port=%s\n' \
+    "$SANDBOX_SERVER_PID" "$FREEPORT"
+  for _ in $(seq 1 60); do
+    if (exec 3<>"/dev/tcp/127.0.0.1/$FREEPORT") 2>/dev/null; then
+      exec 3<&- 2>/dev/null || true
+      break
+    fi
+    sleep 1
+  done
+fi
 (cd "$REPO_DIR" && ./cachyos/tests/test-bootstrap.sh --verify-only)
 printf '[sandbox] ALL GREEN\n'

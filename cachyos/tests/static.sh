@@ -68,7 +68,7 @@ done < <(find cachyos/hypr nvim/lua -name '*.lua' | sort)
 if python3 -c "import tomllib" 2>/dev/null; then
   if python3 - <<'PY'; then
 import tomllib
-for p in ["cachyos/noctalia/50-mydotfiles.toml", "alacritty/alacritty.toml", "mise/config.toml"]:
+for p in ["cachyos/noctalia/zz-mydotfiles.toml", "alacritty/alacritty.toml", "mise/config.toml"]:
     with open(p, "rb") as f:
         tomllib.load(f)
     print("toml ok:", p)
@@ -93,7 +93,7 @@ else
 fi
 
 # --- Dock audit: disabled, and no replacement dock may be referenced.
-if grep -q 'enabled = false' cachyos/noctalia/50-mydotfiles.toml; then
+if grep -q 'enabled = false' cachyos/noctalia/zz-mydotfiles.toml; then
   pass "noctalia dock disabled"
 else
   fail "noctalia dock disabled"
@@ -105,6 +105,18 @@ if grep -rEin 'waybar|swaync|quickshell|cairo-dock|nwg-dock|latte-dock|\brofi\b|
   fail "replacement dock / foreign shell stack referenced (see matches above)"
 else
   pass "no replacement dock"
+fi
+
+# --- Noctalia layer ordering. Noctalia deep-merges ~/.config/noctalia/*.toml
+# --- and a LATER filename wins. The CachyOS profile ships config.toml, so
+# --- our hand layer must sort after it or it is silently ignored.
+noctalia_layer=$(basename "$(ls cachyos/noctalia/*.toml 2>/dev/null | head -n1)")
+if [[ -z "$noctalia_layer" ]]; then
+  fail "noctalia hand layer file found in cachyos/noctalia/"
+elif [[ "$noctalia_layer" > "config.toml" ]]; then
+  pass "noctalia layer sorts after config.toml ($noctalia_layer)"
+else
+  fail "noctalia layer '$noctalia_layer' sorts BEFORE config.toml and would be ignored"
 fi
 
 printf 'Result: %d passed, %d failed\n' "$PASS" "$FAIL"

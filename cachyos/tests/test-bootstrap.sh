@@ -155,7 +155,7 @@ verify_machine() {
   fi
 
   # --- CachyOS-only file checks (run when present, never fail elsewhere)
-  if [[ -f "$config_home/noctalia/50-mydotfiles.toml" ]]; then
+  if [[ -f "$config_home/noctalia/zz-mydotfiles.toml" ]]; then
     if [[ "${MYDOTFILES_TEST_MODE:-0}" != 1 ]]; then
       # Package facts only hold on a real CachyOS install.
       check "Zen Browser package" pacman -Q zen-browser-bin
@@ -163,15 +163,24 @@ verify_machine() {
     else
       printf 'SKIP: CachyOS package checks (not on CachyOS)\n'
     fi
-    check "noctalia: dock disabled" grep -q 'enabled = false' "$config_home/noctalia/50-mydotfiles.toml"
+    check "noctalia: dock disabled" grep -q 'enabled = false' "$config_home/noctalia/zz-mydotfiles.toml"
     if grep -Eq 'waybar|swaync|quickshell|cairo-dock|nwg-dock|latte-dock|\brofi\b|\bwofi\b|\bmako\b|\bags\b|\bplank\b' \
-      "$config_home/noctalia/50-mydotfiles.toml"; then
+      "$config_home/noctalia/zz-mydotfiles.toml"; then
       fail "noctalia config references a foreign shell stack"
     else
       pass "noctalia config has no foreign shell stack"
     fi
     if command -v noctalia >/dev/null 2>&1; then
       check "noctalia config validates" noctalia config validate
+    fi
+    # The installed layer must sort after Noctalia's own config.toml,
+    # otherwise the merge order lets the shipped file win.
+    if [[ -f "$config_home/noctalia/config.toml" ]]; then
+      if [[ "zz-mydotfiles.toml" > "config.toml" ]]; then
+        pass "noctalia layer sorts after config.toml"
+      else
+        fail "noctalia layer sorts before config.toml and is ignored"
+      fi
     fi
   fi
   if [[ -f "$config_home/hypr/config/personal.lua" ]]; then
