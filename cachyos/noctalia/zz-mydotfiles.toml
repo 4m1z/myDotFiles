@@ -67,12 +67,17 @@ sunrise = "07:00"
 # The alacritty template writes ~/.config/alacritty/themes/noctalia.toml on
 # every palette/mode change; our alacritty.toml imports that file (a static
 # placeholder is installed until the template first renders).
+# The foot template does the same for foot, so the terminal matches the
+# rest of the desktop.
 # Enable more IDs in the Noctalia settings UI or with:
 #   noctalia msg templates-apply
 #
-# builtin_ids is deliberately NOT overridden: the CachyOS profile already
-# ships ["btop","gtk3","gtk4","kcolorscheme","kitty","qt","alacritty"], so
-# alacritty is covered. Narrowing this list would silently drop theme
-# propagation from GTK/Qt/Kitty apps (light dialogs in a dark shell).
+# builtin_ids replaces the list rather than adding to it, so it has to
+# repeat the CachyOS defaults (btop, gtk3, gtk4, kcolorscheme, kitty, qt,
+# alacritty) plus foot.
 [theme.templates]
 enable_builtin_templates = true
+builtin_ids = [
+  "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt", "alacritty",
+  "foot",
+]

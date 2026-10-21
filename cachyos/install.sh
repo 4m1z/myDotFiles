@@ -478,6 +478,19 @@ phase_desktop() {
       warn "noctalia msg config-reload failed; the layer applies at next login."
     fi
   fi
+  # Foot reads its colours from the file the Noctalia template writes. The
+  # template only creates the ini itself when no system-wide one exists, so
+  # create it here and let the template keep it in sync.
+  mkdir -p -- "$CONFIG_HOME/foot/themes"
+  if [[ ! -f "$CONFIG_HOME/foot/foot.ini" ]]; then
+    printf '[main]\ninclude=%s\n' "$CONFIG_HOME/foot/themes/noctalia" \
+      >"$CONFIG_HOME/foot/foot.ini"
+    log "Created foot.ini (includes the Noctalia theme)."
+  fi
+  if command -v noctalia >/dev/null 2>&1; then
+    noctalia msg templates-apply >/dev/null 2>&1 \
+      || warn "noctalia msg templates-apply failed; templates apply at next login."
+  fi
   # Persist dock-hidden state too when the shell is already running. This
   # wins over a stale GUI settings override; config.toml remains authoritative
   # on the next fresh start. IPC unavailable before login is expected.

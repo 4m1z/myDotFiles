@@ -32,7 +32,8 @@ Without the flag the installer prints the exact `usermod` command.
   Packer + one-time `PackerSync`, OpenCode v2 + plugins, agent skills,
   Speedy, OpenClaw CLI.
 - **Desktop** — Noctalia layer `zz-mydotfiles.toml` and the Hyprland
-  personal layer in `cachyos/hypr/`.
+  personal layer in `cachyos/hypr/`. The Noctalia templates theme
+  alacritty, kitty, foot and the GTK/Qt apps from one palette.
 
 ## Desktop
 
@@ -43,9 +44,14 @@ AGS/Quickshell, and **no bottom dock**.
 | Binding | Action |
 |---|---|
 | `SUPER+1` … `SUPER+0` | workspace 1 … 10 |
+| `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | move the focused window to that workspace |
+| `SUPER+CTRL+SHIFT+1` … `+3` | move the focused window to that monitor |
 | `SUPER+Return` | foot (light terminal) |
 | `SUPER+W` | Zen Browser |
+| `SUPER+D` | lazydocker |
+| `SUPER+K` | k9s |
 | `SUPER+SHIFT+T` | toggle light/dark |
+| `SUPER+SHIFT+L` | back to the English layout |
 | `SUPER+SHIFT+I` | focus or launch Speedy |
 | `SUPER+SHIFT+W` | focus or launch the Notes PWA (floating 1200x800) |
 | `Alt+Shift` | cycle `us,ir,de` layouts |

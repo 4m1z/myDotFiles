@@ -145,12 +145,13 @@ end
 
 local FALLBACKS = { "monochrome", "aether", "solarized-osaka", "tokyonight-night" }
 
--- Dedicated schemes per mode (each requires its plugin in plugins.lua;
+-- Default scheme per mode (each requires its plugin in plugins.lua;
 -- the fallback chain below covers machines where one is missing).
--- Light and dark defaults use the installed theme plugins.
+-- Monochrome is dark-only (it sets `background=dark` itself), so it is used
+-- in both modes: the desktop mode no longer picks the colorscheme.
 local MODE_SCHEME = {
-	light = "solarized-osaka",
-	dark = "rose-pine",
+	light = "monochrome",
+	dark = "monochrome",
 }
 
 --- Pick the colorscheme to use. Sets `vim.o.background` from the mode

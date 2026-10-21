@@ -46,6 +46,31 @@ hl.bind("SUPER + Return", hl.dsp.exec_cmd("uwsm app -- foot"))
 hl.unbind("SUPER + W")
 hl.bind("SUPER + W", hl.dsp.exec_cmd("uwsm app -- zen-browser"))
 
+-- Docker (SUPER + D) and Kubernetes (SUPER + K). The official config binds
+-- SUPER + D to fullscreen; SUPER + F still does that.
+hl.unbind("SUPER + D")
+hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- lazydocker"))
+hl.bind("SUPER + K", hl.dsp.exec_cmd("uwsm app -- k9s"))
+
+-- Move the focused window to a workspace: SUPER + SHIFT + 1..0.
+-- The official config binds SUPER + SHIFT + 1..3 to move the window to a
+-- MONITOR instead, so unbind that first.
+local monitors = { MONITOR1, MONITOR2, MONITOR3 }
+for workspace = 1, 10 do
+	local digit = workspace % 10
+	local code = digit == 0 and 19 or (9 + digit)
+	hl.unbind("SUPER + SHIFT + code:" .. code)
+	hl.bind("SUPER + SHIFT + code:" .. code, hl.dsp.window.move({ workspace = "m~" .. workspace }))
+end
+
+-- ...and SUPER + CTRL + SHIFT + 1..3 moves it to a monitor instead, which
+-- is what SUPER + SHIFT + 1..3 used to do.
+for monitor = 1, 3 do
+	local code = 9 + monitor
+	hl.unbind("SUPER + SHIFT + CONTROL + code:" .. code)
+	hl.bind("SUPER + SHIFT + CONTROL + code:" .. code, hl.dsp.window.move({ monitor = monitors[monitor] }))
+end
+
 -- Notes PWA (https://amirahmadzadeh.com/p/notes): floating, centered,
 -- desktop-sized at ~1200x800. Matches the Chromium --app window launched
 -- by mydotfiles-notes (WM_CLASS NotesApp) and, as a fallback, any window

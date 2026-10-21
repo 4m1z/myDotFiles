@@ -164,7 +164,7 @@ packer.startup({ function(use)
 	use({ "ellisonleao/gruvbox.nvim" })
 
 	-- Provides rose-pine / rose-pine-main / rose-pine-moon / rose-pine-dawn;
-	-- the distro-neutral theme bridge chooses Rosé Pine in dark mode.
+	-- kept for manual `:colorscheme rose-pine` (the default is monochrome).
 	use({ "rose-pine/neovim", as = "rose-pine" })
 
 	use("justinmk/vim-sneak")
