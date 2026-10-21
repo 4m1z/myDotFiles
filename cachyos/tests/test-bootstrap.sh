@@ -87,12 +87,12 @@ verify_machine() {
   for root in "$config_home/nvim" "$config_home/tmux" "$config_home/alacritty" \
     "$config_home/opencode"; do
     [[ -e "$root" || -L "$root" ]] || continue
+    # Without -L, -xtype l matches exactly the symlinks whose target does
+    # not exist. (With -L it matches every symlink to a non-symlink.)
     while IFS= read -r link; do
-      if [[ ! -e "$link" ]]; then
-        fail "broken symlink: $link"
-        broken=1
-      fi
-    done < <(find -L "$root" -xtype l 2>/dev/null)
+      fail "broken symlink: $link"
+      broken=1
+    done < <(find "$root" -xtype l 2>/dev/null)
   done
   [[ "$broken" -eq 0 ]] && pass "no broken symlinks"
 
