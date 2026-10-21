@@ -35,8 +35,6 @@ when it is not on PATH. Browser binaries are managed by Playwright; use
 Superpowers actually appear in the runtime plugin list. Installers fail if
 skill/tool verification or runtime plugin verification fails.
 
-Run the offline installer regressions with `python3 opencode/tests/test_setup.py`.
-
 Vendored here:
 
 - `diagnose-crash/` — adapted from the omarchy package (MIT, omarchy 4.0.4): the

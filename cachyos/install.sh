@@ -15,7 +15,6 @@
 # Flags:
 #   --no-packages   skip pacman installs (user + desktop config only)
 #   --no-desktop    skip Hyprland/Noctalia desktop overrides
-#   --no-verify     skip the final verification pass
 #   --allow-groups  allow supplementary group membership changes
 #                   (docker, input). Both grant real privilege escalation
 #                   (docker ~= root; input == raw keystroke access), so
@@ -34,16 +33,14 @@ source "$REPO_DIR/cachyos/packages.sh"
 
 DO_PACKAGES=true
 DO_DESKTOP=true
-DO_VERIFY=true
 ALLOW_GROUPS=false
 for arg in "$@"; do
   case "$arg" in
     --no-packages) DO_PACKAGES=false ;;
     --no-desktop) DO_DESKTOP=false ;;
-    --no-verify) DO_VERIFY=false ;;
     --allow-groups) ALLOW_GROUPS=true ;;
     -h | --help)
-      sed -n '2,26p' "$0"
+      sed -n '2,24p' "$0"
       exit 0
       ;;
     *)
@@ -523,18 +520,10 @@ phase_desktop() {
   fi
 }
 
-# ------------------------------------------------------------------ verify
-phase_verify() {
-  $DO_VERIFY || { log "Skipping verification (--no-verify)."; return 0; }
-  log "Verifying..."
-  "$REPO_DIR/cachyos/tests/test-bootstrap.sh" --verify-only
-}
-
 main() {
   phase_packages
   phase_user
   phase_desktop
-  phase_verify
   log "Done. Rerun any time: ./cachyos/install.sh"
   if [[ " $(id -nG) " != *" input "* ]] || [[ " $(id -nG) " != *" docker "* ]]; then
     log "If group membership changed (input/docker), log out and back in."

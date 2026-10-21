@@ -6,7 +6,6 @@
 # config.toml, so this layer MUST sort after "config.toml" to take effect:
 #   "50-mydotfiles.toml" < "config.toml"  -> the layer was silently ignored
 #   "zz-mydotfiles.toml" > "config.toml" -> the layer wins
-# cachyos/tests/static.sh enforces this ordering.
 #
 # GUI/IPC changes land in ~/.local/state/noctalia/settings.toml and still
 # win over this file; if a value here seems ignored, inspect that file.

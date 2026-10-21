@@ -10,12 +10,12 @@ git clone git@github.com:4m1z/myDotFiles.git ~/myDotFiles
 cd ~/myDotFiles && ./cachyos/install.sh     # --allow-groups for docker/input
 ```
 
-Log out and back in (Zsh becomes the login shell, the new groups apply),
-then check with `./cachyos/tests/test-bootstrap.sh --verify-only`.
+Log out and back in afterwards: Zsh becomes the login shell and the new
+groups apply.
 
 The installer is idempotent: conflicting files move to timestamped `.bak`s,
 never deleted. System packages change **only on CachyOS**. Flags:
-`--no-packages`, `--no-desktop`, `--no-verify`, `--allow-groups`.
+`--no-packages`, `--no-desktop`, `--allow-groups`.
 
 `--allow-groups` is opt-in because both groups are real privilege
 escalation: `docker` is effectively root, `input` is raw keyboard access.
@@ -78,25 +78,10 @@ the service caches its config and would otherwise ignore a newly declared
 plugin. Set `OPENCODE_SKIP_SERVICE_RESTART=1` to skip that — required
 when the bootstrap runs inside a session the service itself backs.
 
-## Tests
-
-```bash
-./cachyos/tests/static.sh                    # syntax + coupling audits
-./cachyos/tests/test-bootstrap.sh --verify-only
-./cachyos/tests/test-bootstrap.sh --docker   # clean-room: 2 installs + checks
-```
-
-`static.sh` also runs `cachyos/tests/lua-config-test.lua`, which stubs the
-`hl` API and asserts the personal Hyprland layer: the workspace
-shortcuts, the unbound stock bindings, the terminal/browser overrides, the
-input layout and the window rules. Docker cannot cover Hyprland/Noctalia
-rendering, Wayland, GPU or Framework hardware — see
-`cachyos/framework/CHECKLIST.md`.
-
 ## Layout
 
 ```text
-cachyos/            CachyOS layer (bootstrap, Hyprland/Noctalia overrides, tests)
+cachyos/            CachyOS layer (bootstrap, Hyprland/Noctalia overrides)
 nvim/ tmux/ zsh/    portable app configs (no CachyOS coupling)
 opencode/           distro-independent AI workflow + installer
 skills/             agent skills installed into ~/.agents/skills

@@ -24,6 +24,13 @@ hl.bind("SUPER + SHIFT + T", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-theme-tog
 -- existing Speedy window, otherwise launches it.
 hl.bind("SUPER + SHIFT + I", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-speedy"))
 
+-- Back to English. Alt+Shift cycles us -> ir -> de -> us, and it is easy to
+-- end up typing Persian without noticing. Re-applying the layout list
+-- resets the active layout to the first entry.
+hl.bind("SUPER + SHIFT + L", function()
+	hl.config({ input = { kb_layout = "us,ir,de" } })
+end)
+
 -- NOTE: SUPER + SHIFT + W (Notes) is patched into config/binds.lua by the
 -- installer because the official config binds it to the wallpaper menu
 -- (moved to SUPER + SHIFT + B). See cachyos/install.sh patch_binds().
