@@ -135,6 +135,16 @@ end
 ok(is_exec(by_key["SUPER + SHIFT + T"], "mydotfiles-theme-toggle"), "SUPER+SHIFT+T runs the theme toggle")
 ok(is_exec(by_key["SUPER + SHIFT + I"], "mydotfiles-speedy"), "SUPER+SHIFT+I runs the Speedy helper")
 
+-- --- terminal and browser overrides (the distro defaults are kitty/firefox)
+ok(is_exec(by_key["SUPER + Return"], "foot"), "SUPER+Return opens foot, not kitty")
+ok(is_exec(by_key["SUPER + W"], "zen-browser"), "SUPER+W opens Zen Browser, not firefox")
+for _, key in ipairs({ "SUPER + Return", "SUPER + W" }) do
+  if not unbound[key] then
+    shadow_ok = false
+    print("   not unbound: " .. key)
+  end
+end
+
 -- --- Notes PWA window rules
 local class_rule, title_rule
 for _, rule in ipairs(rules) do

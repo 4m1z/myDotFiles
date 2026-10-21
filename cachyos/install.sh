@@ -196,6 +196,9 @@ link_portable_configs() {
   link_config "$REPO_DIR/tmux/.tmux.conf" "$CONFIG_HOME/tmux/tmux.conf"
   link_config "$REPO_DIR/tmux/tmux-sessionizer" "$CONFIG_HOME/tmux/tmux-sessionizer"
   link_config "$REPO_DIR/tmux/tmux-todo.sh" "$CONFIG_HOME/tmux/tmux-todo.sh"
+  # tmux-openclaw.sh is bound by prefix+b in .tmux.conf; without this link
+  # the popup runs a missing file and closes instantly.
+  link_config "$REPO_DIR/tmux/tmux-openclaw.sh" "$CONFIG_HOME/tmux/tmux-openclaw.sh"
   if $IS_CACHYOS && [[ ${MYDOTFILES_TEST_MODE:-0} != 1 ]]; then
     # System-wide convenience link; skipped in test mode so the test never
     # touches root-owned paths outside its fake HOME. Not fatal: a missing

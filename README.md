@@ -1,134 +1,82 @@
 # myDotFiles
 
-CachyOS (Hyprland + Noctalia) dotfiles: a small CachyOS bootstrap layer plus
+CachyOS (Hyprland + Noctalia) dotfiles: a CachyOS bootstrap layer plus
 portable zsh / tmux / Neovim / alacritty / OpenCode configs.
 
 ## Install
 
-1. Install CachyOS with the **Hyprland + Noctalia** desktop and reboot.
-2. ```bash
-   git clone git@github.com:4m1z/myDotFiles.git ~/myDotFiles
-   cd ~/myDotFiles && ./cachyos/install.sh
-   ```
-   Add `--allow-groups` if you want the `docker` and `input` group
-   memberships (see below). The installer asks for `sudo` when it needs it.
-3. Log out and back in (Zsh becomes the login shell; `input`/`docker` groups apply).
-4. `./cachyos/tests/test-bootstrap.sh --verify-only`, then work through
-   `cachyos/framework/CHECKLIST.md` on the real hardware.
-
-`cachyos/install.sh` is idempotent: conflicting files move to timestamped
-`.bak`s, never deleted. System packages change **only on CachyOS**; elsewhere
-it does the portable user-level setup. Flags: `--no-packages`, `--no-desktop`,
-`--no-verify`, `--allow-groups`.
-
-`--allow-groups` is required for the two supplementary group memberships the
-bootstrap can apply: `docker` (effectively root on this machine) and `input`
-(raw keyboard-event access). They are opt-in because both are real privilege
-escalation; without the flag the installer prints the exact `usermod` command
-instead of running it.
-
-**Running the bootstrap without a usable `sudo`** (an agent, a CI job, or an
-account that only has polkit): the installer's `sudo` calls are all
-non-fatal, so the user-level setup still completes. Apply the privileged
-part separately, from a terminal:
-
 ```bash
-sudo -v && cd ~/myDotFiles && ./cachyos/install.sh
+git clone git@github.com:4m1z/myDotFiles.git ~/myDotFiles
+cd ~/myDotFiles && ./cachyos/install.sh     # --allow-groups for docker/input
 ```
 
-`as_root` uses plain `sudo`, which prompts on a terminal. In a context
-without a TTY, run the privileged part yourself and let the installer do
-the rest.
+Log out and back in (Zsh becomes the login shell, the new groups apply),
+then check with `./cachyos/tests/test-bootstrap.sh --verify-only`.
+
+The installer is idempotent: conflicting files move to timestamped `.bak`s,
+never deleted. System packages change **only on CachyOS**. Flags:
+`--no-packages`, `--no-desktop`, `--no-verify`, `--allow-groups`.
+
+`--allow-groups` is opt-in because both groups are real privilege
+escalation: `docker` is effectively root, `input` is raw keyboard access.
+Without the flag the installer prints the exact `usermod` command.
 
 ## What it installs
 
-- **Packages** — toolchain + apps via pacman `--needed`: git, gh, tmux, neovim,
-  zsh, lazygit, foot, Chromium, Docker stack, kubectl/k9s/lazydocker,
-  base-devel, rust, power/thermal/firmware tooling, Zen Browser, Telegram.
-  Enables `docker.socket` on demand, `power-profiles-daemon`, Bluetooth.
-- **Runtimes** — mise base manifest (Node LTS, Bun, Go, Java, Zig, TypeScript);
-  Rust via pacman. An existing mise config is kept.
-- **User** — Oh My Zsh (+ autosuggestions/syntax-highlighting), symlinks for
-  zsh/nvim/tmux/alacritty/opencode, Packer + one-time `PackerSync`, OpenCode V2
-  and plugins, Speedy, OpenClaw CLI, macOS cursor.
-- **Agent skills** — `~/.agents/skills/` gets the UI/UX Pro Max bundle, the
-  ecosystem skills from the [skills CLI](https://skills.sh) (Vercel frontend,
-  Supabase Postgres, marketing/growth, Trail of Bits security, Playwright CLI)
-  and the vendored skills in `skills/`; `skills/manifest.txt` is the expected
-  list and `opencode/skills.sh --verify` checks it. The
-  `supply-chain-risk-auditor` skill runs its scripts with `uv`, installed as
-  a package.
-- **Desktop** — Noctalia layer `zz-mydotfiles.toml` (dock off, dark theme,
-  alacritty template) and Hyprland `personal.lua` / `input.lua` / `bindings.lua`.
-
-The Noctalia layer is named `zz-mydotfiles.toml` on purpose: Noctalia
-deep-merges every `~/.config/noctalia/*.toml` and a **later filename wins**.
-The CachyOS profile ships `config.toml`, so a layer that sorts before it
-(e.g. `50-mydotfiles.toml`) is silently ignored. `cachyos/tests/static.sh`
-enforces the ordering.
+- **Packages** (pacman): git, gh, tmux, neovim, zsh, lazygit, foot,
+  Chromium, Zen Browser, Telegram, Docker, kubectl/k9s/lazydocker,
+  base-devel, rust, tree-sitter-cli, power/thermal/firmware tooling.
+- **Runtimes** — mise (Node, TypeScript, Go, Java, Bun, Zig); Rust via
+  pacman. An existing mise config is kept.
+- **User** — Oh My Zsh, symlinks for zsh/nvim/tmux/alacritty/opencode,
+  Packer + one-time `PackerSync`, OpenCode v2 + plugins, agent skills,
+  Speedy, OpenClaw CLI.
+- **Desktop** — Noctalia layer `zz-mydotfiles.toml` and the Hyprland
+  personal layer in `cachyos/hypr/`.
 
 ## Desktop
 
 Noctalia is the whole shell: bar, launcher, notifications, control center,
-clipboard, session, lock, wallpaper, OSD. No Waybar/rofi/wofi/mako/swaync/AGS/
-Quickshell, and **no bottom dock**.
-
-Keys on top of CachyOS defaults:
+clipboard, session, lock, wallpaper, OSD. No Waybar/rofi/wofi/mako/swaync/
+AGS/Quickshell, and **no bottom dock**.
 
 | Binding | Action |
 |---|---|
-| `SUPER+1` … `SUPER+0` | switch to workspace 1 … 10 |
+| `SUPER+1` … `SUPER+0` | workspace 1 … 10 |
+| `SUPER+Return` | foot (light terminal) |
+| `SUPER+W` | Zen Browser |
 | `SUPER+SHIFT+T` | toggle light/dark |
 | `SUPER+SHIFT+I` | focus or launch Speedy |
-| `SUPER+SHIFT+W` | focus or launch Notes PWA (floating 1200x800) |
+| `SUPER+SHIFT+W` | focus or launch the Notes PWA (floating 1200x800) |
 | `Alt+Shift` | cycle `us,ir,de` layouts |
-
-Personal Hyprland settings live in `cachyos/hypr/` and are linked under
-`~/.config/hypr/config/mydotfiles/` and loaded via `personal.lua`.
 
 ## Themes
 
-Native Noctalia palettes (Ayu, Catppuccin, Dracula, Eldritch, Gruvbox,
-Noctalia, Nord, Rosé Pine, Tokyo-Night). The mode is **dark**: the system
-theme never switches to light on its own. A fixed 07:00/20:00 schedule is
-configured and only takes effect if the mode is switched to `auto` by
-hand. Manual control: `SUPER+SHIFT+T`,
-`noctalia msg theme-mode-set dark|light|auto`,
-`noctalia msg color-scheme-set builtin <name>`. The alacritty template
-propagates the theme to the terminal; Neovim follows via
+Native Noctalia palettes. The mode is **dark**: the theme never switches
+to light on its own. A 07:00/20:00 schedule is configured and only
+applies if the mode is switched to `auto` by hand. `SUPER+SHIFT+T`
+toggles; `noctalia msg theme-mode-set dark|light|auto` and
+`noctalia msg color-scheme-set builtin <name>` do the same from the CLI.
+Alacritty follows via the Noctalia template, Neovim via
 `nvim/lua/system_theme.lua` (`:SystemTheme` resyncs a running instance).
 
 ## OpenCode / AI workflow
 
-V2 CLI (`~/.opencode/bin` first on PATH), tracked `opencode.json[.jsonc]`,
-package plugins (`graph-live`, `tmux-session-status`, `ponytail`, `superpowers`),
-and the tmux popup session manager (`prefix+y` launch, `prefix+u` picker).
-Secrets live in `~/.config/opencode/secrets.zsh` (see the `.example`); nothing
-secret is committed. Per-machine auth: `opencode auth login`, `gh auth login`.
+V2 CLI, tracked `opencode.json`, package plugins (graph-live,
+tmux-session-status, ponytail, superpowers) and the tmux popup session
+manager (`prefix+y` launch, `prefix+u` picker, `prefix+b` OpenClaw).
+Secrets live in `~/.config/opencode/secrets.zsh` (see the `.example`);
+nothing secret is committed. Per-machine auth: `opencode auth login`,
+`gh auth login`.
 
-Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) is an
-OpenCode plugin: it registers the brainstorming / writing-plans / TDD /
-systematic-debugging / code-review skill set and injects the skill bootstrap.
-It is declared in the `plugins` array of `opencode/opencode.json` and installed
-by `opencode/install.sh`; update it with
-`opencode plugin update superpowers@git+https://github.com/obra/superpowers.git`.
+Agent skills live in `~/.agents/skills/`; `skills/manifest.txt` is the
+expected list and `opencode/skills.sh --verify` reports what is missing.
+Global agent instructions are in `~/.config/opencode/AGENTS.md`.
 
-Agent skills land in the agent-standard `~/.agents/skills/`: the UI/UX Pro Max
-bundle, the ecosystem skills from the [skills CLI](https://skills.sh) (Vercel
-frontend, Supabase Postgres, marketing/growth, Trail of Bits security,
-Playwright CLI) and the vendored skills in `skills/`. `skills/manifest.txt` is
-the expected list, `opencode/skills.sh` installs it and
-`opencode/skills.sh --verify` reports what is missing. Refresh the ecosystem
-skills with `npx skills update -g`.
-
-Global agent instructions live in `~/.config/opencode/AGENTS.md` (linked from
-`opencode/AGENTS.md`): engineering rules and the skill-to-phase map.
-
-`opencode/install.sh` restarts the background service at the end, because the
-service caches its config and would otherwise ignore a newly declared plugin.
-Set `OPENCODE_SKIP_SERVICE_RESTART=1` to skip that step — required when the
-bootstrap runs inside a session the service itself backs, since restarting it
-drops that session. The plugins then register on the next service start.
+`opencode/install.sh` restarts the background service at the end, because
+the service caches its config and would otherwise ignore a newly declared
+plugin. Set `OPENCODE_SKIP_SERVICE_RESTART=1` to skip that — required
+when the bootstrap runs inside a session the service itself backs.
 
 ## Tests
 
@@ -139,41 +87,11 @@ drops that session. The plugins then register on the next service start.
 ```
 
 `static.sh` also runs `cachyos/tests/lua-config-test.lua`, which stubs the
-`hl` API and asserts the personal Hyprland layer: the workspace shortcuts,
-the unbound stock bindings, the input layout and the window rules.
-
-Docker covers packages, symlinks, shells, tmux, Neovim, OpenCode, mise, Speedy,
-and idempotency. It cannot cover Hyprland/Noctalia rendering, Wayland, GPU or
-Framework hardware — those go through `cachyos/framework/CHECKLIST.md`.
-
-## Compatibility notes
-
-Verified on this workstation (2026-10) against these exact versions. Each
-one changes how the layer has to be written, so re-check them after a major
-upgrade.
-
-- **Hyprland 0.56.2 uses a Lua config**, not the classic `hyprland.conf`:
-  `~/.config/hypr/hyprland.lua` plus `~/.config/hypr/config/*.lua`. The
-  personal layer is therefore Lua and is loaded through `require`.
-  `package.path` includes `<config>/?.lua`, so `require("config.mydotfiles.input")`
-  resolves to `~/.config/hypr/config/mydotfiles/input.lua`.
-- **`hl` API**: `hl.window_rule` accepts `match`, `float`, `center`, `size`
-  and the other effect names. String matching uses **RE2 with a full match**,
-  so the title pattern in `cachyos/hypr/bindings.lua` relies on `(?i)`
-  (supported) rather than on lookarounds (not supported).
-- **Noctalia 5.3.0** deep-merges `~/.config/noctalia/*.toml` and a **later
-  filename wins**; the state-dir `settings.toml` wins over all of them. GUI
-  changes made in the settings UI therefore override the file layer.
-- **Noctalia 5.3.0** already ships
-  `theme.templates.builtin_ids = [btop, gtk3, gtk4, kcolorscheme, kitty, qt, alacritty]`,
-  so the layer only needs to ensure templates stay enabled.
-- **OpenCode 2.x** merges configuration files instead of replacing them, and
-  the current key is `plugins` (`plugin` is the deprecated one). Note that
-  `opencode service set port` talks to the **running** service, so it is not
-  isolated by `HOME`.
-- **Node is managed by mise**, so a global `node` binary is not guaranteed.
-  Anything that needs one (the skills CLI, the browser CLI) must resolve it
-  through mise.
+`hl` API and asserts the personal Hyprland layer: the workspace
+shortcuts, the unbound stock bindings, the terminal/browser overrides, the
+input layout and the window rules. Docker cannot cover Hyprland/Noctalia
+rendering, Wayland, GPU or Framework hardware — see
+`cachyos/framework/CHECKLIST.md`.
 
 ## Layout
 
@@ -181,7 +99,24 @@ upgrade.
 cachyos/            CachyOS layer (bootstrap, Hyprland/Noctalia overrides, tests)
 nvim/ tmux/ zsh/    portable app configs (no CachyOS coupling)
 opencode/           distro-independent AI workflow + installer
-skills/             agent skills installed into ~/.agents/skills (manifest + vendored)
+skills/             agent skills installed into ~/.agents/skills
 alacritty/          Noctalia-template-driven terminal config
 mise/               base runtime manifest (linked only when absent)
 ```
+
+## Compatibility notes
+
+Verified on this workstation (2026-10); re-check after a major upgrade.
+
+- **Hyprland 0.56.2 uses a Lua config** (`hyprland.lua` + `config/*.lua`);
+  `package.path` includes `<config>/?.lua`, so `require("config.mydotfiles.input")` resolves.
+- **`hl` API**: `hl.window_rule` takes `match`, `float`, `center`, `size`.
+  String matching is **RE2 with a full match**, so the title pattern uses
+  `(?i)` (supported) and not lookarounds (not supported).
+- **Noctalia 5.3.0** deep-merges `~/.config/noctalia/*.toml`, a **later
+  filename wins**, and the state-dir `settings.toml` wins over all of them.
+- **Noctalia 5.3.0** already ships the alacritty template id, so the
+  layer only needs to keep templates enabled.
+- **OpenCode 2.x** merges config files rather than replacing them; the
+  current key is `plugins` (`plugin` is deprecated).
+- **Node is managed by mise**, so a global `node` binary is not guaranteed.

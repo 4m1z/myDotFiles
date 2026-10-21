@@ -28,6 +28,17 @@ hl.bind("SUPER + SHIFT + I", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-speedy"))
 -- installer because the official config binds it to the wallpaper menu
 -- (moved to SUPER + SHIFT + B). See cachyos/install.sh patch_binds().
 
+-- Terminal: foot instead of the distro default (kitty). Kitty is heavy and
+-- slow to start; foot is a tiny, fast terminal. The official config binds
+-- SUPER + Return to TERMINAL, so unbind it first.
+hl.unbind("SUPER + Return")
+hl.bind("SUPER + Return", hl.dsp.exec_cmd("uwsm app -- foot"))
+
+-- Browser: the system default is Zen Browser (xdg-settings reports
+-- zen.desktop), while the distro config still hardcodes firefox.
+hl.unbind("SUPER + W")
+hl.bind("SUPER + W", hl.dsp.exec_cmd("uwsm app -- zen-browser"))
+
 -- Notes PWA (https://amirahmadzadeh.com/p/notes): floating, centered,
 -- desktop-sized at ~1200x800. Matches the Chromium --app window launched
 -- by mydotfiles-notes (WM_CLASS NotesApp) and, as a fallback, any window
