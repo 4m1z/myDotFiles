@@ -42,25 +42,10 @@ check_output() { # check_output <description> <expected> <command...>
 }
 
 verify_machine() {
-  # Checks that need a pacman-installed package are skipped when the test
-  # mode is on: cachyos/tests/sandbox-test.sh runs the bootstrap with
-  # --no-packages, so tmux/nvim/mise/gh and the runtimes are simply not
-  # there. The Docker test and the live host run them for real.
-  local package_checks=true
-  if [[ "${MYDOTFILES_TEST_MODE:-0}" == "1" ]]; then
-    package_checks=false
-    printf 'SKIP: package-dependent checks (no pacman phase in this mode)\n'
-  fi
-
   # --- expected binaries
-  for bin in git zsh opencode openclaw rg fzf jq; do
+  for bin in git zsh tmux nvim mise opencode openclaw gh rg fzf jq; do
     check "binary: $bin" command -v "$bin"
   done
-  if $package_checks; then
-    for bin in tmux nvim mise gh; do
-      check "binary: $bin" command -v "$bin"
-    done
-  fi
 
   # --- symlinks resolve and point into the repo (XDG homes honored)
   local config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -110,30 +95,21 @@ verify_machine() {
   fi
 
   # --- tmux config parses
-  if $package_checks; then
-    check "tmux config" tmux -L mydotfiles-test -f "$config_home/tmux/tmux.conf" start-server ';' kill-server
-  fi
+  check "tmux config" tmux -L mydotfiles-test -f "$config_home/tmux/tmux.conf" start-server ';' kill-server
   check "tmux/OpenCode session manager tests" bash \
     "$config_home/tmux/plugins/tmux-opencode-session-manager/scripts/tests.sh"
 
   # --- neovim starts headless (no desktop theme state required)
-  if $package_checks; then
-    check "nvim headless" nvim --headless '+qa'
-    check "packer installed" test -d "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/packer/start/packer.nvim"
-    check "nvim system_theme loads" nvim --headless \
-      +'lua ok,_ = pcall(require, "system_theme"); assert(ok, "system_theme failed to load")' +qa
-    check "nvim colorscheme applies" nvim --headless \
-      +'lua assert(vim.g.active_colorscheme, "no colorscheme applied")' +qa
-  fi
+  check "nvim headless" nvim --headless '+qa'
+  check "packer installed" test -d "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/packer/start/packer.nvim"
+  check "nvim system_theme loads" nvim --headless \
+    +'lua ok,_ = pcall(require, "system_theme"); assert(ok, "system_theme failed to load")' +qa
+  check "nvim colorscheme applies" nvim --headless \
+    +'lua assert(vim.g.active_colorscheme, "no colorscheme applied")' +qa
 
   # --- opencode v2 + plugins (no auth needed for these read-only commands)
   check_output "opencode v2" "opencode v2." bash -c 'cd "$HOME" && opencode --version'
-  if $package_checks; then
-    # The runtime registration lives in the OpenCode background service, which
-    # always listens on the default port: the sandbox cannot host its own
-    # service, so this only makes sense against a real installation.
-    check "OpenCode package plugins loaded" bash "$REPO_DIR/opencode/verify-plugins.sh"
-  fi
+  check "OpenCode package plugins loaded" bash "$REPO_DIR/opencode/verify-plugins.sh"
   check "OpenClaw CLI" openclaw --version
   check "OpenCode graph-live configured" python3 -c \
     'import json; p=json.load(open("'"$REPO_DIR"'/opencode/opencode.json"))["plugins"]; assert "opencode-graph-live@latest" in p'
@@ -150,23 +126,21 @@ verify_machine() {
   fi
 
   # --- mise works
-  if $package_checks; then
-    check "mise" mise --version
+  check "mise" mise --version
 
-    # Resolve managed runtimes from HOME, independently of project overrides.
-    check "Node.js runtime" bash -c 'cd "$HOME" && mise exec -- node --version'
-    check "TypeScript compiler" bash -c 'cd "$HOME" && mise exec -- tsc --version'
-    check "Bun runtime" bash -c 'cd "$HOME" && mise exec -- bun --version'
-    check "Go toolchain" bash -c 'cd "$HOME" && mise exec -- go version'
-    check "Rust compiler" rustc --version
-    check "Cargo" cargo --version
-    check "Docker client" docker --version
-    check "Docker Compose" docker compose version
-    check "kubectl client" kubectl version --client
+  # Resolve managed runtimes from HOME, independently of project overrides.
+  check "Node.js runtime" bash -c 'cd "$HOME" && mise exec -- node --version'
+  check "TypeScript compiler" bash -c 'cd "$HOME" && mise exec -- tsc --version'
+  check "Bun runtime" bash -c 'cd "$HOME" && mise exec -- bun --version'
+  check "Go toolchain" bash -c 'cd "$HOME" && mise exec -- go version'
+  check "Rust compiler" rustc --version
+  check "Cargo" cargo --version
+  check "Docker client" docker --version
+  check "Docker Compose" docker compose version
+  check "kubectl client" kubectl version --client
 
-    # --- speedy installed (binary present; recorder may not run headless)
-    check "speedy binary" command -v speedy
-  fi
+  # --- speedy installed (binary present; recorder may not run headless)
+  check "speedy binary" command -v speedy
 
   # --- helpers are executable scripts
   for helper in mydotfiles-speedy mydotfiles-notes mydotfiles-theme-toggle mydotfiles-sync-theme-mode; do

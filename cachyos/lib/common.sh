@@ -15,7 +15,7 @@ warn() { printf '[myDotFiles:WARN] %s\n' "$*" >&2; }
 # enough: this installer must not run CachyOS system operations on plain
 # Arch or another Arch-based distribution.
 # Test hook: MYDOTFILES_FORCE_CACHYOS=1 pretends to be CachyOS (used by
-# cachyos/tests/sandbox-test.sh on non-CachyOS dev machines).
+# the tests on non-CachyOS dev machines).
 is_cachyos() {
   if [[ "${MYDOTFILES_FORCE_CACHYOS:-0}" == "1" ]]; then
     return 0

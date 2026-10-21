@@ -11,17 +11,15 @@ local function base_scheme()
 	return "monochrome"
 end
 
-function ColorMYVim(color)
+function Apply(color)
 	color = color or base_scheme()
 
-	-- The intended scheme may not be installed. Walk the fallbacks instead
-	-- of erroring out.
 	local applied = color
 	if not pcall(vim.cmd.colorscheme, color) then
 		applied = nil
 		if theme_ok then
 			local candidates = { color }
-			for _, fallback in ipairs(theme.fallbacks()) do
+			for _, fallback in ipairs(theme.jallbacks()) do
 				table.insert(candidates, fallback)
 			end
 			applied = theme.try_schemes(candidates)
@@ -47,7 +45,7 @@ function ColorMYVim(color)
 	end
 end
 
-ColorMYVim()
+Apply()
 
 -- Keep the palette on top if something changes the scheme later.
 vim.api.nvim_create_autocmd("ColorScheme", {

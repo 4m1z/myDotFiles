@@ -134,7 +134,6 @@ drops that session. The plugins then register on the next service start.
 
 ```bash
 ./cachyos/tests/static.sh                    # syntax + coupling audits
-./cachyos/tests/sandbox-test.sh              # isolated user-level 2-run test
 ./cachyos/tests/test-bootstrap.sh --verify-only
 ./cachyos/tests/test-bootstrap.sh --docker   # clean-room: 2 installs + checks
 ```
@@ -170,9 +169,8 @@ upgrade.
   so the layer only needs to ensure templates stay enabled.
 - **OpenCode 2.x** merges configuration files instead of replacing them, and
   the current key is `plugins` (`plugin` is the deprecated one). Note that
-  `opencode service set port` talks to the **running** service: it is not
-  isolated by `HOME`, which is why the sandbox test writes the port into its
-  own `service.json` instead.
+  `opencode service set port` talks to the **running** service, so it is not
+  isolated by `HOME`.
 - **Node is managed by mise**, so a global `node` binary is not guaranteed.
   Anything that needs one (the skills CLI, the browser CLI) must resolve it
   through mise.

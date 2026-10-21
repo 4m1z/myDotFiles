@@ -197,7 +197,7 @@ link_portable_configs() {
   link_config "$REPO_DIR/tmux/tmux-sessionizer" "$CONFIG_HOME/tmux/tmux-sessionizer"
   link_config "$REPO_DIR/tmux/tmux-todo.sh" "$CONFIG_HOME/tmux/tmux-todo.sh"
   if $IS_CACHYOS && [[ ${MYDOTFILES_TEST_MODE:-0} != 1 ]]; then
-    # System-wide convenience link; skipped in the sandbox so the test never
+    # System-wide convenience link; skipped in test mode so the test never
     # touches root-owned paths outside its fake HOME. Not fatal: a missing
     # convenience symlink must not abort the whole bootstrap.
     as_root ln -sfn -- "$REPO_DIR/tmux/tmux-sessionizer" /usr/local/bin/tmux-sessionizer \
@@ -380,11 +380,7 @@ install_speedy() {
   fi
   # Start the background recorder. Best effort: headless containers have
   # no input devices, so a failure here must not fail the bootstrap.
-  # Never in the sandbox: the recorder detaches and would outlive the
-  # sandbox directory it was started from.
-  if [[ ${MYDOTFILES_TEST_MODE:-0} == 1 ]]; then
-    log "Skipping the Speedy recorder (test mode)."
-  elif "$bin" --start >/dev/null 2>&1; then
+  if "$bin" --start >/dev/null 2>&1; then
     log "Speedy recorder running."
   else
     warn "Speedy recorder did not start (expected in containers); run 'speedy --start' on the laptop."
