@@ -65,6 +65,84 @@ export OPENCODE_SKIP_SERVICE_RESTART=1
 # (install.sh now gates those behind --allow-groups, which is off here.)
 export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$PATH"
 
+# Hermetic Node toolchain. The sandbox must not depend on a Node install on
+# the host (this repo manages Node through mise, which is deliberately not
+# on the sandbox PATH). These stubs implement exactly the interfaces
+# skills.sh uses: the `skills` CLI, the ui-ux-pro-max CLI and the
+# @playwright/cli package. The real skill ecosystem is covered by
+# opencode/tests/test_setup.py and by the live host bootstrap.
+mkdir -p -- "$SANDBOX/nodebin"
+export SANDBOX_DESIGN_SKILLS
+SANDBOX_DESIGN_SKILLS=$(awk '$2 == "ui-ux-pro-max" { print $1 }' "$REPO_DIR/skills/manifest.txt" | tr '\n' ' ')
+cat >"$SANDBOX/nodebin/npx" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+make_skill() {
+  local root="$HOME/.agents/skills/$1"
+  mkdir -p -- "$root"
+  printf -- '---\nname: %s\ndescription: sandbox fixture\n---\nFixture\n' "$1" >"$root/SKILL.md"
+}
+case "$*" in
+  *skills@latest*)
+    names=()
+    while [ $# -gt 0 ]; do
+      if [ "$1" = "-s" ]; then
+        shift
+        while [ $# -gt 0 ] && [ "${1#-}" = "$1" ]; do names+=("$1"); shift; done
+        continue
+      fi
+      shift
+    done
+    for n in ${names[@]+"${names[@]}"}; do [ -n "$n" ] && make_skill "$n"; done
+    ;;
+  *ui-ux-pro-max-cli*)
+    for n in ${SANDBOX_DESIGN_SKILLS:-}; do make_skill "$n"; done
+    ;;
+  *)
+    printf 'unexpected npx invocation: %s\n' "$*" >&2
+    exit 2
+    ;;
+esac
+SH
+cat >"$SANDBOX/nodebin/npm" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+prefix=""
+args=("$@")
+for i in "${!args[@]}"; do
+  if [ "${args[$i]}" = "--prefix" ]; then prefix="${args[$((i + 1))]:-}"; fi
+done
+case "$*" in
+  *"@playwright/cli"*)
+    [ -n "$prefix" ] || { echo "npm stub: missing --prefix" >&2; exit 2; }
+    mkdir -p "$prefix/bin"
+    cat >"$prefix/bin/playwright-cli" <<'JS'
+#!/usr/bin/env node
+console.log('  snapshot  capture page');
+console.log('  goto <url>  navigate');
+JS
+    chmod +x "$prefix/bin/playwright-cli"
+    ;;
+  *)
+    printf 'unexpected npm invocation: %s\n' "$*" >&2
+    exit 2
+    ;;
+esac
+SH
+cat >"$SANDBOX/nodebin/node" <<'SH'
+#!/usr/bin/env bash
+# Stub node: only the fake playwright CLI helper is ever executed here.
+for arg in "$@"; do
+  if [ -f "$arg" ] && grep -q 'snapshot' "$arg" 2>/dev/null; then
+    printf '  snapshot  capture page\n  goto <url>  navigate\n'
+    exit 0
+  fi
+done
+exit 0
+SH
+chmod +x "$SANDBOX/nodebin/npx" "$SANDBOX/nodebin/npm" "$SANDBOX/nodebin/node"
+export PATH="$SANDBOX/nodebin:$PATH"
+
 printf '[sandbox] HOME=%s\n' "$HOME"
 printf '[sandbox] bootstrap run #1...\n'
 (cd "$REPO_DIR" && ./cachyos/install.sh --no-packages --no-verify)
@@ -124,12 +202,18 @@ if [[ -x "$HOME/.opencode/bin/opencode" ]]; then
   printf '[sandbox] sandbox opencode server pid=%s port=%s\n' \
     "$SANDBOX_SERVER_PID" "$FREEPORT"
   for _ in $(seq 1 60); do
+    # The probe runs in a subshell, so the socket is closed again when it
+    # exits. (Never `exec 3<&- 2>/dev/null` here: `exec` would apply the
+    # stderr redirect to the whole script and swallow the check output.)
     if (exec 3<>"/dev/tcp/127.0.0.1/$FREEPORT") 2>/dev/null; then
-      exec 3<&- 2>/dev/null || true
       break
     fi
     sleep 1
   done
 fi
-(cd "$REPO_DIR" && ./cachyos/tests/test-bootstrap.sh --verify-only)
+if ! (cd "$REPO_DIR" && ./cachyos/tests/test-bootstrap.sh --verify-only); then
+  printf '[sandbox] verification FAILED; last 40 lines of the sandbox server log:\n'
+  tail -40 "$SANDBOX/opencode-serve.log" 2>/dev/null || true
+  exit 1
+fi
 printf '[sandbox] ALL GREEN\n'
