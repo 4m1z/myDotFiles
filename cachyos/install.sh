@@ -380,7 +380,11 @@ install_speedy() {
   fi
   # Start the background recorder. Best effort: headless containers have
   # no input devices, so a failure here must not fail the bootstrap.
-  if "$bin" --start >/dev/null 2>&1; then
+  # Never in the sandbox: the recorder detaches and would outlive the
+  # sandbox directory it was started from.
+  if [[ ${MYDOTFILES_TEST_MODE:-0} == 1 ]]; then
+    log "Skipping the Speedy recorder (test mode)."
+  elif "$bin" --start >/dev/null 2>&1; then
     log "Speedy recorder running."
   else
     warn "Speedy recorder did not start (expected in containers); run 'speedy --start' on the laptop."
