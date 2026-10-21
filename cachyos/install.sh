@@ -474,6 +474,10 @@ phase_desktop() {
   if command -v noctalia >/dev/null 2>&1; then
     if noctalia msg config-reload >/dev/null 2>&1; then
       log "Noctalia reloaded its config (hand layer applied)."
+      # The reload makes Noctalia try to spawn its daemon as a transient
+      # service; that duplicate fails because the real instance is already
+      # running. Clear the failed unit so the user session stays clean.
+      systemctl --user reset-failed >/dev/null 2>&1 || true
     else
       warn "noctalia msg config-reload failed; the layer applies at next login."
     fi
