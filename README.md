@@ -122,9 +122,43 @@ drops that session. The plugins then register on the next service start.
 ./cachyos/tests/test-bootstrap.sh --docker   # clean-room: 2 installs + checks
 ```
 
+`static.sh` also runs `cachyos/tests/lua-config-test.lua`, which stubs the
+`hl` API and asserts the personal Hyprland layer: the workspace shortcuts,
+the unbound stock bindings, the input layout and the window rules.
+
 Docker covers packages, symlinks, shells, tmux, Neovim, OpenCode, mise, Speedy,
 and idempotency. It cannot cover Hyprland/Noctalia rendering, Wayland, GPU or
 Framework hardware — those go through `cachyos/framework/CHECKLIST.md`.
+
+## Compatibility notes
+
+Verified on this workstation (2026-10) against these exact versions. Each
+one changes how the layer has to be written, so re-check them after a major
+upgrade.
+
+- **Hyprland 0.56.2 uses a Lua config**, not the classic `hyprland.conf`:
+  `~/.config/hypr/hyprland.lua` plus `~/.config/hypr/config/*.lua`. The
+  personal layer is therefore Lua and is loaded through `require`.
+  `package.path` includes `<config>/?.lua`, so `require("config.mydotfiles.input")`
+  resolves to `~/.config/hypr/config/mydotfiles/input.lua`.
+- **`hl` API**: `hl.window_rule` accepts `match`, `float`, `center`, `size`
+  and the other effect names. String matching uses **RE2 with a full match**,
+  so the title pattern in `cachyos/hypr/bindings.lua` relies on `(?i)`
+  (supported) rather than on lookarounds (not supported).
+- **Noctalia 5.3.0** deep-merges `~/.config/noctalia/*.toml` and a **later
+  filename wins**; the state-dir `settings.toml` wins over all of them. GUI
+  changes made in the settings UI therefore override the file layer.
+- **Noctalia 5.3.0** already ships
+  `theme.templates.builtin_ids = [btop, gtk3, gtk4, kcolorscheme, kitty, qt, alacritty]`,
+  so the layer only needs to ensure templates stay enabled.
+- **OpenCode 2.x** merges configuration files instead of replacing them, and
+  the current key is `plugins` (`plugin` is the deprecated one). Note that
+  `opencode service set port` talks to the **running** service: it is not
+  isolated by `HOME`, which is why the sandbox test writes the port into its
+  own `service.json` instead.
+- **Node is managed by mise**, so a global `node` binary is not guaranteed.
+  Anything that needs one (the skills CLI, the browser CLI) must resolve it
+  through mise.
 
 ## Layout
 
