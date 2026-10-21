@@ -41,13 +41,22 @@ for plugin in "$dotfiles_dir"/plugins/*.ts; do
   link_config "$plugin" "$config_dir/plugins/${plugin##*/}"
 done
 
-# The running service caches the config it started with, so a newly declared
-# plugin stays invisible to the plugin manager until it restarts.
-"$opencode_bin" service restart >/dev/null 2>&1 || true
-
 # Install skills and their browser tool, then require a usable installation.
 bash "$dotfiles_dir/skills.sh"
 bash "$dotfiles_dir/skills.sh" --verify
+
+# The running service caches the config it started with, so a newly declared
+# plugin stays invisible to the plugin manager until it restarts.
+# OPENCODE_SKIP_SERVICE_RESTART=1 skips this: use it when the bootstrap runs
+# inside a session that this very service backs, because restarting it drops
+# that session. The declared plugins register on the next service start.
+if [[ "${OPENCODE_SKIP_SERVICE_RESTART:-0}" == "1" ]]; then
+  printf 'Skipping the opencode service restart (OPENCODE_SKIP_SERVICE_RESTART=1).\n'
+  printf 'Newly declared plugins register on the next service start:\n'
+  printf '  %s service restart\n' "$opencode_bin"
+  exit 0
+fi
+"$opencode_bin" service restart >/dev/null 2>&1 || true
 
 # The config declares the packages (graph-live, tmux-status, ponytail and
 # superpowers, which registers the skill set); the service installs them on

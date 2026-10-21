@@ -43,6 +43,29 @@ else:
 
 
 class SetupTests(unittest.TestCase):
+    @staticmethod
+    def _find_node():
+        """Locate a node runtime.
+
+        The repo manages Node through mise (mise/config.toml), which does not
+        put it on the global PATH, so a plain shutil.which() is not enough.
+        """
+        node = shutil.which("node")
+        if node:
+            return node
+        mise = shutil.which("mise")
+        if mise:
+            for args in (["which", "node"], ["exec", "--", "which", "node"]):
+                try:
+                    out = subprocess.run([mise, *args], cwd=str(Path.home()),
+                                         capture_output=True, text=True, timeout=120)
+                except (OSError, subprocess.SubprocessError):
+                    continue
+                candidate = out.stdout.strip().splitlines()
+                if candidate and os.path.exists(candidate[0]):
+                    return candidate[0]
+        return None
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="setup-test-", dir=os.environ.get("TMPDIR"))
         self.addCleanup(self.tmp.cleanup)
@@ -64,7 +87,11 @@ class SetupTests(unittest.TestCase):
             tool = self.runtime / name
             tool.write_text(PACKAGE_TOOL)
             tool.chmod(0o755)
-        (self.runtime / "node").symlink_to(shutil.which("node"))
+        node = self._find_node()
+        if node is None:
+            self.fail("no node runtime found: install Node (e.g. `mise install`) "
+                      "or put it on PATH; the browser-CLI fixture needs it")
+        (self.runtime / "node").symlink_to(node)
         self.env = {**os.environ, "HOME": str(self.home), "PATH": f"{self.runtime}:{self.bin}",
                     "XDG_CONFIG_HOME": str(self.home / ".config"), "XDG_DATA_HOME": str(self.home / ".local/share"),
                     "XDG_STATE_HOME": str(self.home / ".local/state"), "TMPDIR": str(self.root),
