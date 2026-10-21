@@ -164,7 +164,9 @@ set_default_shell() {
     return 0
   fi
   log "Setting the login shell for $account to $zsh_bin..."
-  as_root usermod --shell "$zsh_bin" "$account"
+  # Not fatal: the shell can still be changed by hand afterwards.
+  as_root usermod --shell "$zsh_bin" "$account" \
+    || warn "could not set the login shell; run: sudo usermod --shell $zsh_bin $account"
   log "Zsh will be the default shell after logging out and back in."
 }
 
@@ -196,8 +198,10 @@ link_portable_configs() {
   link_config "$REPO_DIR/tmux/tmux-todo.sh" "$CONFIG_HOME/tmux/tmux-todo.sh"
   if $IS_CACHYOS && [[ ${MYDOTFILES_TEST_MODE:-0} != 1 ]]; then
     # System-wide convenience link; skipped in the sandbox so the test never
-    # touches root-owned paths outside its fake HOME.
-    as_root ln -sfn -- "$REPO_DIR/tmux/tmux-sessionizer" /usr/local/bin/tmux-sessionizer
+    # touches root-owned paths outside its fake HOME. Not fatal: a missing
+    # convenience symlink must not abort the whole bootstrap.
+    as_root ln -sfn -- "$REPO_DIR/tmux/tmux-sessionizer" /usr/local/bin/tmux-sessionizer \
+      || warn "could not create /usr/local/bin/tmux-sessionizer (not fatal)."
   fi
   link_config "$REPO_DIR/tmux/plugins/tmux-opencode-session-manager" \
     "$CONFIG_HOME/tmux/plugins/tmux-opencode-session-manager"
