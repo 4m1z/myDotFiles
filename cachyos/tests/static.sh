@@ -64,6 +64,19 @@ while IFS= read -r f; do
   fi
 done < <(find cachyos/hypr nvim/lua -name '*.lua' | sort)
 
+# --- Hyprland Lua layer semantics: keybindings, input layout, window rules.
+# The `hl` API only exists inside the compositor, so the test stubs it and
+# asserts the calls the layer makes.
+if command -v lua >/dev/null 2>&1; then
+  if lua "$REPO_DIR/cachyos/tests/lua-config-test.lua" "$REPO_DIR" >/dev/null 2>&1; then
+    pass "hyprland lua layer semantics"
+  else
+    fail "hyprland lua layer semantics (run: lua cachyos/tests/lua-config-test.lua .)"
+  fi
+else
+  printf 'SKIP: lua interpreter unavailable\n'
+fi
+
 # --- TOML sanity (python stdlib)
 if python3 -c "import tomllib" 2>/dev/null; then
   if python3 - <<'PY'; then
