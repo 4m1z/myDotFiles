@@ -23,6 +23,7 @@ DEV_PACKAGES=(
   foot
   python # the ui-ux-pro-max skill's search script
   uv # python tooling; the supply-chain-risk-auditor skill runs its scripts with uv
+  tree-sitter-cli # the tree-sitter CLI; nvim-treesitter compiles its parsers with it
   chromium # Notes PWA --app window (NotesApp WM class) and dev browser
   bluez
   bluez-utils

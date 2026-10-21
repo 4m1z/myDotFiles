@@ -123,7 +123,16 @@ packer.startup({ function(use)
 			{ "nvim-treesitter/nvim-treesitter" },
 		},
 		config = function()
-			require("telescope").load_extension("goimpl")
+			-- The extension queries the Go tree-sitter parser, which
+			-- nvim-treesitter installs asynchronously. On a fresh machine
+			-- the parser is not there yet, so do not fail the whole
+			-- plugin load over it; it works from the next start on.
+			local ok, err = pcall(require("telescope").load_extension, "goimpl")
+			if not ok then
+				vim.schedule(function()
+					vim.notify("goimpl extension not ready: " .. tostring(err), vim.log.levels.WARN)
+				end)
+			end
 		end,
 	})
 
