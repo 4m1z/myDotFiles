@@ -17,7 +17,13 @@ portable zsh / tmux / Neovim / alacritty / OpenCode configs.
 `cachyos/install.sh` is idempotent: conflicting files move to timestamped
 `.bak`s, never deleted. System packages change **only on CachyOS**; elsewhere
 it does the portable user-level setup. Flags: `--no-packages`, `--no-desktop`,
-`--no-verify`.
+`--no-verify`, `--allow-groups`.
+
+`--allow-groups` is required for the two supplementary group memberships the
+bootstrap can apply: `docker` (effectively root on this machine) and `input`
+(raw keyboard-event access). They are opt-in because both are real privilege
+escalation; without the flag the installer prints the exact `usermod` command
+instead of running it.
 
 ## What it installs
 
@@ -37,8 +43,14 @@ it does the portable user-level setup. Flags: `--no-packages`, `--no-desktop`,
   list and `opencode/skills.sh --verify` checks it. The
   `supply-chain-risk-auditor` skill runs its scripts with `uv`, installed as
   a package.
-- **Desktop** — Noctalia layer `50-mydotfiles.toml` (dock off, auto theme,
+- **Desktop** — Noctalia layer `zz-mydotfiles.toml` (dock off, auto theme,
   alacritty template) and Hyprland `personal.lua` / `input.lua` / `bindings.lua`.
+
+The Noctalia layer is named `zz-mydotfiles.toml` on purpose: Noctalia
+deep-merges every `~/.config/noctalia/*.toml` and a **later filename wins**.
+The CachyOS profile ships `config.toml`, so a layer that sorts before it
+(e.g. `50-mydotfiles.toml`) is silently ignored. `cachyos/tests/static.sh`
+enforces the ordering.
 
 ## Desktop
 
@@ -94,6 +106,12 @@ skills with `npx skills update -g`.
 
 Global agent instructions live in `~/.config/opencode/AGENTS.md` (linked from
 `opencode/AGENTS.md`): engineering rules and the skill-to-phase map.
+
+`opencode/install.sh` restarts the background service at the end, because the
+service caches its config and would otherwise ignore a newly declared plugin.
+Set `OPENCODE_SKIP_SERVICE_RESTART=1` to skip that step — required when the
+bootstrap runs inside a session the service itself backs, since restarting it
+drops that session. The plugins then register on the next service start.
 
 ## Tests
 
