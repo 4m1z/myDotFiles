@@ -10,6 +10,8 @@ portable zsh / tmux / Neovim / alacritty / OpenCode configs.
    git clone git@github.com:4m1z/myDotFiles.git ~/myDotFiles
    cd ~/myDotFiles && ./cachyos/install.sh
    ```
+   Add `--allow-groups` if you want the `docker` and `input` group
+   memberships (see below). The installer asks for `sudo` when it needs it.
 3. Log out and back in (Zsh becomes the login shell; `input`/`docker` groups apply).
 4. `./cachyos/tests/test-bootstrap.sh --verify-only`, then work through
    `cachyos/framework/CHECKLIST.md` on the real hardware.
@@ -24,6 +26,19 @@ bootstrap can apply: `docker` (effectively root on this machine) and `input`
 (raw keyboard-event access). They are opt-in because both are real privilege
 escalation; without the flag the installer prints the exact `usermod` command
 instead of running it.
+
+**Running the bootstrap without a usable `sudo`** (an agent, a CI job, or an
+account that only has polkit): the installer's `sudo` calls are all
+non-fatal, so the user-level setup still completes. Apply the privileged
+part separately, from a terminal:
+
+```bash
+sudo -v && cd ~/myDotFiles && ./cachyos/install.sh
+```
+
+`as_root` uses plain `sudo`, which prompts on a terminal. In a context
+without a TTY, run the privileged part yourself and let the installer do
+the rest.
 
 ## What it installs
 
