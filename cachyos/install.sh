@@ -16,6 +16,11 @@
 #   --no-packages   skip pacman installs (user + desktop config only)
 #   --no-desktop    skip Hyprland/Noctalia desktop overrides
 #   --no-verify     skip the final verification pass
+#   --allow-groups  allow supplementary group membership changes
+#                   (docker, input). Both grant real privilege escalation
+#                   (docker ~= root; input == raw keystroke access), so
+#                   they are opt-in and the exact commands are printed
+#                   when they are skipped.
 #   -h, --help      usage
 #
 set -euo pipefail
@@ -30,13 +35,15 @@ source "$REPO_DIR/cachyos/packages.sh"
 DO_PACKAGES=true
 DO_DESKTOP=true
 DO_VERIFY=true
+ALLOW_GROUPS=false
 for arg in "$@"; do
   case "$arg" in
     --no-packages) DO_PACKAGES=false ;;
     --no-desktop) DO_DESKTOP=false ;;
     --no-verify) DO_VERIFY=false ;;
+    --allow-groups) ALLOW_GROUPS=true ;;
     -h | --help)
-      sed -n '2,20p' "$0"
+      sed -n '2,26p' "$0"
       exit 0
       ;;
     *)
@@ -65,15 +72,22 @@ phase_packages() {
     return 0
   fi
   log "Installing pacman packages..."
-  pkg_install "${PACKAGES[@]}"
+  # A missing package must not abort the whole bootstrap half-way through
+  # (packages installed, user config never linked). The explicit tool
+  # checks in install_dev_runtimes still fail loudly if something the
+  # workflow depends on is genuinely absent.
+  pkg_install "${PACKAGES[@]}" \
+    || warn "some packages could not be installed; continuing with the rest."
 
   # Framework Laptop 13 Pro is sold with either Intel Core Ultra Series 3
   # or AMD Ryzen AI 300 integrated graphics. Install only the matching
   # firmware/media/Vulkan stack; never mix vendor drivers.
   if grep -q 'GenuineIntel' /proc/cpuinfo 2>/dev/null; then
-    pkg_install linux-firmware-intel intel-media-driver vulkan-intel libvpl vpl-gpu-rt intel-gpu-tools
+    pkg_install linux-firmware-intel intel-media-driver vulkan-intel libvpl vpl-gpu-rt intel-gpu-tools \
+      || warn "some Intel graphics/firmware packages could not be installed."
   elif grep -q 'AuthenticAMD' /proc/cpuinfo 2>/dev/null; then
-    pkg_install linux-firmware-amdgpu vulkan-radeon
+    pkg_install linux-firmware-amdgpu vulkan-radeon \
+      || warn "some AMD graphics/firmware packages could not be installed."
   fi
 
   # mise: Arch package when available, upstream installer otherwise.
@@ -85,9 +99,16 @@ phase_packages() {
   fi
 
   # Docker group + services (systemd only; containers have none).
+  # Membership in the `docker` group is effectively root on this machine, so
+  # it is opt-in (--allow-groups).
   if getent group docker >/dev/null 2>&1; then
     if [[ "$(id -u)" -ne 0 ]] && [[ " $(id -nG) " != *" docker "* ]]; then
-      as_root usermod -aG docker "$USER" || warn "could not join docker group."
+      if $ALLOW_GROUPS; then
+        as_root usermod -aG docker "$USER" || warn "could not join docker group."
+      else
+        log "Skipping 'docker' group membership (privilege escalation)."
+        log "  Run when you want it: sudo usermod -aG docker \"$USER\""
+      fi
     fi
   fi
   if has_systemd; then
@@ -339,11 +360,18 @@ install_speedy() {
     rm -rf -- "$tmp_dir"
   fi
   # Keyboard-device access needs the input group (laptop: log out/in after).
+  # The `input` group allows raw read access to keyboard event devices
+  # (i.e. keylogging capability), so it is opt-in (--allow-groups).
   if [[ " $(id -nG) " != *" input "* ]]; then
-    if as_root usermod -aG input "$USER" 2>/dev/null; then
-      log "Added $USER to input group; log out and back in for Speedy."
+    if $ALLOW_GROUPS; then
+      if as_root usermod -aG input "$USER" 2>/dev/null; then
+        log "Added $USER to input group; log out and back in for Speedy."
+      else
+        warn "Speedy wants the input group: sudo usermod -aG input $USER"
+      fi
     else
-      warn "Speedy wants the input group: sudo usermod -aG input $USER"
+      log "Skipping 'input' group membership (raw keyboard access)."
+      log "  Run when you want it: sudo usermod -aG input \"$USER\""
     fi
   fi
   # Start the background recorder. Best effort: headless containers have
@@ -429,8 +457,19 @@ phase_desktop() {
     return 0
   fi
   log "Installing Hyprland/Noctalia overrides..."
-  link_config "$REPO_DIR/cachyos/noctalia/50-mydotfiles.toml" \
-    "$CONFIG_HOME/noctalia/50-mydotfiles.toml"
+  # NOTE: the filename must sort AFTER Noctalia's own config.toml, otherwise
+  # Noctalia's merge order lets the shipped file win and this layer is
+  # silently ignored. See cachyos/noctalia/zz-mydotfiles.toml.
+  link_config "$REPO_DIR/cachyos/noctalia/zz-mydotfiles.toml" \
+    "$CONFIG_HOME/noctalia/zz-mydotfiles.toml"
+  # Apply the new layer to the running shell (no logout needed).
+  if command -v noctalia >/dev/null 2>&1; then
+    if noctalia msg config-reload >/dev/null 2>&1; then
+      log "Noctalia reloaded its config (hand layer applied)."
+    else
+      warn "noctalia msg config-reload failed; the layer applies at next login."
+    fi
+  fi
   # Persist dock-hidden state too when the shell is already running. This
   # wins over a stale GUI settings override; config.toml remains authoritative
   # on the next fresh start. IPC unavailable before login is expected.

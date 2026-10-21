@@ -74,13 +74,21 @@ ensure_line() {
   log "Added to $file: $line"
 }
 
-# Idempotent pacman install. Never fails the bootstrap when a package
-# is unavailable; the caller decides whether that is fatal.
+# Idempotent pacman install. Returns pacman's exit status so the CALLER
+# decides whether a failure is fatal: the bulk install in
+# cachyos/install.sh tolerates it (and warns), while the explicit
+# tool/version checks later in the run still fail loudly when something
+# essential is missing. Never aborts the bootstrap on its own.
 pkg_install() {
   local pkgs=("$@")
   if ! command -v pacman >/dev/null 2>&1; then
     warn "pacman not found, cannot install: ${pkgs[*]}"
     return 1
   fi
-  as_root pacman -S --needed --noconfirm -- "${pkgs[@]}"
+  local status=0
+  as_root pacman -S --needed --noconfirm -- "${pkgs[@]}" || status=$?
+  if [[ "$status" -ne 0 ]]; then
+    warn "pacman could not install all of: ${pkgs[*]} (exit $status)"
+  fi
+  return "$status"
 }
