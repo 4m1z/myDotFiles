@@ -53,8 +53,8 @@ class SetupTests(unittest.TestCase):
         node = shutil.which("node")
         if node:
             return node
-        mise = shutil.which("mise")
-        if mise:
+        mise = shutil.which("mise") or os.path.expanduser("~/.local/bin/mise")
+        if os.path.exists(mise):
             for args in (["which", "node"], ["exec", "--", "which", "node"]):
                 try:
                     out = subprocess.run([mise, *args], cwd=str(Path.home()),

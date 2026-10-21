@@ -197,7 +197,9 @@ verify_machine() {
     # The installed layer must sort after Noctalia's own config.toml,
     # otherwise the merge order lets the shipped file win.
     if [[ -f "$config_home/noctalia/config.toml" ]]; then
-      if [[ "zz-mydotfiles.toml" > "config.toml" ]]; then
+      layer="zz-mydotfiles.toml"
+      base="config.toml"
+      if [[ "$layer" > "$base" ]]; then
         pass "noctalia layer sorts after config.toml"
       else
         fail "noctalia layer sorts before config.toml and is ignored"
