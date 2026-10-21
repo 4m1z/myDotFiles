@@ -58,7 +58,7 @@ the rest.
   list and `opencode/skills.sh --verify` checks it. The
   `supply-chain-risk-auditor` skill runs its scripts with `uv`, installed as
   a package.
-- **Desktop** — Noctalia layer `zz-mydotfiles.toml` (dock off, auto theme,
+- **Desktop** — Noctalia layer `zz-mydotfiles.toml` (dock off, dark theme,
   alacritty template) and Hyprland `personal.lua` / `input.lua` / `bindings.lua`.
 
 The Noctalia layer is named `zz-mydotfiles.toml` on purpose: Noctalia
@@ -89,8 +89,10 @@ Personal Hyprland settings live in `cachyos/hypr/` and are linked under
 ## Themes
 
 Native Noctalia palettes (Ayu, Catppuccin, Dracula, Eldritch, Gruvbox,
-Noctalia, Nord, Rosé Pine, Tokyo-Night). `mode = "auto"` follows a
-fixed 07:00/20:00 schedule. Manual control: `SUPER+SHIFT+T`,
+Noctalia, Nord, Rosé Pine, Tokyo-Night). The mode is **dark**: the system
+theme never switches to light on its own. A fixed 07:00/20:00 schedule is
+configured and only takes effect if the mode is switched to `auto` by
+hand. Manual control: `SUPER+SHIFT+T`,
 `noctalia msg theme-mode-set dark|light|auto`,
 `noctalia msg color-scheme-set builtin <name>`. The alacritty template
 propagates the theme to the terminal; Neovim follows via

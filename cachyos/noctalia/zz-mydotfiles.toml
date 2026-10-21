@@ -41,20 +41,23 @@ gpu_poll_seconds = 15
 started = "$HOME/.local/bin/mydotfiles-sync-theme-mode"
 theme_mode_changed = "$HOME/.local/bin/mydotfiles-sync-theme-mode"
 
-# --- Theme: native Noctalia palettes with automatic day/night.
-# mode = "auto" follows the [location] schedule below (fixed laptop-friendly
-# times; no geolocation needed). Manual override stays available:
+# --- Theme: native Noctalia palettes.
+# The mode is dark on purpose: the system theme must not switch to light on
+# its own. The day/night schedule below is only used when the mode is
+# switched to "auto" by hand, so it stays available without ever taking
+# effect on its own. Manual override:
 #   SUPER + SHIFT + T  -> toggle (mydotfiles-theme-toggle)
 #   noctalia msg theme-mode-set dark|light|auto
 [theme]
-mode = "auto"
+mode = "dark"
 shell_mode = "follow"
 source = "builtin"
 builtin = "Noctalia"
 
-# Fixed day/night schedule. Night starts at sunset, day at sunrise.
-# (Astronomical times are used instead when custom_schedule is removed and
-# coordinates/address are configured; see Noctalia location docs.)
+# Fixed day/night schedule, used only in "auto" mode. Night starts at
+# sunset, day at sunrise. (Astronomical times are used instead when
+# custom_schedule is removed and coordinates/address are configured; see
+# the Noctalia location docs.)
 [location]
 auto_locate = false
 custom_schedule = true
