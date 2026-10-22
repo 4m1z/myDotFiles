@@ -1,5 +1,8 @@
 local theme_ok, theme = pcall(require, "system_theme")
 
+-- System mode the active colorscheme was picked for; nil when unknown.
+local applied_mode = nil
+
 local function base_scheme()
 	-- Follow the system light/dark mode; safe default when unavailable.
 	if theme_ok then
@@ -19,7 +22,7 @@ function Apply(color)
 		applied = nil
 		if theme_ok then
 			local candidates = { color }
-			for _, fallback in ipairs(theme.jallbacks()) do
+			for _, fallback in ipairs(theme.fallbacks()) do
 				table.insert(candidates, fallback)
 			end
 			applied = theme.try_schemes(candidates)
@@ -29,6 +32,7 @@ function Apply(color)
 		end
 	end
 	vim.g.active_colorscheme = applied or color
+	applied_mode = theme_ok and theme.mode() or nil
 
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 	vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
@@ -62,7 +66,19 @@ vim.api.nvim_create_user_command("SystemTheme", function()
 	if theme_ok then
 		theme.reload()
 	end
-	ColorMYVim()
+	Apply()
 	local name = vim.g.active_colorscheme
 	print("Theme synced: " .. tostring(name) .. " (" .. vim.o.background .. ")")
 end, {})
+
+-- Follow the system mode live: the toggle (and the noctalia hook) rewrite
+-- the state file, so re-apply the colorscheme when the mode actually flips.
+if theme_ok then
+	theme.watch(function()
+		theme.reload()
+		if theme.mode() == applied_mode then
+			return
+		end
+		Apply()
+	end)
+end

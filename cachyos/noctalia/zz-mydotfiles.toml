@@ -64,20 +64,19 @@ sunset = "20:00"
 sunrise = "07:00"
 
 # --- Application theme propagation (Noctalia-native templates).
-# The alacritty template writes ~/.config/alacritty/themes/noctalia.toml on
-# every palette/mode change; our alacritty.toml imports that file (a static
-# placeholder is installed until the template first renders).
-# The foot template does the same for foot, so the terminal matches the
-# rest of the desktop.
+# The foot template writes ~/.config/foot/themes/noctalia on every
+# palette/mode change; our foot.ini includes that file (a static
+# placeholder is installed until the template first renders), so the
+# terminal matches the rest of the desktop.
 # Enable more IDs in the Noctalia settings UI or with:
 #   noctalia msg templates-apply
 #
 # builtin_ids replaces the list rather than adding to it, so it has to
-# repeat the CachyOS defaults (btop, gtk3, gtk4, kcolorscheme, kitty, qt,
-# alacritty) plus foot.
+# repeat the CachyOS defaults (btop, gtk3, gtk4, kcolorscheme, kitty, qt)
+# plus foot.
 [theme.templates]
 enable_builtin_templates = true
 builtin_ids = [
-  "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt", "alacritty",
+  "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt",
   "foot",
 ]

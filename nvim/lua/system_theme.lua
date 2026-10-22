@@ -143,14 +143,57 @@ function M.reload()
 	return M.load()
 end
 
-local FALLBACKS = { "monochrome", "aether", "solarized-osaka", "tokyonight-night" }
+--- Current resolved mode ("dark"|"light").
+function M.mode()
+	return M.load().mode
+end
+
+--- Watch the state file and call `callback` whenever it changes, so a
+--- running session can follow the system mode live. The writer replaces
+--- the file with `mv`, so the *directory* is watched, not the file.
+--- Returns the watcher handle, or nil when watching is not possible.
+function M.watch(callback)
+	local path = state_file()
+	if path == nil then
+		return nil
+	end
+	local uv = vim.uv or vim.loop
+	if uv == nil or uv.new_fs_event == nil then
+		return nil
+	end
+	local watcher = uv.new_fs_event()
+	if watcher == nil then
+		return nil
+	end
+	local dir = vim.fn.fnamemodify(path, ":h")
+	local target = vim.fn.fnamemodify(path, ":t")
+	local ok = pcall(watcher.start, watcher, dir, { recursive = false }, function(err, filename)
+		if err ~= nil then
+			return
+		end
+		-- Ignore the writer's temp file; only the final name matters.
+		if filename ~= nil and filename ~= "" and filename ~= target then
+			return
+		end
+		vim.schedule(function()
+			pcall(callback)
+		end)
+	end)
+	if not ok then
+		watcher:close()
+		return nil
+	end
+	return watcher
+end
+
+local FALLBACKS = { "monochrome", "github-monochrome-light", "aether", "solarized-osaka", "tokyonight-night" }
 
 -- Default scheme per mode (each requires its plugin in plugins.lua;
 -- the fallback chain below covers machines where one is missing).
--- Monochrome is dark-only (it sets `background=dark` itself), so it is used
--- in both modes: the desktop mode no longer picks the colorscheme.
+-- Dark = monochrome (it sets `background=dark` itself); light = the light
+-- variant of the GitHub monochrome palette.
 local MODE_SCHEME = {
-	light = "monochrome",
+	light = "github-monochrome-light",
 	dark = "monochrome",
 }
 

@@ -39,11 +39,8 @@ launch_speedy() {
   elif command -v kitty >/dev/null 2>&1; then
     # shellcheck disable=SC2086
     exec $prefix kitty --class "$APP_ID" --title Speedy "$bin"
-  elif command -v alacritty >/dev/null 2>&1; then
-    # shellcheck disable=SC2086
-    exec $prefix alacritty --class "$APP_ID" --title Speedy -e "$bin"
   else
-    printf 'mydotfiles-speedy: no supported terminal (foot/kitty/alacritty) found\n' >&2
+    printf 'mydotfiles-speedy: no supported terminal (foot/kitty) found\n' >&2
     exit 1
   fi
 }

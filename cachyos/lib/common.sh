@@ -44,6 +44,100 @@ as_root() {
   fi
 }
 
+# Supplementary group membership: `docker` is effectively root and `input`
+# grants raw keyboard access, so both are real privilege escalation and stay
+# opt-in ($ALLOW_GROUPS, set by the caller from --allow-groups). When the
+# change is skipped the exact usermod command is printed so the user can run
+# it later. Groups that do not exist on this machine are ignored: usermod
+# would fail on them anyway.
+# $1 group, $2 why it is a privilege escalation.
+ensure_group() {
+  local group="$1" reason="$2" account
+  account=$(id -un)
+  if [[ " $(id -nG) " == *" $group "* ]]; then
+    return 0
+  fi
+  if ! getent group "$group" >/dev/null 2>&1; then
+    return 0
+  fi
+  if ${ALLOW_GROUPS:-false}; then
+    if as_root usermod -aG "$group" "$account"; then
+      log "Added $account to the $group group; log out and back in for it to apply."
+    else
+      warn "could not join the $group group; run: sudo usermod -aG $group \"$account\""
+    fi
+  else
+    log "Skipping '$group' group membership ($reason)."
+    log "  Run when you want it: sudo usermod -aG $group \"$account\""
+  fi
+}
+
+# Upsert "key=value" in an ini-style file: replace the existing line, append
+# when absent. The rest of the file is untouched.
+set_ini_key() {
+  local file="$1" key="$2" value="$3"
+  mkdir -p -- "$(dirname -- "$file")"
+  [[ -f $file ]] || : >"$file"
+  if grep -qE "^[[:space:]]*${key}[[:space:]]*=" "$file"; then
+    sed -i -E "s|^[[:space:]]*${key}[[:space:]]*=.*$|${key}=${value}|" "$file"
+  else
+    printf '%s=%s\n' "$key" "$value" >>"$file"
+  fi
+}
+
+# Upsert "export key=value" in a shell-style env file (value quoted).
+set_export() {
+  local file="$1" key="$2" value="$3"
+  mkdir -p -- "$(dirname -- "$file")"
+  [[ -f $file ]] || : >"$file"
+  if grep -qE "^[[:space:]]*export[[:space:]]+${key}=" "$file"; then
+    sed -i -E "s|^[[:space:]]*export[[:space:]]+${key}=.*$|export ${key}=\"${value}\"|" "$file"
+  else
+    printf 'export %s="%s"\n' "$key" "$value" >>"$file"
+  fi
+}
+
+# Cursor theme and size. The theme itself ships with the CachyOS profile
+# skel; this makes the compositor, XWayland apps and GTK apps agree on it.
+# $1 theme, $2 size in px.
+setup_cursor() {
+  local theme="${1:-Bibata-Modern-Ice}" size="${2:-18}"
+  local config_home="${CONFIG_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}}"
+  if ! [[ -d "$HOME/.local/share/icons/$theme" || -d "/usr/share/icons/$theme" ]]; then
+    warn "cursor theme '$theme' is not installed; skipping cursor setup."
+    return 0
+  fi
+  # UWSM pins the theme for the compositor and for XWayland apps.
+  local uwsm_env="$config_home/uwsm/env"
+  if [[ -f $uwsm_env ]]; then
+    set_export "$uwsm_env" HYPRCURSOR_THEME "$theme"
+    set_export "$uwsm_env" HYPRCURSOR_SIZE "$size"
+    set_export "$uwsm_env" XCURSOR_THEME "$theme"
+    set_export "$uwsm_env" XCURSOR_SIZE "$size"
+  fi
+  # GTK apps keep their own copy.
+  local ini
+  for ini in "$config_home/gtk-3.0/settings.ini" "$config_home/gtk-4.0/settings.ini"; do
+    set_ini_key "$ini" gtk-cursor-theme-name "$theme"
+    set_ini_key "$ini" gtk-cursor-theme-size "$size"
+  done
+  # Live session: compositor cursor, GTK default and the user manager env.
+  if command -v hyprctl >/dev/null 2>&1; then
+    hyprctl setcursor "$theme" "$size" >/dev/null 2>&1 || true
+  fi
+  if command -v gsettings >/dev/null 2>&1; then
+    gsettings set org.gnome.desktop.interface cursor-theme "$theme" >/dev/null 2>&1 || true
+    gsettings set org.gnome.desktop.interface cursor-size "$size" >/dev/null 2>&1 || true
+  fi
+  export HYPRCURSOR_THEME="$theme" HYPRCURSOR_SIZE="$size"
+  export XCURSOR_THEME="$theme" XCURSOR_SIZE="$size"
+  if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user import-environment \
+      HYPRCURSOR_THEME HYPRCURSOR_SIZE XCURSOR_THEME XCURSOR_SIZE >/dev/null 2>&1 || true
+  fi
+  log "Cursor theme: $theme (${size}px)."
+}
+
 # Idempotent symlink: $1 source, $2 target. Backs up conflicts.
 link_config() {
   local source=$1 target=$2

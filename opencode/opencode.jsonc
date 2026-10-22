@@ -4,7 +4,7 @@
         "servers": {
             "tauri": {
                 "type": "local",
-                "command": ["npx", "-y", "@hypothesi/tauri-mcp-server"]
+                "command": ["mise", "exec", "--", "npx", "-y", "@hypothesi/tauri-mcp-server"]
             },
             "figma": {
                 "type": "remote",
@@ -17,7 +17,7 @@
             },
             "effect-docs": {
                 "type": "local",
-                "command": ["npx", "-y", "effect-mcp@latest"]
+                "command": ["mise", "exec", "--", "npx", "-y", "effect-mcp@latest"]
             }
         }
     }

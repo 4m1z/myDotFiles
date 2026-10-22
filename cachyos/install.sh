@@ -54,6 +54,11 @@ CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
+# Cursor theme and size. The theme ships with the CachyOS profile skel; these
+# keep the compositor, XWayland apps and GTK apps on the same one.
+CURSOR_THEME="Bibata-Modern-Ice"
+CURSOR_SIZE=18
+
 IS_CACHYOS=false
 if is_cachyos; then
   IS_CACHYOS=true
@@ -95,19 +100,9 @@ phase_packages() {
     fi
   fi
 
-  # Docker group + services (systemd only; containers have none).
-  # Membership in the `docker` group is effectively root on this machine, so
-  # it is opt-in (--allow-groups).
-  if getent group docker >/dev/null 2>&1; then
-    if [[ "$(id -u)" -ne 0 ]] && [[ " $(id -nG) " != *" docker "* ]]; then
-      if $ALLOW_GROUPS; then
-        as_root usermod -aG docker "$USER" || warn "could not join docker group."
-      else
-        log "Skipping 'docker' group membership (privilege escalation)."
-        log "  Run when you want it: sudo usermod -aG docker \"$USER\""
-      fi
-    fi
-  fi
+  # Docker services (systemd only; containers have none). Group membership
+  # is handled by ensure_group after this phase: the `docker` group only
+  # exists once the package above is installed.
   if has_systemd; then
     as_root systemctl enable --now docker.socket >/dev/null 2>&1 \
       || warn "could not enable docker.socket."
@@ -205,16 +200,6 @@ link_portable_configs() {
   fi
   link_config "$REPO_DIR/tmux/plugins/tmux-opencode-session-manager" \
     "$CONFIG_HOME/tmux/plugins/tmux-opencode-session-manager"
-  # alacritty + Noctalia template placeholder (never overwrite a rendered theme)
-  link_config "$REPO_DIR/alacritty/alacritty.toml" "$CONFIG_HOME/alacritty/alacritty.toml"
-  mkdir -p -- "$CONFIG_HOME/alacritty/themes"
-  if [[ ! -e "$CONFIG_HOME/alacritty/themes/noctalia.toml" ]]; then
-    cp -- "$REPO_DIR/alacritty/themes/noctalia-fallback.toml" \
-      "$CONFIG_HOME/alacritty/themes/noctalia.toml"
-    log "Installed alacritty noctalia.toml placeholder."
-  else
-    log "Alacritty noctalia.toml already present (template-managed?)."
-  fi
   # mise base config: only when the user has none (never clobber).
   if [[ -e "$CONFIG_HOME/mise/config.toml" ]]; then
     log "mise config already present, leaving untouched."
@@ -363,21 +348,6 @@ install_speedy() {
     bin="$HOME/.local/bin/speedy"
     rm -rf -- "$tmp_dir"
   fi
-  # Keyboard-device access needs the input group (laptop: log out/in after).
-  # The `input` group allows raw read access to keyboard event devices
-  # (i.e. keylogging capability), so it is opt-in (--allow-groups).
-  if [[ " $(id -nG) " != *" input "* ]]; then
-    if $ALLOW_GROUPS; then
-      if as_root usermod -aG input "$USER" 2>/dev/null; then
-        log "Added $USER to input group; log out and back in for Speedy."
-      else
-        warn "Speedy wants the input group: sudo usermod -aG input $USER"
-      fi
-    else
-      log "Skipping 'input' group membership (raw keyboard access)."
-      log "  Run when you want it: sudo usermod -aG input \"$USER\""
-    fi
-  fi
   # Start the background recorder. Best effort: headless containers have
   # no input devices, so a failure here must not fail the bootstrap.
   if "$bin" --start >/dev/null 2>&1; then
@@ -439,7 +409,7 @@ ensure_hypr_personal() {
   [[ -f $hypr_main ]] || { warn "No $hypr_main; skipping hypr personal.lua (is the CachyOS profile installed?)."; return 0; }
   link_config "$REPO_DIR/cachyos/hypr/personal.lua" "$CONFIG_HOME/hypr/config/personal.lua"
   local module
-  for module in input bindings; do
+  for module in input workspaces bindings; do
     link_config "$REPO_DIR/cachyos/hypr/$module.lua" "$CONFIG_HOME/hypr/config/mydotfiles/$module.lua"
   done
   local marker='require("config.personal") -- myDotFiles'
@@ -483,7 +453,10 @@ phase_desktop() {
   # create it here and let the template keep it in sync.
   mkdir -p -- "$CONFIG_HOME/foot/themes"
   if [[ ! -f "$CONFIG_HOME/foot/foot.ini" ]]; then
-    printf '[main]\ninclude=%s\n' "$CONFIG_HOME/foot/themes/noctalia" \
+    # alpha+blur: glassy like kitty, but the wallpaper stays a blurred
+    # backdrop instead of a sharp image behind the text.
+    printf '[main]\ninclude=%s\n\n[colors-dark]\nalpha=0.9\nblur=yes\n' \
+      "$CONFIG_HOME/foot/themes/noctalia" \
       >"$CONFIG_HOME/foot/foot.ini"
     log "Created foot.ini (includes the Noctalia theme)."
   fi
@@ -503,6 +476,8 @@ phase_desktop() {
   fi
   patch_hypr_binds
   ensure_hypr_personal
+  # Cursor theme: compositor, XWayland apps and GTK apps.
+  setup_cursor "$CURSOR_THEME" "$CURSOR_SIZE"
   # Backfill the theme state file Neovim reads (toggle helper refreshes it).
   if command -v noctalia >/dev/null 2>&1; then
     local mode
@@ -535,6 +510,12 @@ phase_desktop() {
 
 main() {
   phase_packages
+  # Opt-in group memberships (docker ~= root, input == raw keyboard access).
+  # Handled here, not inside the phases that need them: the exact usermod
+  # command must be printed even when a later phase aborts the run. The
+  # `docker` group only exists once the package above is installed.
+  ensure_group docker "privilege escalation"
+  ensure_group input "raw keyboard access"
   phase_user
   phase_desktop
   log "Done. Rerun any time: ./cachyos/install.sh"

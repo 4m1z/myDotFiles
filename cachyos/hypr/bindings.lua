@@ -48,9 +48,11 @@ hl.bind("SUPER + W", hl.dsp.exec_cmd("uwsm app -- zen-browser"))
 
 -- Docker (SUPER + D) and Kubernetes (SUPER + K). The official config binds
 -- SUPER + D to fullscreen; SUPER + F still does that.
+-- Both are TUIs and need a terminal for /dev/tty, so they run inside foot
+-- (the same light terminal as SUPER + Return), never kitty.
 hl.unbind("SUPER + D")
-hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- lazydocker"))
-hl.bind("SUPER + K", hl.dsp.exec_cmd("uwsm app -- k9s"))
+hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- foot -- lazydocker"))
+hl.bind("SUPER + K", hl.dsp.exec_cmd("uwsm app -- foot -- k9s"))
 
 -- Move the focused window to a workspace: SUPER + SHIFT + 1..0.
 -- The official config binds SUPER + SHIFT + 1..3 to move the window to a
@@ -87,3 +89,38 @@ hl.window_rule({
 	center = true,
 	size = { "1200", "800" },
 })
+
+-- Foot: keep the compositor out of the transparency business so foot's own
+-- alpha (foot.ini) is the single knob, like kitty. The stock rule only
+-- covers kitty/ghostty/konsole/gnome-terminal/xfce-terminal, so
+-- foot was dimmed by the global 0.95/0.85 decoration opacity on top of it.
+hl.window_rule({ match = { class = "^foot$" }, opacity = "1.0 override" })
+
+-- Omarchy-style resize keys: SUPER (+SHIFT) (+ALT/CTRL) + the physical
+-- "-" (code:20) and "=" (code:21) keys. code:NN is a physical keycode,
+-- so these keep working across the us/ir/de layouts. Steps match omarchy:
+-- bare = 100px, ALT = 25px, CTRL = 300px, and SHIFT swaps width for height.
+hl.bind("SUPER + code:20", hl.dsp.window.resize({ x = -100, y = 0, relative = true }))
+hl.bind("SUPER + code:21", hl.dsp.window.resize({ x = 100, y = 0, relative = true }))
+hl.bind("SUPER + SHIFT + code:20", hl.dsp.window.resize({ x = 0, y = -100, relative = true }))
+hl.bind("SUPER + SHIFT + code:21", hl.dsp.window.resize({ x = 0, y = 100, relative = true }))
+hl.bind("SUPER + ALT + code:20", hl.dsp.window.resize({ x = -25, y = 0, relative = true }))
+hl.bind("SUPER + ALT + code:21", hl.dsp.window.resize({ x = 25, y = 0, relative = true }))
+hl.bind("SUPER + SHIFT + ALT + code:20", hl.dsp.window.resize({ x = 0, y = -25, relative = true }))
+hl.bind("SUPER + SHIFT + ALT + code:21", hl.dsp.window.resize({ x = 0, y = 25, relative = true }))
+hl.bind("SUPER + CTRL + code:20", hl.dsp.window.resize({ x = -300, y = 0, relative = true }))
+hl.bind("SUPER + CTRL + code:21", hl.dsp.window.resize({ x = 300, y = 0, relative = true }))
+hl.bind("SUPER + CTRL + SHIFT + code:20", hl.dsp.window.resize({ x = 0, y = -300, relative = true }))
+hl.bind("SUPER + CTRL + SHIFT + code:21", hl.dsp.window.resize({ x = 0, y = 300, relative = true }))
+
+-- The official CachyOS zoom keys (SUPER+Minus / SUPER+Plus) are the same
+-- physical keys as omarchy's resize binds above, so the zoom moved to
+-- SUPER+CTRL+ALT. The numpad zoom in the official binds.lua still works.
+hl.unbind("SUPER + Minus")
+hl.unbind("SUPER + Plus")
+local function zoomCursor(delta)
+	local factor = math.min(math.max(hl.get_config("cursor:zoom_factor") + delta, 1.0), 3.0)
+	hl.config({ cursor = { zoom_factor = factor } })
+end
+hl.bind("SUPER + CTRL + ALT + Minus", function() zoomCursor(-0.3) end, { repeating = true })
+hl.bind("SUPER + CTRL + ALT + Plus", function() zoomCursor(0.3) end, { repeating = true })
