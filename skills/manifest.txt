@@ -25,6 +25,7 @@ product-feature-delivery vendored
 product-marketing coreyhaines31/marketingskills
 production-readiness vendored
 property-based-testing trailofbits/skills
+rust-style-guide vendored
 sarif-parsing trailofbits/skills
 semgrep trailofbits/skills
 seo-audit coreyhaines31/marketingskills

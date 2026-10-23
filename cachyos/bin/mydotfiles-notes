@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Focus the existing Notes PWA window, or launch it when not running.
 # Notes: https://amirahmadzadeh.com/p/notes
-# Prefers a Chromium-family browser
-# with --app (stable WM_CLASS NotesApp for the Hyprland float rule);
+# Prefers a Chromium-family browser with --app for a dedicated, tiled window;
 # falls back to the default browser as a normal tab.
 set -euo pipefail
 

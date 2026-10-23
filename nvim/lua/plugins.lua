@@ -207,6 +207,11 @@ packer.startup({ function(use)
 	})
 
 	use("idr4n/github-monochrome.nvim")
+
+    -- github copilot 
+    use("github/copilot.vim")
+
+
 end, config = {
 	-- Generated file contains machine-local paths; keep it in XDG state,
 	-- never in the portable tracked config tree.

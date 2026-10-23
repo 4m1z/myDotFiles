@@ -54,7 +54,7 @@ AGS/Quickshell, and **no bottom dock**.
 | `SUPER+SHIFT+T` | toggle light/dark |
 | `SUPER+SHIFT+L` | back to the English layout |
 | `SUPER+SHIFT+I` | focus or launch Speedy |
-| `SUPER+SHIFT+W` | focus or launch the Notes PWA (floating 1200x800) |
+| `SUPER+SHIFT+W` | focus or launch the tiled Notes PWA |
 | `SUPER+-` / `SUPER+=` | resize the focused window (100px, omarchy style) |
 | `SUPER+SHIFT+-` / `SUPER+SHIFT+=` | resize its height (100px) |
 | `SUPER+ALT+-` / `SUPER+ALT+=` | resize the width (25px) |

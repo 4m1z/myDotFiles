@@ -1,4 +1,4 @@
--- Personal keybindings and Notes window rules.
+-- Personal keybindings and app-specific window rules.
 local home = os.getenv("HOME") or ""
 local helperDir = home .. "/.local/bin"
 
@@ -54,6 +54,10 @@ hl.unbind("SUPER + D")
 hl.bind("SUPER + D", hl.dsp.exec_cmd("uwsm app -- foot -- lazydocker"))
 hl.bind("SUPER + K", hl.dsp.exec_cmd("uwsm app -- foot -- k9s"))
 
+-- Reading (SUPER + SHIFT + R, unbound in the official CachyOS binds).
+-- leaf-tui is a TUI, so it runs inside foot like the other terminal apps.
+hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd("uwsm app -- foot -- " .. home .. "/.cargo/bin/leaf-tui"))
+
 -- Move the focused window to a workspace: SUPER + SHIFT + 1..0.
 -- The official config binds SUPER + SHIFT + 1..3 to move the window to a
 -- MONITOR instead, so unbind that first.
@@ -72,23 +76,6 @@ for monitor = 1, 3 do
 	hl.unbind("SUPER + SHIFT + CONTROL + code:" .. code)
 	hl.bind("SUPER + SHIFT + CONTROL + code:" .. code, hl.dsp.window.move({ monitor = monitors[monitor] }))
 end
-
--- Notes PWA (https://amirahmadzadeh.com/p/notes): floating, centered,
--- desktop-sized at ~1200x800. Matches the Chromium --app window launched
--- by mydotfiles-notes (WM_CLASS NotesApp) and, as a fallback, any window
--- whose title points at the Notes URL (e.g. opened in Firefox).
-hl.window_rule({
-	match = { class = "^(NotesApp)$" },
-	float = true,
-	center = true,
-	size = { "1200", "800" },
-})
-hl.window_rule({
-	match = { title = "(?i)(amirahmadzadeh\\.com.*notes|notes.*amirahmadzadeh\\.com)" },
-	float = true,
-	center = true,
-	size = { "1200", "800" },
-})
 
 -- Foot: keep the compositor out of the transparency business so foot's own
 -- alpha (foot.ini) is the single knob, like kitty. The stock rule only

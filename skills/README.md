@@ -44,6 +44,10 @@ Vendored here:
 - `api-design-review/`, `product-feature-delivery/`, `production-readiness/` —
   the product-engineering skills, written for this setup because no upstream
   skill covers them.
+- `rust-style-guide/` — the [Google Rust Style Guide](https://google.github.io/styleguide/rustguide.html)
+  (CC BY 3.0), vendored so reviews work offline. `reference.md` is the upstream
+  text with presentation-only HTML converted to Markdown; refresh it from
+  <https://raw.githubusercontent.com/google/styleguide/gh-pages/rustguide.md>.
 
 Superpowers ([obra/superpowers](https://github.com/obra/superpowers)) is **not**
 listed here: for OpenCode it is a plugin, not a `~/.agents/skills` bundle. It
