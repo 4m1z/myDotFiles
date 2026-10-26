@@ -41,6 +41,7 @@ every group that exists on the machine.
 Noctalia is the whole shell: bar, launcher, notifications, control center,
 clipboard, session, lock, wallpaper, OSD. No Waybar/rofi/wofi/mako/swaync/
 AGS/Quickshell, and **no bottom dock**.
+The default bar includes the community Pomodoro Timer widget.
 
 | Binding | Action |
 |---|---|

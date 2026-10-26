@@ -409,7 +409,7 @@ ensure_hypr_personal() {
   [[ -f $hypr_main ]] || { warn "No $hypr_main; skipping hypr personal.lua (is the CachyOS profile installed?)."; return 0; }
   link_config "$REPO_DIR/cachyos/hypr/personal.lua" "$CONFIG_HOME/hypr/config/personal.lua"
   local module
-  for module in input workspaces bindings; do
+  for module in input animations workspaces bindings; do
     link_config "$REPO_DIR/cachyos/hypr/$module.lua" "$CONFIG_HOME/hypr/config/mydotfiles/$module.lua"
   done
   local marker='require("config.personal") -- myDotFiles'

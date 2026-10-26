@@ -15,20 +15,26 @@
 [dock]
 enabled = false
 
+[shell.animation]
+enabled = false
+
 # Make the required top bar explicit, while using the official CachyOS
 # default widget lanes. Drop its hardware-monitor capsule group (GPU/RAM
 # polling every two seconds) to reduce idle wakeups; launcher, clock,
-# workspaces, media, tray, notifications, network, volume, and session
-# controls remain available.
+# Pomodoro, workspaces, media, tray, notifications, network, volume, and
+# session controls remain available.
 [bar.default]
 enabled = true
 position = "top"
 reserve_space = true
-start = ["launcher", "clock", "spacer_1"]
+start = ["launcher", "clock", "thepunkoff/pomodoro:widget", "spacer_1"]
 end = [
   "media", "spacer_1", "tray", "notifications", "network", "bluetooth",
   "volume", "brightness", "battery", "control-center", "session",
 ]
+
+[plugins]
+enabled = ["thepunkoff/pomodoro"]
 
 [system.monitor]
 gpu_poll_seconds = 15
