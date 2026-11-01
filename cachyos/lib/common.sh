@@ -146,6 +146,10 @@ link_config() {
     return 1
   fi
   mkdir -p -- "$(dirname -- "$target")"
+  if [[ -e $target && $source -ef $target ]]; then
+    log "Already at source: $target"
+    return 0
+  fi
   if [[ -L $target ]] && [[ $(readlink -f -- "$target") == "$(readlink -f -- "$source")" ]]; then
     log "Already linked: $target"
     return 0

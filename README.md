@@ -32,8 +32,8 @@ every group that exists on the machine.
 - **User** — Oh My Zsh, symlinks for zsh/nvim/tmux/opencode,
   Packer + one-time `PackerSync`, OpenCode v2 + plugins, agent skills,
   Speedy, OpenClaw CLI.
-- **Desktop** — Noctalia layer `zz-mydotfiles.toml` and the Hyprland
-  personal layer in `cachyos/hypr/`. The Noctalia templates theme
+- **Desktop** — Noctalia layer `zz-mydotfiles.toml` and the full Hyprland
+  config in `hypr/`. The Noctalia templates theme
   kitty, foot and the GTK/Qt apps from one palette.
 
 ## Desktop
@@ -118,7 +118,7 @@ mise/               base runtime manifest (linked only when absent)
 Verified on this workstation (2026-10); re-check after a major upgrade.
 
 - **Hyprland 0.56.2 uses a Lua config** (`hyprland.lua` + `config/*.lua`);
-  `package.path` includes `<config>/?.lua`, so `require("config.mydotfiles.input")` resolves.
+  `package.path` includes `<config>/?.lua`, so `require("config.personal-input")` resolves.
 - **`hl` API**: `hl.window_rule` takes `match`, `float`, `center`, `size`.
   String matching is **RE2 with a full match**, so the title pattern uses
   `(?i)` (supported) and not lookarounds (not supported).

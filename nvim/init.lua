@@ -23,7 +23,6 @@ require("lualine")
 require("treesitter")
 require("tree_sitter_context")
 require("no_neck_pain_conf")
-require("smear_conf")
 require("icons")
 
 -- Navigation & files
