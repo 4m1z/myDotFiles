@@ -183,7 +183,7 @@ packer.startup({ function(use)
 	use({ "folke/trouble.nvim", requires = "nvim-tree/nvim-web-devicons" })
 
 	-- smooth cursor animation (Zed-like cursor glide)
-	use("sphamba/smear-cursor.nvim")
+	-- use("sphamba/smear-cursor.nvim")
 
 	-- Deps
 	use("MunifTanjim/nui.nvim")

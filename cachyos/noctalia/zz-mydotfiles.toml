@@ -86,3 +86,10 @@ builtin_ids = [
   "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt",
   "foot",
 ]
+
+# Foot does not reload its palette in already-open terminals. Render OSC color
+# sequences on each theme change and send them to every open terminal device.
+[theme.templates.user.terminal-sequences]
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/terminal-sequences"
+output_path = "~/.cache/noctalia/terminal-sequences"
+post_hook = "bash ~/.cache/noctalia/terminal-sequences | tee /dev/pts/[0-9]*"

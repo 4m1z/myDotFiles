@@ -436,6 +436,8 @@ phase_desktop() {
   # silently ignored. See cachyos/noctalia/zz-mydotfiles.toml.
   link_config "$REPO_DIR/cachyos/noctalia/zz-mydotfiles.toml" \
     "$CONFIG_HOME/noctalia/zz-mydotfiles.toml"
+  link_config "$REPO_DIR/cachyos/noctalia/templates/terminal-sequences" \
+    "$CONFIG_HOME/noctalia/templates/terminal-sequences"
   # Apply the new layer to the running shell (no logout needed).
   if command -v noctalia >/dev/null 2>&1; then
     if noctalia msg config-reload >/dev/null 2>&1; then
@@ -455,7 +457,7 @@ phase_desktop() {
   if [[ ! -f "$CONFIG_HOME/foot/foot.ini" ]]; then
     # alpha+blur: glassy like kitty, but the wallpaper stays a blurred
     # backdrop instead of a sharp image behind the text.
-    printf '[main]\ninclude=%s\n\n[colors-dark]\nalpha=0.9\nblur=yes\n' \
+    printf '[main]\ninclude=%s\nfont=Comic Shanns Mono:size=12\n\n[colors-dark]\nalpha=0.9\nblur=yes\n' \
       "$CONFIG_HOME/foot/themes/noctalia" \
       >"$CONFIG_HOME/foot/foot.ini"
     log "Created foot.ini (includes the Noctalia theme)."
