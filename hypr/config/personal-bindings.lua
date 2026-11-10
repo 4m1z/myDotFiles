@@ -35,6 +35,19 @@ end)
 -- installer because the official config binds it to the wallpaper menu
 -- (moved to SUPER + SHIFT + B). See cachyos/install.sh patch_binds().
 
+-- Chromium's native Wayland app ID differs from its requested WM class.
+hl.window_rule({
+	match = { class = "^(NotesApp|chrome-amirahmadzadeh\\.com__p_notes-.*)$" },
+	float = true,
+	center = true,
+	size = { "monitor_w*0.75", "monitor_h*0.80" },
+})
+-- Park Notes on an unseen workspace; close every other app normally.
+hl.unbind("SUPER + Q")
+hl.unbind("ALT + F4")
+hl.bind("SUPER + Q", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-notes --close"))
+hl.bind("ALT + F4", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-notes --close"))
+
 -- Terminal: foot instead of the distro default (kitty). Kitty is heavy and
 -- slow to start; foot is a tiny, fast terminal. The official config binds
 -- SUPER + Return to TERMINAL, so unbind it first.
