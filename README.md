@@ -55,7 +55,7 @@ The default bar includes the community Pomodoro Timer widget.
 | `SUPER+SHIFT+T` | toggle light/dark |
 | `SUPER+SHIFT+L` | back to the English layout |
 | `SUPER+SHIFT+I` | focus or launch Speedy |
-| `SUPER+SHIFT+W` | focus or launch the tiled Notes PWA |
+| `SUPER+SHIFT+W` | show/hide the floating Notes popup (keeps its live state) |
 | `SUPER+-` / `SUPER+=` | resize the focused window (100px, omarchy style) |
 | `SUPER+SHIFT+-` / `SUPER+SHIFT+=` | resize its height (100px) |
 | `SUPER+ALT+-` / `SUPER+ALT+=` | resize the width (25px) |
@@ -65,6 +65,10 @@ The default bar includes the community Pomodoro Timer widget.
 
 Workspaces 1-10 always exist (persistent), so `SUPER+1` … `SUPER+0` and
 `SUPER+SHIFT+1` … `SUPER+SHIFT+0` work on an empty workspace.
+
+`SUPER+Q` and `Alt+F4` hide Notes instead of closing it; other apps close
+normally. Reopening Notes restores the same live window until logout or a
+browser restart. The title-bar × still closes the window.
 
 ## Themes
 

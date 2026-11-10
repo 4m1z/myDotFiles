@@ -1,23 +1,46 @@
 #!/usr/bin/env bash
-# Focus the existing Notes PWA window, or launch it when not running.
+# Toggle the live Notes popup; keyboard close hides it without losing state.
 # Notes: https://amirahmadzadeh.com/p/notes
-# Prefers a Chromium-family browser with --app for a dedicated, tiled window;
+# Prefers a Chromium-family browser with --app for a dedicated window;
 # falls back to the default browser as a normal tab.
 set -euo pipefail
 
 NOTES_URL="https://amirahmadzadeh.com/p/notes"
 APP_CLASS="NotesApp"
+NOTES_CLASS='^(NotesApp|chrome-amirahmadzadeh[.]com__p_notes-.*)$'
 
-focus_existing() {
-  command -v hyprctl >/dev/null 2>&1 || return 1
-  command -v jq >/dev/null 2>&1 || return 1
-  local addr
-  addr=$(hyprctl clients -j 2>/dev/null | jq -r --arg cls "$APP_CLASS" --arg url "$NOTES_URL" '
-    ([.[] | select(.class == $cls)][0].address // empty),
-    ([.[] | select((.title // "") | test($url; "i"))][0].address // empty)
-    | select(. != "")' | head -n 1)
-  [[ -n "$addr" ]] || return 1
-  hyprctl dispatch focuswindow "address:$addr" >/dev/null
+toggle_notes() {
+  local active client addr workspace
+  active=$(hyprctl activewindow -j)
+  if [[ "${1:-}" == --close ]]; then
+    addr=$(jq -r '.address // empty' <<<"$active")
+    [[ -n "$addr" ]] || return 0
+    if jq -e --arg cls "$NOTES_CLASS" '(.class // "") | test($cls)' <<<"$active" >/dev/null; then
+      hyprctl dispatch "hl.dsp.window.move({workspace='special:notes',follow=false,window='address:$addr'})" >/dev/null
+    else
+      hyprctl dispatch "hl.dsp.window.close({window='address:$addr'})" >/dev/null
+    fi
+    return
+  fi
+  client=$(hyprctl clients -j | jq -c --arg cls "$NOTES_CLASS" '
+    [.[] | select((.class // "") | test($cls))]
+    | sort_by(.focusHistoryID // 9999) | .[0] // empty')
+  if [[ -z "$client" ]]; then
+    launch_notes
+  fi
+  addr=$(jq -r '.address' <<<"$client")
+  if [[ $(jq -r '.address // empty' <<<"$active") == "$addr" ]]; then
+    hyprctl dispatch "hl.dsp.window.move({workspace='special:notes',follow=false,window='address:$addr'})" >/dev/null
+    return
+  fi
+  workspace=$(hyprctl activeworkspace -j | jq -r '.id')
+  hyprctl dispatch "hl.dsp.window.move({workspace=$workspace,follow=false,window='address:$addr'})" >/dev/null
+  if [[ $(jq -r '.floating' <<<"$client") != true ]]; then
+    hyprctl dispatch "hl.dsp.window.float({action='enable',window='address:$addr'})" >/dev/null
+    hyprctl dispatch "hl.dsp.window.resize({x=hl.get_active_monitor().width/hl.get_active_monitor().scale*0.75,y=hl.get_active_monitor().height/hl.get_active_monitor().scale*0.80,window='address:$addr'})" >/dev/null
+  fi
+  hyprctl dispatch "hl.dsp.focus({window='address:$addr'})" >/dev/null
+  hyprctl dispatch "hl.dsp.window.center({window='address:$addr'})" >/dev/null
 }
 
 launch_notes() {
@@ -47,8 +70,14 @@ launch_notes() {
 }
 
 main() {
-  focus_existing && exit 0
-  launch_notes
+  if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+    toggle_notes "$@"
+  elif [[ "${1:-}" == --close ]]; then
+    printf 'mydotfiles-notes: keyboard close requires hyprctl and jq\n' >&2
+    return 1
+  else
+    launch_notes
+  fi
 }
 
 main "$@"
