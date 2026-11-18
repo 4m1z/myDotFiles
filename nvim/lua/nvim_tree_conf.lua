@@ -41,8 +41,7 @@ require("nvim-tree").setup({
 		},
 	},
 
-	-- Directory startup is bridged to the same centered popup in
-	-- `nvim_tree_popup` (nvim-tree's own hijack opens docked).
+	-- Directory handling lives in telescope_conf and nvim_tree_popup.
 	hijack_directories = {
 		enable = false,
 	},

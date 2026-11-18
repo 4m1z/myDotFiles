@@ -527,12 +527,11 @@ function M.setup()
 		end,
 	})
 
-	-- Uniform popup for `nvim .`: nvim-tree's own directory hijack is
-	-- disabled in our setup (it opens docked), so bridge it to the float.
+	-- Telescope handles startup; later directory opens use the tree popup.
 	vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
 		group = group,
 		callback = function(ev)
-			if not is_valid_buf(ev.buf) then
+			if vim.v.vim_did_enter == 0 or not is_valid_buf(ev.buf) then
 				return
 			end
 			local ft = vim.bo[ev.buf].filetype

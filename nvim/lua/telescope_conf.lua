@@ -3,6 +3,29 @@ if not ok then
 	return
 end
 
+vim.api.nvim_create_autocmd("VimEnter", {
+	group = vim.api.nvim_create_augroup("TelescopeStartup", { clear = true }),
+	once = true,
+	callback = function()
+		if vim.fn.argc() > 1 or vim.bo.buftype ~= "" or vim.bo.modified then
+			return
+		end
+		local path = vim.api.nvim_buf_get_name(0)
+		if path ~= "" then
+			if vim.fn.isdirectory(path) == 0 then
+				return
+			end
+			vim.api.nvim_buf_delete(0, { force = true })
+		end
+		vim.schedule(function()
+			local opts = { cwd = path ~= "" and path or nil }
+			if not pcall(builtin.git_files, opts) then
+				builtin.find_files(opts)
+			end
+		end)
+	end,
+})
+
 -- keymaps
 vim.keymap.set("n", ";f", builtin.find_files, {})
 vim.keymap.set("n", ";g", builtin.git_files, {})
