@@ -208,7 +208,7 @@ link_portable_configs() {
   fi
   # helper scripts
   mkdir -p -- "$HOME/.local/bin"
-  for helper in mydotfiles-speedy mydotfiles-notes mydotfiles-theme-toggle mydotfiles-sync-theme-mode; do
+  for helper in mydotfiles-speedy mydotfiles-notes mydotfiles-popup mydotfiles-theme-toggle mydotfiles-sync-theme-mode; do
     link_config "$REPO_DIR/cachyos/bin/$helper" "$HOME/.local/bin/$helper"
   done
   # Desktop launchers do not necessarily inherit the interactive shell PATH.

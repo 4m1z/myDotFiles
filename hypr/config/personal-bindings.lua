@@ -35,18 +35,21 @@ end)
 -- installer because the official config binds it to the wallpaper menu
 -- (moved to SUPER + SHIFT + B). See cachyos/install.sh patch_binds().
 
+-- ChatGPT uses the same live popup behavior as Notes.
+hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup chatgpt"))
+
 -- Chromium's native Wayland app ID differs from its requested WM class.
 hl.window_rule({
-	match = { class = "^(NotesApp|chrome-amirahmadzadeh\\.com__p_notes-.*)$" },
+	match = { class = "^(NotesApp|chrome-amirahmadzadeh\\.com__p_notes-.*|Chatgpt)$" },
 	float = true,
 	center = true,
 	size = { "monitor_w*0.75", "monitor_h*0.80" },
 })
--- Park Notes on an unseen workspace; close every other app normally.
+-- Park Notes/ChatGPT on unseen workspaces; close every other app normally.
 hl.unbind("SUPER + Q")
 hl.unbind("ALT + F4")
-hl.bind("SUPER + Q", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-notes --close"))
-hl.bind("ALT + F4", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-notes --close"))
+hl.bind("SUPER + Q", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup --close"))
+hl.bind("ALT + F4", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup --close"))
 
 -- Terminal: foot instead of the distro default (kitty). Kitty is heavy and
 -- slow to start; foot is a tiny, fast terminal. The official config binds
