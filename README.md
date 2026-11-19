@@ -49,7 +49,7 @@ The default bar includes the community Pomodoro Timer widget.
 | `SUPER+SHIFT+1` … `SUPER+SHIFT+0` | move the focused window to that workspace |
 | `SUPER+CTRL+SHIFT+1` … `+3` | move the focused window to that monitor |
 | `SUPER+Return` | foot (light terminal) |
-| `SUPER+W` | Zen Browser |
+| `SUPER+W` | show/hide the floating Zen Browser popup (keeps its live tabs) |
 | `SUPER+D` | lazydocker (in foot) |
 | `SUPER+K` | k9s (in foot) |
 | `SUPER+SHIFT+T` | toggle light/dark |
@@ -67,10 +67,12 @@ The default bar includes the community Pomodoro Timer widget.
 Workspaces 1-10 always exist (persistent), so `SUPER+1` … `SUPER+0` and
 `SUPER+SHIFT+1` … `SUPER+SHIFT+0` work on an empty workspace.
 
-`SUPER+Q` and `Alt+F4` hide Notes and ChatGPT instead of closing them; other
-apps close normally. Reopening either restores the same live window until
-logout or an app restart. The title-bar × still uses the app's normal close
-behavior. ChatGPT must already be installed (`chatgpt` on `PATH`).
+Notes, ChatGPT, and Zen Browser share one popup slot: showing one hides the
+others first. Press its shortcut again to hide it. `SUPER+Q` and `Alt+F4`
+also hide these apps instead of closing them; other apps close normally.
+Reopening a popup restores the same live window until logout or an app
+restart. The title-bar × still uses the app's normal close behavior.
+ChatGPT must already be installed (`chatgpt` on `PATH`).
 
 ## Themes
 
@@ -92,7 +94,7 @@ running session is updated with `hyprctl setcursor`, no logout needed.
 
 ## OpenCode / AI workflow
 
-V2 CLI, tracked `opencode.json`, package plugins (graph-live,
+V2 CLI, tracked `opencode.json` and `cli.json`, package plugins (graph-live,
 tmux-session-status, ponytail, superpowers) and the tmux popup session
 manager (`prefix+y` launch, `prefix+u` picker, `prefix+b` OpenClaw).
 Secrets live in `~/.config/opencode/secrets.zsh` (see the `.example`);

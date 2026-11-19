@@ -40,12 +40,12 @@ hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup cha
 
 -- Chromium's native Wayland app ID differs from its requested WM class.
 hl.window_rule({
-	match = { class = "^(NotesApp|chrome-amirahmadzadeh\\.com__p_notes-.*|Chatgpt)$" },
+	match = { class = "^(NotesApp|chrome-amirahmadzadeh\\.com__p_notes-.*|Chatgpt|zen)$" },
 	float = true,
 	center = true,
-	size = { "monitor_w*0.75", "monitor_h*0.80" },
+	size = { "monitor_w*0.85", "monitor_h*0.95" },
 })
--- Park Notes/ChatGPT on unseen workspaces; close every other app normally.
+-- Park the three popups on unseen workspaces; close every other app normally.
 hl.unbind("SUPER + Q")
 hl.unbind("ALT + F4")
 hl.bind("SUPER + Q", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup --close"))
@@ -57,10 +57,9 @@ hl.bind("ALT + F4", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup --close"))
 hl.unbind("SUPER + Return")
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("uwsm app -- foot"))
 
--- Browser: the system default is Zen Browser (xdg-settings reports
--- zen.desktop), while the distro config still hardcodes firefox.
+-- Browser: reuse Zen's live window with the same exclusive popup behavior.
 hl.unbind("SUPER + W")
-hl.bind("SUPER + W", hl.dsp.exec_cmd("uwsm app -- zen-browser"))
+hl.bind("SUPER + W", hl.dsp.exec_cmd(helperDir .. "/mydotfiles-popup browser"))
 
 -- Docker (SUPER + D) and Kubernetes (SUPER + K). The official config binds
 -- SUPER + D to fullscreen; SUPER + F still does that.

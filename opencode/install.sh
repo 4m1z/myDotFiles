@@ -35,6 +35,7 @@ fi
 
 link_config "$dotfiles_dir/opencode.json" "$config_dir/opencode.json"
 link_config "$dotfiles_dir/opencode.jsonc" "$config_dir/opencode.jsonc"
+link_config "$dotfiles_dir/cli.json" "$config_dir/cli.json"
 # Global instructions for the agent (skill map + engineering rules).
 link_config "$dotfiles_dir/AGENTS.md" "$config_dir/AGENTS.md"
 for plugin in "$dotfiles_dir"/plugins/*.ts; do
@@ -58,7 +59,6 @@ if [[ "${OPENCODE_SKIP_SERVICE_RESTART:-0}" == "1" ]]; then
 fi
 "$opencode_bin" service restart >/dev/null 2>&1 || true
 
-# The config declares the packages (graph-live, tmux-status, ponytail and
-# superpowers, which registers the skill set); the service installs them on
-# boot. Require their runtime registrations, waiting for that async install.
+# Require the package plugins (graph-live, tmux-status, ponytail and superpowers),
+# waiting for asynchronous package installation.
 bash "$dotfiles_dir/verify-plugins.sh" "$opencode_bin"

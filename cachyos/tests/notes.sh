@@ -5,6 +5,7 @@ REPO_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT
 export NOTES_TEST_DIR="$tmp"
+export XDG_RUNTIME_DIR="$tmp"
 mkdir "$tmp/bin"
 export PATH="$tmp/bin:$PATH"
 
@@ -36,7 +37,7 @@ SH
 chmod +x "$tmp/bin/"*
 
 notes='{"address":"0x123","class":"chrome-amirahmadzadeh.com__p_notes-Default","title":"Notes","workspace":{"id":3,"name":"3"},"floating":false,"focusHistoryID":0}'
-other='{"address":"0x456","class":"zen","title":"Notes","workspace":{"id":2,"name":"2"}}'
+other='{"address":"0x456","class":"chromium","title":"Notes","workspace":{"id":2,"name":"2"}}'
 printf '[%s]\n' "$notes" >"$tmp/clients.json"
 printf '%s\n' "$other" >"$tmp/active.json"
 
@@ -82,7 +83,7 @@ expect_action "dispatch hl.dsp.window.move({workspace=2,follow=false,window='add
 expect_action "dispatch hl.dsp.focus({window='address:0x123'})"
 if grep -Eq 'launch |window.resize' "$tmp/actions"; then exit 1; fi
 
-# A browser tab named Notes must still close normally, never get hidden.
+# A non-popup browser tab named Notes must still close normally.
 run_helper --close
 expect_action "dispatch hl.dsp.window.close({window='address:0x456'})"
 [[ $(wc -l <"$tmp/actions") == 1 ]]

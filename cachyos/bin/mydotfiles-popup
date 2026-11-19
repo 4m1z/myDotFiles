@@ -1,27 +1,30 @@
 #!/usr/bin/env bash
-# Toggle live Notes/ChatGPT popups; keyboard close hides them without losing state.
+# Toggle live Notes/ChatGPT/browser popups, showing only one at a time.
 set -euo pipefail
 
 NOTES_URL="https://amirahmadzadeh.com/p/notes"
 APP_CLASS="NotesApp"
 NOTES_CLASS='^(NotesApp|chrome-amirahmadzadeh[.]com__p_notes-.*)$'
 CHATGPT_CLASS='^Chatgpt$'
+BROWSER_CLASS='^zen$'
 
 case "${1:-notes}" in
   notes | --close) POPUP_CLASS="$NOTES_CLASS"; POPUP_WORKSPACE=notes ;;
   chatgpt) POPUP_CLASS="$CHATGPT_CLASS"; POPUP_WORKSPACE=chatgpt ;;
-  *) printf 'Usage: mydotfiles-popup [notes|chatgpt|--close]\n' >&2; exit 2 ;;
+  browser) POPUP_CLASS="$BROWSER_CLASS"; POPUP_WORKSPACE=browser ;;
+  *) printf 'Usage: mydotfiles-popup [notes|chatgpt|browser|--close]\n' >&2; exit 2 ;;
 esac
 
 toggle_popup() {
-  local active client addr workspace
+  local active clients client addr workspace others other_addr other_workspace
   active=$(hyprctl activewindow -j)
   if [[ "${1:-}" == --close ]]; then
     addr=$(jq -r '.address // empty' <<<"$active")
     [[ -n "$addr" ]] || return 0
-    workspace=$(jq -r --arg notes "$NOTES_CLASS" --arg chatgpt "$CHATGPT_CLASS" '
+    workspace=$(jq -r --arg notes "$NOTES_CLASS" --arg chatgpt "$CHATGPT_CLASS" --arg browser "$BROWSER_CLASS" '
       (.class // "") | if test($notes) then "notes"
-      elif test($chatgpt) then "chatgpt" else empty end' <<<"$active")
+      elif test($chatgpt) then "chatgpt"
+      elif test($browser) then "browser" else empty end' <<<"$active")
     if [[ -n "$workspace" ]]; then
       hyprctl dispatch "hl.dsp.window.move({workspace='special:$workspace',follow=false,window='address:$addr'})" >/dev/null
     else
@@ -29,28 +32,44 @@ toggle_popup() {
     fi
     return
   fi
-  client=$(hyprctl clients -j | jq -c --arg cls "$POPUP_CLASS" '
+  clients=$(hyprctl clients -j)
+  client=$(jq -c --arg cls "$POPUP_CLASS" '
     [.[] | select((.class // "") | test($cls))]
-    | sort_by(.focusHistoryID // 9999) | .[0] // empty')
-  if [[ -z "$client" ]]; then
-    launch_popup
-  fi
+    | sort_by(.focusHistoryID // 9999) | .[0] // empty' <<<"$clients")
   addr=$(jq -r '.address' <<<"$client")
-  if [[ $(jq -r '.address // empty' <<<"$active") == "$addr" ]]; then
+  if [[ -n "$addr" && $(jq -r '.address // empty' <<<"$active") == "$addr" ]]; then
     hyprctl dispatch "hl.dsp.window.move({workspace='special:$POPUP_WORKSPACE',follow=false,window='address:$addr'})" >/dev/null
     return
   fi
+  # Capture the destination before hiding windows can change focus.
   workspace=$(hyprctl activeworkspace -j | jq -r '.id')
+  others=$(jq -r --arg selected "$addr" --arg notes "$NOTES_CLASS" \
+    --arg chatgpt "$CHATGPT_CLASS" --arg browser "$BROWSER_CLASS" '
+    .[] | select(.address != $selected)
+    | ((.class // "") | if test($notes) then "notes"
+       elif test($chatgpt) then "chatgpt"
+       elif test($browser) then "browser" else empty end) as $popup
+    | select(.workspace.name != ("special:" + $popup))
+    | [.address, $popup] | @tsv' <<<"$clients")
+  while IFS=$'\t' read -r other_addr other_workspace; do
+    [[ -n "$other_addr" ]] || continue
+    hyprctl dispatch "hl.dsp.window.move({workspace='special:$other_workspace',follow=false,window='address:$other_addr'})" >/dev/null
+  done <<<"$others"
+  if [[ -z "$client" ]]; then
+    launch_popup
+  fi
   hyprctl dispatch "hl.dsp.window.move({workspace=$workspace,follow=false,window='address:$addr'})" >/dev/null
   if [[ $(jq -r '.floating' <<<"$client") != true ]]; then
     hyprctl dispatch "hl.dsp.window.float({action='enable',window='address:$addr'})" >/dev/null
-    hyprctl dispatch "hl.dsp.window.resize({x=hl.get_active_monitor().width/hl.get_active_monitor().scale*0.75,y=hl.get_active_monitor().height/hl.get_active_monitor().scale*0.80,window='address:$addr'})" >/dev/null
+    hyprctl dispatch "hl.dsp.window.resize({x=hl.get_active_monitor().width/hl.get_active_monitor().scale*0.85,y=hl.get_active_monitor().height/hl.get_active_monitor().scale*0.95,window='address:$addr'})" >/dev/null
   fi
   hyprctl dispatch "hl.dsp.focus({window='address:$addr'})" >/dev/null
   hyprctl dispatch "hl.dsp.window.center({window='address:$addr'})" >/dev/null
 }
 
 launch_popup() {
+  # A launched app must not keep the hotkey lock for its entire lifetime.
+  exec 9>&-
   local prefix=""
   if command -v uwsm >/dev/null 2>&1; then
     prefix="uwsm app -- "
@@ -58,6 +77,10 @@ launch_popup() {
   if [[ "$POPUP_WORKSPACE" == chatgpt ]]; then
     # shellcheck disable=SC2086
     exec $prefix chatgpt
+  fi
+  if [[ "$POPUP_WORKSPACE" == browser ]]; then
+    # shellcheck disable=SC2086
+    exec $prefix zen-browser
   fi
   local chromium=""
   for candidate in chromium chromium-browser google-chrome-stable google-chrome brave brave-browser; do
@@ -82,6 +105,9 @@ launch_popup() {
 
 main() {
   if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+    # Hotkeys run asynchronously; serialize their window snapshots and moves.
+    exec 9>"${XDG_RUNTIME_DIR:-$HOME}/mydotfiles-popup.lock"
+    flock 9
     toggle_popup "$@"
   elif [[ "${1:-}" == --close ]]; then
     printf 'mydotfiles-popup: keyboard close requires hyprctl and jq\n' >&2
